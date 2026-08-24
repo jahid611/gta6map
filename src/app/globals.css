@@ -184,8 +184,7 @@ button:disabled {
   width: 28px;
   height: 28px;
   cursor: pointer;
-  transition: transform 120ms ease;
-  will-change: transform;
+  /* Pas de will-change ni de transition globale : 1 500 couches GPU = zoom saccadé. */
 }
 .gta-marker__pin {
   position: relative;
@@ -265,7 +264,6 @@ button:disabled {
   transform-origin: 50% 100%;
   transform: translate(-50%, -100%) rotate(var(--yaw));
   pointer-events: none;
-  filter: blur(0.3px);
 }
 .gta-marker__label {
   position: absolute;

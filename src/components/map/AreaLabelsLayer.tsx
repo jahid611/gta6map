@@ -74,7 +74,8 @@ export function AreaLabelsLayer({ sections, districts, visible }: AreaLabelsLaye
     else layer.remove();
   }, [visible, map]);
 
-  useMapEvents({ zoomend: applyZoom, zoom: applyZoom });
+  // Uniquement en fin de zoom : recalculer le style à chaque frame d'animation coûte un recalc CSS global.
+  useMapEvents({ zoomend: applyZoom });
 
   return null;
 }

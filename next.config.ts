@@ -1,4 +1,15 @@
 import type { NextConfig } from "next";
+import { existsSync } from "node:fs";
+import path from "node:path";
+
+/**
+ * Tuiles : si un miroir local existe (`npm run assets:mirror` → public/tiles/yanis,15)
+ * et qu'aucune URL n'est forcée, on sert depuis /tiles (latence nulle en dev).
+ */
+const LOCAL_TILES = existsSync(path.join(process.cwd(), "public", "tiles", "yanis,15", "6"));
+if (!process.env.NEXT_PUBLIC_TILES_BASE_URL && LOCAL_TILES) {
+  process.env.NEXT_PUBLIC_TILES_BASE_URL = "/tiles";
+}
 
 const tilesHost = safeHost(process.env.NEXT_PUBLIC_TILES_BASE_URL);
 const photosHost = safeHost(process.env.NEXT_PUBLIC_PHOTOS_BASE_URL);
@@ -19,6 +30,9 @@ const remoteHosts = [...new Set([tilesHost, photosHost, framesHost, wikiHost, "g
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  env: {
+    NEXT_PUBLIC_TILES_BASE_URL: process.env.NEXT_PUBLIC_TILES_BASE_URL ?? "",
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: remoteHosts.map((hostname) => ({ protocol: "https", hostname })),

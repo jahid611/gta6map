@@ -69,15 +69,17 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
   useEffect(() => {
     const group = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkInterval: 100,
-      chunkDelay: 20,
-      maxClusterRadius: (zoom: number) => (zoom >= 6 ? 30 : zoom >= 4 ? 45 : 60),
-      disableClusteringAtZoom: 7,
+      chunkInterval: 120,
+      chunkDelay: 10,
+      maxClusterRadius: (zoom: number) => (zoom >= 6 ? 36 : zoom >= 4 ? 50 : 64),
+      disableClusteringAtZoom: 8,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
       removeOutsideVisibleBounds: true,
-      animate: true,
+      // Pas d'animations de clusters : c'est le principal coût CPU au zoom avec 1 500 points.
+      animate: false,
+      animateAddingMarkers: false,
       iconCreateFunction: (cluster) => {
         const children = cluster.getAllChildMarkers();
         const colorCount = new Map<string, number>();

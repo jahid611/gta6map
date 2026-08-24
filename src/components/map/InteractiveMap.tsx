@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import L from "leaflet";
 import { MapContainer } from "react-leaflet";
 import type { Category, Location, MapSection } from "@/types";
@@ -33,8 +33,13 @@ export interface InteractiveMapProps {
  *  - clustering, caméras de trailers, étiquettes de zones, marqueurs custom
  */
 export default function InteractiveMap({ locations, categoriesBySlug, sections, districts, className }: InteractiveMapProps) {
-  const initialCenter = useMapStore((s) => s.center);
-  const initialZoom = useMapStore((s) => s.zoom);
+  // Vue initiale lue une seule fois : éviter de re-rendre la carte à chaque `moveend`.
+  const [initial] = useState(() => {
+    const s = useMapStore.getState();
+    return { center: s.center, zoom: s.zoom };
+  });
+  const initialCenter = initial.center;
+  const initialZoom = initial.zoom;
   const tileSet = useMapStore((s) => s.tileSet);
   const showAreaLabels = useMapStore((s) => s.showAreaLabels);
   const entries = useProgressStore((s) => s.entries);
@@ -57,9 +62,13 @@ export default function InteractiveMap({ locations, categoriesBySlug, sections, 
       maxBoundsViscosity={0.85}
       zoomControl={false}
       attributionControl
-      zoomSnap={0.25}
+      zoomSnap={0.5}
       zoomDelta={0.5}
-      wheelPxPerZoomLevel={90}
+      wheelPxPerZoomLevel={120}
+      wheelDebounceTime={40}
+      zoomAnimationThreshold={8}
+      fadeAnimation={false}
+      markerZoomAnimation
       className={className ?? "h-full w-full"}
     >
       <GtaTileLayer tileSet={tileSet} />

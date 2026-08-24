@@ -46,9 +46,11 @@ export function GtaTileLayer({ tileSet }: { tileSet: TileSetId }) {
       noWrap: true,
       bounds: L.latLngBounds([yMin, xMin], [yMax, xMax]),
       errorTileUrl: BLANK_TILE_URL,
-      keepBuffer: 6,
-      updateWhenZooming: false,
-      updateWhenIdle: true,
+      // Fluidité : on précharge large et on met à jour pendant le zoom/pan (pas seulement à l'arrêt).
+      keepBuffer: 8,
+      updateWhenZooming: true,
+      updateWhenIdle: false,
+      updateInterval: 100,
       // Pas de `crossOrigin` : maps.gtadb.org n'envoie pas d'en-tête CORS (inutile sans lecture canvas).
       className: "gta-tiles",
       attribution:
