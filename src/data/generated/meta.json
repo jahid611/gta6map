@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-08-24T14:58:13.365Z",
+  "counts": {
+    "locations": 1540,
+    "landmarks": 1439,
+    "cameras": 101,
+    "categories": 24,
+    "sections": 8,
+    "areas": 23
+  },
+  "byCategory": {
+    "hotel": 67,
+    "residential": 200,
+    "other": 654,
+    "industrial": 87,
+    "transport": 96,
+    "public": 28,
+    "service": 1,
+    "restaurant": 19,
+    "commercial": 90,
+    "landmark": 22,
+    "leisure": 49,
+    "infrastructure": 43,
+    "government": 40,
+    "nature": 31,
+    "safehouse": 2,
+    "entertainment": 10,
+    "trailer-1": 32,
+    "trailer-2": 27,
+    "screenshots": 42
+  },
+  "sources": [
+    "map.gtadb.org (landmarks, photos — Public Domain)",
+    "gtamaplib / rolux (caméras trailers & screenshots — MIT)",
+    "gta.wiki (extraits & images — CC BY-NC-SA 3.0)",
+    "Rockstar Games (frames de trailers & screenshots officiels — © Rockstar Games, usage fan non commercial)"
+  ]
+}

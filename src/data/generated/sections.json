@@ -1,0 +1,125 @@
+[
+  {
+    "name": "Vice City",
+    "slug": "vice-city",
+    "bounds": [
+      -5000,
+      -3000,
+      3000,
+      4000
+    ],
+    "wiki": {
+      "title": "Vice City",
+      "url": "https://gta.wiki/w/Vice_City",
+      "extract": "The City of Vice, commonly known as Vice City or simply Vice and often abbreviated as VC, is a major city due to appear in Grand Theft Auto VI, located in the State of Leonida. \nThe city also serves as the county seat of Vice-Dale County.",
+      "image": "vice-city.jpg"
+    }
+  },
+  {
+    "name": "Leonida Keys",
+    "slug": "leonida-keys",
+    "bounds": [
+      -8000,
+      -8000,
+      -1000,
+      -4000
+    ],
+    "wiki": {
+      "title": "Leonida Keys",
+      "url": "https://gta.wiki/w/Leonida_Keys",
+      "extract": "The Leonida Keys is an archipelago in southern Mariana County, Leonida, due to appear in Grand Theft Auto VI.",
+      "image": "leonida-keys.png"
+    }
+  },
+  {
+    "name": "Grassrivers",
+    "slug": "grassrivers",
+    "bounds": [
+      -6000,
+      -5000,
+      1000,
+      -1000
+    ],
+    "wiki": {
+      "title": "Grassrivers",
+      "url": "https://gta.wiki/w/Grassrivers",
+      "extract": "The Grassrivers is a natural region of flooded grasslands in Leonida, due to appear in Grand Theft Auto VI.",
+      "image": "grassrivers.png"
+    }
+  },
+  {
+    "name": "Mariana County",
+    "slug": "mariana-county",
+    "bounds": [
+      -8000,
+      -1500,
+      -4000,
+      1500
+    ],
+    "wiki": {
+      "title": "Mariana County",
+      "url": "https://gta.wiki/w/Mariana_County",
+      "extract": "Mariana County is a county due to appear in Grand Theft Auto VI, located in the southern region of the State of Leonida.",
+      "image": "mariana-county.png"
+    }
+  },
+  {
+    "name": "Port Gellhorn",
+    "slug": "port-gellhorn",
+    "bounds": [
+      -10000,
+      1000,
+      -4000,
+      7000
+    ],
+    "wiki": {
+      "title": "Port Gellhorn",
+      "url": "https://gta.wiki/w/Port_Gellhorn",
+      "extract": "Port Gellhorn is a city in Kelly County, Leonida, due to appear in Grand Theft Auto VI.",
+      "image": "port-gellhorn.png"
+    }
+  },
+  {
+    "name": "Ambrosia",
+    "slug": "ambrosia",
+    "bounds": [
+      -5500,
+      1000,
+      0,
+      7000
+    ],
+    "wiki": null
+  },
+  {
+    "name": "Leonard County",
+    "slug": "leonard-county",
+    "bounds": [
+      -2000,
+      2000,
+      3000,
+      12000
+    ],
+    "wiki": {
+      "title": "Leonard County",
+      "url": "https://gta.wiki/w/Leonard_County",
+      "extract": "Leonard County is a county due to appear in Grand Theft Auto VI, located in the southeastern part of the State of Leonida.",
+      "image": "leonard-county.png"
+    }
+  },
+  {
+    "name": "Mount Kalaga National Park",
+    "slug": "mount-kalaga-national-park",
+    "bounds": [
+      -7000,
+      4000,
+      -1000,
+      8000
+    ],
+    "wiki": {
+      "title": "Mount Kalaga National Park",
+      "url": "https://gta.wiki/w/Mount_Kalaga_National_Park",
+      "extract": "Mount Kalaga National Park is a national park due to appear in Grand Theft Auto VI, located in Lummox County, Leonida.",
+      "image": "mount-kalaga-national-park.png"
+    }
+  }
+]

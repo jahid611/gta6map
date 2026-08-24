@@ -1,0 +1,271 @@
+[
+  {
+    "name": "Vice Beach",
+    "slug": "vice-beach",
+    "x": 1685,
+    "y": 1197,
+    "count": 249,
+    "wiki": {
+      "title": "Vice Beach",
+      "url": "https://gta.wiki/w/Vice_Beach",
+      "extract": "The City of Vice Beach, commonly known as Vice Beach, is a coastal resort city in Vice-Dale County, Leonida, due to appear in Grand Theft Auto VI.",
+      "image": "vice-beach.png"
+    }
+  },
+  {
+    "name": "Key Lento",
+    "slug": "key-lento",
+    "x": -2603,
+    "y": -6019,
+    "count": 143,
+    "wiki": {
+      "title": "Key Lento",
+      "url": "https://gta.wiki/w/Key_Lento",
+      "extract": "Key Lento is a town due to appear in Grand Theft Auto VI, located in the Leonida Keys region of Mariana County, Leonida.",
+      "image": "key-lento.png"
+    }
+  },
+  {
+    "name": "Vice-Dale County",
+    "slug": "vice-dale-county",
+    "x": 589,
+    "y": 1096,
+    "count": 129,
+    "wiki": {
+      "title": "Vice-Dale County",
+      "url": "https://gta.wiki/w/Vice-Dale_County",
+      "extract": "Vice-Dale County is a county due to appear in Grand Theft Auto VI, located in the southeastern part of Leonida.\nThe county seat is Vice City.",
+      "image": "vice-dale-county.jpg"
+    }
+  },
+  {
+    "name": "Stockyard",
+    "slug": "stockyard",
+    "x": -497,
+    "y": 1393,
+    "count": 63,
+    "wiki": {
+      "title": "Stockyard",
+      "url": "https://gta.wiki/w/Stockyard",
+      "extract": null,
+      "image": "stockyard.png"
+    }
+  },
+  {
+    "name": "Downtown",
+    "slug": "downtown",
+    "x": -530,
+    "y": -120,
+    "count": 55,
+    "wiki": null
+  },
+  {
+    "name": "Hamlet",
+    "slug": "hamlet",
+    "x": -2564,
+    "y": -3378,
+    "count": 52,
+    "wiki": {
+      "title": "Hamlet",
+      "url": "https://gta.wiki/w/Hamlet",
+      "extract": "Hamlet is a city in Vice-Dale County, Leonida, due to appear in Grand Theft Auto VI.",
+      "image": "hamlet.png"
+    }
+  },
+  {
+    "name": "Watson Bay",
+    "slug": "watson-bay",
+    "x": -4820,
+    "y": -3266,
+    "count": 48,
+    "wiki": {
+      "title": "Watson Bay",
+      "url": "https://gta.wiki/w/Watson_Bay",
+      "extract": "Watson Bay is a town due to appear in Grand Theft Auto VI, located in the Grassrivers region of Mariana County, Leonida.",
+      "image": "watson-bay.jpg"
+    }
+  },
+  {
+    "name": "La Perle",
+    "slug": "la-perle",
+    "x": -875,
+    "y": 1525,
+    "count": 40,
+    "wiki": {
+      "title": "La Perle",
+      "url": "https://gta.wiki/w/La_Perle",
+      "extract": null,
+      "image": "la-perle.jpg"
+    }
+  },
+  {
+    "name": "Tequesta",
+    "slug": "tequesta",
+    "x": -840,
+    "y": -1202,
+    "count": 40,
+    "wiki": {
+      "title": "Tequesta",
+      "url": "https://gta.wiki/w/Tequesta",
+      "extract": null,
+      "image": "tequesta.png"
+    }
+  },
+  {
+    "name": "Rockridge",
+    "slug": "rockridge",
+    "x": -1353,
+    "y": 806,
+    "count": 36,
+    "wiki": {
+      "title": "Rockridge",
+      "url": "https://gta.wiki/w/Rockridge",
+      "extract": null,
+      "image": null
+    }
+  },
+  {
+    "name": "Shore Dr",
+    "slug": "shore-dr",
+    "x": 1939,
+    "y": 495,
+    "count": 32,
+    "wiki": null
+  },
+  {
+    "name": "Kelly County",
+    "slug": "kelly-county",
+    "x": -5100,
+    "y": 3473,
+    "count": 25,
+    "wiki": {
+      "title": "Kelly County",
+      "url": "https://gta.wiki/w/Kelly_County",
+      "extract": "Kelly County is a county due to appear in Grand Theft Auto VI, located in the southwestern part of Leonida.",
+      "image": "kelly-county.png"
+    }
+  },
+  {
+    "name": "Vice City International Airport",
+    "slug": "vice-city-international-airport",
+    "x": -2433,
+    "y": -588,
+    "count": 24,
+    "wiki": {
+      "title": "Vice City International Airport",
+      "url": "https://gta.wiki/w/Vice_City_International_Airport",
+      "extract": "Vice City International Airport (IATA: VCI) is the primary international airport serving Vice-Dale County, Leonida, that is due to appear in Grand Theft Auto VI.",
+      "image": "vice-city-international-airport.png"
+    }
+  },
+  {
+    "name": "Port Vice City",
+    "slug": "port-vice-city",
+    "x": 797,
+    "y": -447,
+    "count": 21,
+    "wiki": null
+  },
+  {
+    "name": "Waning Sands",
+    "slug": "waning-sands",
+    "x": -635,
+    "y": 3525,
+    "count": 20,
+    "wiki": {
+      "title": "Waning Sands",
+      "url": "https://gta.wiki/w/Waning_Sands",
+      "extract": "Waning Sands is a city in Leonard County, Leonida, due to appear in Grand Theft Auto VI.",
+      "image": "waning-sands.png"
+    }
+  },
+  {
+    "name": "Leonida",
+    "slug": "leonida",
+    "x": -2690,
+    "y": -35,
+    "count": 19,
+    "wiki": null
+  },
+  {
+    "name": "Crosstown",
+    "slug": "crosstown",
+    "x": -480,
+    "y": 816,
+    "count": 17,
+    "wiki": {
+      "title": "Crosstown",
+      "url": "https://gta.wiki/w/Crosstown",
+      "extract": "Crosstown is a neighborhood of Vice City, Vice-Dale County, Leonida, that is due to appear in Grand Theft Auto VI.",
+      "image": "crosstown.png"
+    }
+  },
+  {
+    "name": "Little Cuba",
+    "slug": "little-cuba",
+    "x": -1199,
+    "y": -82,
+    "count": 15,
+    "wiki": {
+      "title": "Little Cuba",
+      "url": "https://gta.wiki/w/Little_Cuba",
+      "extract": null,
+      "image": null
+    }
+  },
+  {
+    "name": "Peacock Bay",
+    "slug": "peacock-bay",
+    "x": -1145,
+    "y": -2050,
+    "count": 15,
+    "wiki": {
+      "title": "Peacock Bay",
+      "url": "https://gta.wiki/w/Peacock_Bay",
+      "extract": null,
+      "image": "peacock-bay.png"
+    }
+  },
+  {
+    "name": "Tequesta Key",
+    "slug": "tequesta-key",
+    "x": -280,
+    "y": -1065,
+    "count": 14,
+    "wiki": null
+  },
+  {
+    "name": "Catalan Key",
+    "slug": "catalan-key",
+    "x": -414,
+    "y": -2696,
+    "count": 7,
+    "wiki": {
+      "title": "Catalan Key",
+      "url": "https://gta.wiki/w/Catalan_Key",
+      "extract": "Catalan Key is a barrier island due to appear in Grand Theft Auto VI, located in Catalan Bay, Vice City.",
+      "image": null
+    }
+  },
+  {
+    "name": "Prison",
+    "slug": "prison",
+    "x": -2740,
+    "y": -2804,
+    "count": 7,
+    "wiki": null
+  },
+  {
+    "name": "Ambrosia County",
+    "slug": "ambrosia-county",
+    "x": -3561,
+    "y": 5259,
+    "count": 3,
+    "wiki": {
+      "title": "Ambrosia County",
+      "url": "https://gta.wiki/w/Ambrosia_County",
+      "extract": "Ambrosia County is a county due to appear in Grand Theft Auto VI, located in the central region of the State of Leonida.",
+      "image": "ambrosia-county.jpg"
+    }
+  }
+]

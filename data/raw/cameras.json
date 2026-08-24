@@ -1,0 +1,2527 @@
+[
+  {
+    "id": "T1/1",
+    "group": "T1",
+    "name": "Prison",
+    "player": null,
+    "xyz": [
+      -3379,
+      -2763,
+      33.409
+    ],
+    "ypr": [
+      281.458,
+      -2.5,
+      0
+    ],
+    "fov": [
+      80.5,
+      50.927
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [81]"
+  },
+  {
+    "id": "T1/6",
+    "group": "T1",
+    "name": "Vice Beach (A)",
+    "player": null,
+    "xyz": [
+      2362,
+      1114,
+      49.125
+    ],
+    "ypr": [
+      112.747,
+      -12.54,
+      0
+    ],
+    "fov": [
+      62.12,
+      37.431
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [415]"
+  },
+  {
+    "id": "T1/6",
+    "group": "T1",
+    "name": "Vice Beach (B)",
+    "player": null,
+    "xyz": [
+      2265,
+      1078,
+      70.575
+    ],
+    "ypr": [
+      112.763,
+      -5.75,
+      0
+    ],
+    "fov": [
+      62.12,
+      37.431
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [489]"
+  },
+  {
+    "id": "T1/7",
+    "group": "T1",
+    "name": "Brickell",
+    "player": null,
+    "xyz": [
+      -850,
+      -850,
+      5
+    ],
+    "ypr": [
+      300,
+      55,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [575]"
+  },
+  {
+    "id": "T1/10",
+    "group": "T1",
+    "name": "Beach",
+    "player": null,
+    "xyz": [
+      2223,
+      -397,
+      1.504
+    ],
+    "ypr": [
+      14.902,
+      -0.7,
+      0
+    ],
+    "fov": [
+      35.5,
+      20.414
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [653]"
+  },
+  {
+    "id": "T1/11",
+    "group": "T1",
+    "name": "Motorboats (A)",
+    "player": null,
+    "xyz": [
+      1514,
+      -797,
+      1.615
+    ],
+    "ypr": [
+      92.703,
+      1.99,
+      0
+    ],
+    "fov": [
+      63,
+      38.038
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [699]"
+  },
+  {
+    "id": "T1/11",
+    "group": "T1",
+    "name": "Motorboats (B)",
+    "player": null,
+    "xyz": [
+      1530,
+      -791,
+      1.991
+    ],
+    "ypr": [
+      88.533,
+      -0.33,
+      0
+    ],
+    "fov": [
+      63,
+      38.038
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [745]"
+  },
+  {
+    "id": "T1/12",
+    "group": "T1",
+    "name": "Convertible",
+    "player": null,
+    "xyz": [
+      -40,
+      520,
+      21.89
+    ],
+    "ypr": [
+      97.736,
+      0,
+      0
+    ],
+    "fov": [
+      69.8,
+      42.851
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [746]"
+  },
+  {
+    "id": "T1/13",
+    "group": "T1",
+    "name": "Wynwood",
+    "player": null,
+    "xyz": [
+      -425,
+      1700,
+      5
+    ],
+    "ypr": [
+      319,
+      3,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [824]"
+  },
+  {
+    "id": "T1/15",
+    "group": "T1",
+    "name": "Handshake",
+    "player": null,
+    "xyz": [
+      -800,
+      1535,
+      5
+    ],
+    "ypr": [
+      235,
+      1,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [925]"
+  },
+  {
+    "id": "T1/16",
+    "group": "T1",
+    "name": "Venetian Islands",
+    "player": null,
+    "xyz": [
+      -72,
+      1087,
+      71.341
+    ],
+    "ypr": [
+      286.59,
+      -12.8,
+      0
+    ],
+    "fov": [
+      62.1,
+      37.418
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [932]"
+  },
+  {
+    "id": "T1/17",
+    "group": "T1",
+    "name": "Ocean Drive (NW)",
+    "player": null,
+    "xyz": [
+      1970,
+      520,
+      4
+    ],
+    "ypr": [
+      25,
+      0,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [978]"
+  },
+  {
+    "id": "T1/19",
+    "group": "T1",
+    "name": "Keys",
+    "player": null,
+    "xyz": [
+      -6202,
+      -7094,
+      177.042
+    ],
+    "ypr": [
+      277.157,
+      -19.5,
+      0
+    ],
+    "fov": [
+      56.9,
+      33.9
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1123]"
+  },
+  {
+    "id": "T1/20",
+    "group": "T1",
+    "name": "Rooftop Party",
+    "player": null,
+    "xyz": [
+      1925,
+      1978,
+      106.611
+    ],
+    "ypr": [
+      162.54,
+      -7.5,
+      0
+    ],
+    "fov": [
+      58.5,
+      34.97
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1124]"
+  },
+  {
+    "id": "T1/21",
+    "group": "T1",
+    "name": "Vice City Sign",
+    "player": null,
+    "xyz": [
+      -3777.214,
+      -448.592,
+      13
+    ],
+    "ypr": [
+      250.893,
+      5.128,
+      0
+    ],
+    "fov": [
+      25,
+      14.217
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1199]"
+  },
+  {
+    "id": "T1/22",
+    "group": "T1",
+    "name": "Boat",
+    "player": null,
+    "xyz": [
+      1100,
+      800,
+      2
+    ],
+    "ypr": [
+      92.25,
+      1,
+      0
+    ],
+    "fov": [
+      30,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1241]"
+  },
+  {
+    "id": "T1/24",
+    "group": "T1",
+    "name": "Red Limousine",
+    "player": null,
+    "xyz": [
+      1700,
+      400,
+      5
+    ],
+    "ypr": [
+      315,
+      8,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1318]"
+  },
+  {
+    "id": "T1/25",
+    "group": "T1",
+    "name": "Donuts",
+    "player": null,
+    "xyz": [
+      -710,
+      1250,
+      40
+    ],
+    "ypr": [
+      315,
+      -50,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1396]"
+  },
+  {
+    "id": "T1/26",
+    "group": "T1",
+    "name": "Dancing",
+    "player": null,
+    "xyz": [
+      -695,
+      1260,
+      5
+    ],
+    "ypr": [
+      230,
+      20,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1426]"
+  },
+  {
+    "id": "T1/27",
+    "group": "T1",
+    "name": "Gas Station (Alligator)",
+    "player": null,
+    "xyz": [
+      -5300,
+      3580,
+      69
+    ],
+    "ypr": [
+      270,
+      -17.5,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1427]"
+  },
+  {
+    "id": "T1/29",
+    "group": "T1",
+    "name": "Gas Station (Chase) (SE)",
+    "player": null,
+    "xyz": [
+      -712,
+      2873,
+      8.429
+    ],
+    "ypr": [
+      214.04,
+      5.483,
+      0
+    ],
+    "fov": [
+      60,
+      35.983
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1498]"
+  },
+  {
+    "id": "T1/29",
+    "group": "T1",
+    "name": "Gas Station (Chase) (S)",
+    "player": null,
+    "xyz": [
+      -712,
+      2873,
+      8.429
+    ],
+    "ypr": [
+      201.336,
+      6,
+      0
+    ],
+    "fov": [
+      60,
+      35.983
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1529]"
+  },
+  {
+    "id": "T1/30",
+    "group": "T1",
+    "name": "Interchange",
+    "player": null,
+    "xyz": [
+      -970,
+      800,
+      15
+    ],
+    "ypr": [
+      166,
+      0,
+      0
+    ],
+    "fov": [
+      64,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1535]"
+  },
+  {
+    "id": "T1/36",
+    "group": "T1",
+    "name": "Waning Sands (A) (X)",
+    "player": null,
+    "xyz": [
+      -1250,
+      3900,
+      25
+    ],
+    "ypr": [
+      290,
+      -3.8,
+      -2
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1815]"
+  },
+  {
+    "id": "T1/36",
+    "group": "T1",
+    "name": "Waning Sands (B)",
+    "player": null,
+    "xyz": [
+      -1235,
+      3903,
+      25
+    ],
+    "ypr": [
+      330,
+      0,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1847]"
+  },
+  {
+    "id": "T1/36",
+    "group": "T1",
+    "name": "Waning Sands (C)",
+    "player": null,
+    "xyz": [
+      -1220,
+      3906,
+      25
+    ],
+    "ypr": [
+      345,
+      6,
+      1
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [1876]"
+  },
+  {
+    "id": "T1/40",
+    "group": "T1",
+    "name": "Street (Bikers) (B)",
+    "player": null,
+    "xyz": [
+      -865,
+      1600,
+      5
+    ],
+    "ypr": [
+      152.5,
+      0,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [?]"
+  },
+  {
+    "id": "T1/41",
+    "group": "T1",
+    "name": "Intersection (Bikers)",
+    "player": null,
+    "xyz": [
+      -670,
+      860,
+      25
+    ],
+    "ypr": [
+      60,
+      -30,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [?]"
+  },
+  {
+    "id": "T1/42",
+    "group": "T1",
+    "name": "High Rollerz",
+    "player": null,
+    "xyz": [
+      -900,
+      1725,
+      6
+    ],
+    "ypr": [
+      45,
+      -1.5,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [?]"
+  },
+  {
+    "id": "T1/44",
+    "group": "T1",
+    "name": "U-Turn (NW)",
+    "player": null,
+    "xyz": [
+      -6288,
+      3358,
+      10
+    ],
+    "ypr": [
+      64,
+      -2,
+      0
+    ],
+    "fov": [
+      52,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [2117]"
+  },
+  {
+    "id": "T1/44",
+    "group": "T1",
+    "name": "U-Turn (NE)",
+    "player": null,
+    "xyz": [
+      -6288,
+      3358,
+      10
+    ],
+    "ypr": [
+      340.5,
+      -1.5,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [2168]"
+  },
+  {
+    "id": "T1/46",
+    "group": "T1",
+    "name": "Uncle Jack's",
+    "player": null,
+    "xyz": [
+      -6370,
+      3875,
+      15
+    ],
+    "ypr": [
+      260,
+      3,
+      0.5
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Trailer 1 [2308]"
+  },
+  {
+    "id": "T2/1",
+    "group": "T2",
+    "name": "Key Lento",
+    "player": null,
+    "xyz": [
+      -1796,
+      -5240,
+      30.268
+    ],
+    "ypr": [
+      134.037,
+      -8.4,
+      0
+    ],
+    "fov": [
+      65.6,
+      32.345
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [244]"
+  },
+  {
+    "id": "T2/2",
+    "group": "T2",
+    "name": "House (Keys)",
+    "player": null,
+    "xyz": [
+      -2332.2,
+      -5549.3,
+      2.587
+    ],
+    "ypr": [
+      50.503,
+      10.9,
+      0
+    ],
+    "fov": [
+      66.4,
+      32.816
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [245]"
+  },
+  {
+    "id": "T2/7",
+    "group": "T2",
+    "name": "Balcony (Keys)",
+    "player": null,
+    "xyz": [
+      -2351,
+      -5538,
+      8
+    ],
+    "ypr": [
+      263,
+      -11,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [615]"
+  },
+  {
+    "id": "T2/8",
+    "group": "T2",
+    "name": "Door (Keys)",
+    "player": null,
+    "xyz": [
+      -2351,
+      -5537,
+      8
+    ],
+    "ypr": [
+      10,
+      -6.6,
+      0
+    ],
+    "fov": [
+      70,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [796]"
+  },
+  {
+    "id": "T2/12",
+    "group": "T2",
+    "name": "Highway (Peacock Bay) (A)",
+    "player": null,
+    "xyz": [
+      -1478,
+      -2370,
+      15.045
+    ],
+    "ypr": [
+      340.325,
+      3.5,
+      0
+    ],
+    "fov": [
+      45.2,
+      21.219
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [1039]"
+  },
+  {
+    "id": "T2/12",
+    "group": "T2",
+    "name": "Highway (Peacock Bay) (B)",
+    "player": null,
+    "xyz": [
+      -1464,
+      -2256,
+      15.048
+    ],
+    "ypr": [
+      345.216,
+      15.3,
+      0
+    ],
+    "fov": [
+      59.5,
+      28.847
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [1111]"
+  },
+  {
+    "id": "T2/13",
+    "group": "T2",
+    "name": "Beach Gym",
+    "player": null,
+    "xyz": [
+      2000,
+      400,
+      4
+    ],
+    "ypr": [
+      100,
+      2,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [1152]"
+  },
+  {
+    "id": "T2/15",
+    "group": "T2",
+    "name": "Little Haiti",
+    "player": null,
+    "xyz": [
+      -1242,
+      1242,
+      5
+    ],
+    "ypr": [
+      209.6,
+      0,
+      2
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [1359]"
+  },
+  {
+    "id": "T2/16",
+    "group": "T2",
+    "name": "Prison Tower",
+    "player": null,
+    "xyz": [
+      -2660,
+      -2950,
+      5
+    ],
+    "ypr": [
+      0,
+      14,
+      0
+    ],
+    "fov": [
+      35,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [1496]"
+  },
+  {
+    "id": "T2/29",
+    "group": "T2",
+    "name": "Pier (Sea)",
+    "player": null,
+    "xyz": [
+      -2300,
+      -5250,
+      2.5
+    ],
+    "ypr": [
+      66,
+      -0.5,
+      0
+    ],
+    "fov": [
+      80,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [2494]"
+  },
+  {
+    "id": "T2/37",
+    "group": "T2",
+    "name": "Yacht (1)",
+    "player": null,
+    "xyz": [
+      400,
+      1700,
+      5
+    ],
+    "ypr": [
+      335,
+      -1.5,
+      0
+    ],
+    "fov": [
+      52,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [2884]"
+  },
+  {
+    "id": "T2/38",
+    "group": "T2",
+    "name": "Yacht (2)",
+    "player": null,
+    "xyz": [
+      400,
+      1700,
+      5
+    ],
+    "ypr": [
+      188,
+      0.5,
+      0
+    ],
+    "fov": [
+      52,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [2884]"
+  },
+  {
+    "id": "T2/52",
+    "group": "T2",
+    "name": "Empty Lot near Metro Station",
+    "player": null,
+    "xyz": [
+      -670,
+      940,
+      5
+    ],
+    "ypr": [
+      48,
+      -3,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3340]"
+  },
+  {
+    "id": "T2/54",
+    "group": "T2",
+    "name": "Starlet Motel",
+    "player": null,
+    "xyz": [
+      -5333,
+      3455,
+      66.8
+    ],
+    "ypr": [
+      10,
+      7.5,
+      0
+    ],
+    "fov": [
+      52,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [4322]"
+  },
+  {
+    "id": "T2/58",
+    "group": "T2",
+    "name": "Explosion",
+    "player": null,
+    "xyz": [
+      -1030,
+      100,
+      20
+    ],
+    "ypr": [
+      356,
+      -5.7,
+      0
+    ],
+    "fov": [
+      50,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3539]"
+  },
+  {
+    "id": "T2/59",
+    "group": "T2",
+    "name": "Park (Mobile Phone)",
+    "player": null,
+    "xyz": [
+      -170,
+      420,
+      5
+    ],
+    "ypr": [
+      210,
+      0,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3566]"
+  },
+  {
+    "id": "T2/60",
+    "group": "T2",
+    "name": "Landing Gear (B)",
+    "player": null,
+    "xyz": [
+      -350,
+      -175,
+      450
+    ],
+    "ypr": [
+      180,
+      -45,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3612]"
+  },
+  {
+    "id": "T2/61",
+    "group": "T2",
+    "name": "Pickup Truck (Night) (A)",
+    "player": null,
+    "xyz": [
+      -1250,
+      -2550,
+      2.5
+    ],
+    "ypr": [
+      15,
+      5,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3623]"
+  },
+  {
+    "id": "T2/64",
+    "group": "T2",
+    "name": "Dominion Hotel",
+    "player": null,
+    "xyz": [
+      2050,
+      925,
+      3
+    ],
+    "ypr": [
+      139,
+      2,
+      0
+    ],
+    "fov": [
+      55,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3802]"
+  },
+  {
+    "id": "T2/65",
+    "group": "T2",
+    "name": "Ocean View Hotel",
+    "player": null,
+    "xyz": [
+      1965,
+      615,
+      3
+    ],
+    "ypr": [
+      25,
+      11,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3803]"
+  },
+  {
+    "id": "T2/67",
+    "group": "T2",
+    "name": "Television",
+    "player": null,
+    "xyz": [
+      -2352,
+      -5526,
+      7
+    ],
+    "ypr": [
+      26.5,
+      -5,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [3882]"
+  },
+  {
+    "id": "T2/71",
+    "group": "T2",
+    "name": "Jet Ski",
+    "player": null,
+    "xyz": [
+      1000,
+      850,
+      0.5
+    ],
+    "ypr": [
+      341,
+      1,
+      0
+    ],
+    "fov": [
+      65,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [4202]"
+  },
+  {
+    "id": "T2/74",
+    "group": "T2",
+    "name": "Truck (2)",
+    "player": null,
+    "xyz": [
+      -250,
+      -420,
+      10
+    ],
+    "ypr": [
+      90,
+      0,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [4333]"
+  },
+  {
+    "id": "T2/77",
+    "group": "T2",
+    "name": "Chase (1)",
+    "player": null,
+    "xyz": [
+      -6290,
+      3950,
+      15
+    ],
+    "ypr": [
+      110.6,
+      3,
+      2.5
+    ],
+    "fov": [
+      70,
+      null
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [4448]"
+  },
+  {
+    "id": "T2/78",
+    "group": "T2",
+    "name": "Chase (2) (A)",
+    "player": null,
+    "xyz": [
+      -6479.6,
+      3281.1,
+      2.857
+    ],
+    "ypr": [
+      350.892,
+      2.5,
+      1
+    ],
+    "fov": [
+      49.3,
+      23.335
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [4479]"
+  },
+  {
+    "id": "T2/78",
+    "group": "T2",
+    "name": "Chase (2) (B)",
+    "player": null,
+    "xyz": [
+      -6472.9,
+      3247.3,
+      6.457
+    ],
+    "ypr": [
+      354.591,
+      1.7,
+      -1.5
+    ],
+    "fov": [
+      48,
+      22.659
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [4513]"
+  },
+  {
+    "id": "T2/80",
+    "group": "T2",
+    "name": "Skyline",
+    "player": null,
+    "xyz": [
+      793,
+      1357,
+      10.152
+    ],
+    "ypr": [
+      135.249,
+      -2.1,
+      0
+    ],
+    "fov": [
+      58.1,
+      28.067
+    ],
+    "size": [
+      3840,
+      1728
+    ],
+    "source": "Trailer 2 [4665]"
+  },
+  {
+    "id": "S2/2",
+    "group": "S2",
+    "name": "Jason Duval 02 (Car)",
+    "player": null,
+    "xyz": [
+      900,
+      500,
+      5
+    ],
+    "ypr": [
+      298,
+      9.5,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Jason Duval 02 [1]"
+  },
+  {
+    "id": "S2/3",
+    "group": "S2",
+    "name": "Jason Duval 03 (Boat)",
+    "player": null,
+    "xyz": [
+      -3049,
+      -6849,
+      4.289
+    ],
+    "ypr": [
+      321.357,
+      -1.5,
+      -0.5
+    ],
+    "fov": [
+      24.8,
+      14.1
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Jason Duval 03 [1]"
+  },
+  {
+    "id": "S2/5",
+    "group": "S2",
+    "name": "Jason Duval 05 (Machine Gun)",
+    "player": null,
+    "xyz": [
+      -1445,
+      915,
+      40
+    ],
+    "ypr": [
+      241,
+      -3,
+      0
+    ],
+    "fov": [
+      35,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Jason Duval 05 [1]"
+  },
+  {
+    "id": "S2/8",
+    "group": "S2",
+    "name": "Lucia Caminos 02 (Pool)",
+    "player": null,
+    "xyz": [
+      10,
+      1180,
+      10
+    ],
+    "ypr": [
+      120,
+      -5,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Lucia Caminas 02 (Pool)"
+  },
+  {
+    "id": "S2/31",
+    "group": "S2",
+    "name": "Raul Bautista 03 (Motorboat)",
+    "player": null,
+    "xyz": [
+      -757,
+      -1902,
+      2.476
+    ],
+    "ypr": [
+      354.82,
+      0,
+      0
+    ],
+    "fov": [
+      45,
+      26.231
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Raul Batista 03 [1]"
+  },
+  {
+    "id": "S2/37",
+    "group": "S2",
+    "name": "Vice City 01 (Vice City Sign)",
+    "player": null,
+    "xyz": [
+      -3727.006,
+      -452.246,
+      11.446
+    ],
+    "ypr": [
+      217.829,
+      21.288,
+      0
+    ],
+    "fov": [
+      75.11,
+      46.775
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 01 [1]"
+  },
+  {
+    "id": "S2/38",
+    "group": "S2",
+    "name": "Vice City 02 (Hotel)",
+    "player": null,
+    "xyz": [
+      2015,
+      1585,
+      25
+    ],
+    "ypr": [
+      250,
+      -15,
+      0
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 02 [1]"
+  },
+  {
+    "id": "S2/39",
+    "group": "S2",
+    "name": "Vice City 03 (Basketball)",
+    "player": null,
+    "xyz": [
+      1988,
+      1661,
+      43.425
+    ],
+    "ypr": [
+      110.384,
+      -7.9,
+      0
+    ],
+    "fov": [
+      54.4,
+      32.248
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 03 [1]"
+  },
+  {
+    "id": "S2/40",
+    "group": "S2",
+    "name": "Vice City 04 (Gang Members)",
+    "player": null,
+    "xyz": [
+      -1268,
+      1214,
+      5
+    ],
+    "ypr": [
+      300,
+      8,
+      -7
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 04 [1]"
+  },
+  {
+    "id": "S2/41",
+    "group": "S2",
+    "name": "Vice City 05 (Vice Beach)",
+    "player": null,
+    "xyz": [
+      2175,
+      750,
+      0
+    ],
+    "ypr": [
+      45,
+      8,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 05 [1]"
+  },
+  {
+    "id": "S2/42",
+    "group": "S2",
+    "name": "Vice City 06 (Ocean Drive)",
+    "player": null,
+    "xyz": [
+      1990,
+      640,
+      3
+    ],
+    "ypr": [
+      45,
+      5,
+      0
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 06 [1]"
+  },
+  {
+    "id": "S2/44",
+    "group": "S2",
+    "name": "Vice City 08 (Ferris Wheel)",
+    "player": null,
+    "xyz": [
+      -450,
+      849,
+      76.399
+    ],
+    "ypr": [
+      212.812,
+      -10,
+      0
+    ],
+    "fov": [
+      41.2,
+      23.876
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 08 [1]"
+  },
+  {
+    "id": "S2/45",
+    "group": "S2",
+    "name": "Vice City 09 (La Perle)",
+    "player": null,
+    "xyz": [
+      -1250,
+      1150,
+      7
+    ],
+    "ypr": [
+      300,
+      2,
+      0
+    ],
+    "fov": [
+      50,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vice City 09 [1]"
+  },
+  {
+    "id": "S2/46",
+    "group": "S2",
+    "name": "Leonida Keys 01 (Airplane) (X)",
+    "player": null,
+    "xyz": [
+      -4429.4,
+      -7608.4,
+      83.702
+    ],
+    "ypr": [
+      318.43,
+      -9.37,
+      0
+    ],
+    "fov": [
+      62.16,
+      37.459
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Leonida Keys 01 [1]"
+  },
+  {
+    "id": "S2/50",
+    "group": "S2",
+    "name": "Leonida Keys 05 (Boats)",
+    "player": null,
+    "xyz": [
+      -3144,
+      -6293,
+      4.62
+    ],
+    "ypr": [
+      160.054,
+      -15.2,
+      0
+    ],
+    "fov": [
+      67.8,
+      41.412
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Leonida Keys 05 [1]"
+  },
+  {
+    "id": "S2/51",
+    "group": "S2",
+    "name": "Port Gellhorn 01 (Starlet Motel)",
+    "player": null,
+    "xyz": [
+      -5326.3,
+      3539.4,
+      69.8
+    ],
+    "ypr": [
+      175.018,
+      3.3,
+      0
+    ],
+    "fov": [
+      43,
+      24.987
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Port Gellhorn 01 [1]"
+  },
+  {
+    "id": "S2/54",
+    "group": "S2",
+    "name": "Port Gellhorn 04 (Delights) (X)",
+    "player": null,
+    "xyz": [
+      -6340,
+      3699,
+      7.228
+    ],
+    "ypr": [
+      73.392,
+      -21.6,
+      0
+    ],
+    "fov": [
+      81.9,
+      52.035
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Port Gellhorn 04 [1]"
+  },
+  {
+    "id": "S2/55",
+    "group": "S2",
+    "name": "Port Gellhorn 05 (Fire)",
+    "player": null,
+    "xyz": [
+      -6800,
+      3950,
+      5
+    ],
+    "ypr": [
+      315,
+      -0.5,
+      0
+    ],
+    "fov": [
+      50,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Port Gellhorn 05 [1]"
+  },
+  {
+    "id": "S2/56",
+    "group": "S2",
+    "name": "Ambrosia 01 (Bikers)",
+    "player": null,
+    "xyz": [
+      -2660,
+      4208,
+      20.883
+    ],
+    "ypr": [
+      15.168,
+      0.2,
+      0
+    ],
+    "fov": [
+      36,
+      20.715
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Ambrosia 01 [1]"
+  },
+  {
+    "id": "S2/57",
+    "group": "S2",
+    "name": "Ambrosia 02 (Panorama)",
+    "player": null,
+    "xyz": [
+      -2411,
+      5589,
+      90.593
+    ],
+    "ypr": [
+      161.636,
+      -3.825,
+      0
+    ],
+    "fov": [
+      48.6,
+      28.501
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Ambrosia 02 [1]"
+  },
+  {
+    "id": "S2/59",
+    "group": "S2",
+    "name": "Ambrosia 04 (Fires)",
+    "player": null,
+    "xyz": [
+      -1271,
+      3476,
+      58.482
+    ],
+    "ypr": [
+      104.058,
+      -2.41,
+      0
+    ],
+    "fov": [
+      53.7,
+      31.789
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Ambrosia 04 [1]"
+  },
+  {
+    "id": "S2/62",
+    "group": "S2",
+    "name": "Grassrivers 02 (Watson Bay)",
+    "player": null,
+    "xyz": [
+      -5280,
+      -3371,
+      25.727
+    ],
+    "ypr": [
+      282.274,
+      -5.9,
+      0
+    ],
+    "fov": [
+      49.2,
+      28.883
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Grassrivers 02 [1]"
+  },
+  {
+    "id": "S2/64",
+    "group": "S2",
+    "name": "Grassrivers 04 (Police Chase)",
+    "player": null,
+    "xyz": [
+      -3769,
+      -4028,
+      3.136
+    ],
+    "ypr": [
+      152.318,
+      -5.8,
+      0
+    ],
+    "fov": [
+      50.6,
+      29.78
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Grassrivers 04 [1]"
+  },
+  {
+    "id": "S2/66",
+    "group": "S2",
+    "name": "Mount Kalaga National Park 02 (Helicopter) (X)",
+    "player": null,
+    "xyz": [
+      -2000,
+      6750,
+      200
+    ],
+    "ypr": [
+      122.1,
+      7.9,
+      0
+    ],
+    "fov": [
+      65,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Mount Kalaga National Park 02 [1]"
+  },
+  {
+    "id": "S2/68",
+    "group": "S2",
+    "name": "Mount Kalaga National Park 04 (Mountain Pass) (X)",
+    "player": null,
+    "xyz": [
+      -4500,
+      6000,
+      120
+    ],
+    "ypr": [
+      146.984,
+      -16.216,
+      0
+    ],
+    "fov": [
+      70,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Mount Kalaga National Park 04 [1]"
+  },
+  {
+    "id": "S2/71",
+    "group": "S2",
+    "name": "Vice City Postcard",
+    "player": null,
+    "xyz": [
+      400,
+      1860,
+      37.31
+    ],
+    "ypr": [
+      151.654,
+      3,
+      0
+    ],
+    "fov": [
+      67.5,
+      47.117
+    ],
+    "size": [
+      2458,
+      1604
+    ],
+    "source": "Vice City Postcard [?]"
+  },
+  {
+    "id": "S2/72",
+    "group": "S2",
+    "name": "Leonida Keys Postcard (X)",
+    "player": null,
+    "xyz": [
+      -3810.7,
+      -6749.7,
+      160.296
+    ],
+    "ypr": [
+      299.018,
+      -12.69,
+      0
+    ],
+    "fov": [
+      48.76,
+      33.629
+    ],
+    "size": [
+      2563,
+      1709
+    ],
+    "source": "Leonida Keys Postcard [?]"
+  },
+  {
+    "id": "S2/73",
+    "group": "S2",
+    "name": "Port Gellhorn Postcard (X)",
+    "player": null,
+    "xyz": [
+      -6550,
+      3608,
+      31.297
+    ],
+    "ypr": [
+      51.974,
+      -3.2,
+      0
+    ],
+    "fov": [
+      71,
+      50.865
+    ],
+    "size": [
+      3240,
+      2160
+    ],
+    "source": "Port Gellhorn Postcard [1]"
+  },
+  {
+    "id": "S2/74",
+    "group": "S2",
+    "name": "Ambrosia Postcard (X)",
+    "player": null,
+    "xyz": [
+      -2674,
+      4155,
+      63.226
+    ],
+    "ypr": [
+      150.989,
+      -1.8,
+      0
+    ],
+    "fov": [
+      48.1,
+      32.492
+    ],
+    "size": [
+      3308,
+      2160
+    ],
+    "source": "Ambrosia Postcard [54]"
+  },
+  {
+    "id": "S2/75",
+    "group": "S2",
+    "name": "Grassrivers Postcard (X)",
+    "player": null,
+    "xyz": [
+      -3550,
+      -3929,
+      33.117
+    ],
+    "ypr": [
+      129.123,
+      -16.9,
+      0
+    ],
+    "fov": [
+      53,
+      36.772
+    ],
+    "size": [
+      3240,
+      2160
+    ],
+    "source": "Grassrivers Postcard [60]"
+  },
+  {
+    "id": "S2/85",
+    "group": "S2",
+    "name": "Raul Bautista (Animation)",
+    "player": null,
+    "xyz": [
+      -900,
+      -1230,
+      6
+    ],
+    "ypr": [
+      325,
+      -4,
+      -6
+    ],
+    "fov": [
+      25,
+      null
+    ],
+    "size": [
+      2160,
+      2160
+    ],
+    "source": "Raul Bautista (Animation) [29]"
+  },
+  {
+    "id": "S3/1",
+    "group": "S3",
+    "name": "Port Vice City (A)",
+    "player": null,
+    "xyz": [
+      1443,
+      -137,
+      79.91
+    ],
+    "ypr": [
+      103.675,
+      -2.2,
+      0
+    ],
+    "fov": [
+      74.3,
+      46.166
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Port Vice City [1]"
+  },
+  {
+    "id": "S3/1",
+    "group": "S3",
+    "name": "Port Vice City (B)",
+    "player": null,
+    "xyz": [
+      1605,
+      -122,
+      78.179
+    ],
+    "ypr": [
+      103.156,
+      -3,
+      0
+    ],
+    "fov": [
+      75.2,
+      46.843
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Port Vice City [140]"
+  },
+  {
+    "id": "S3/2",
+    "group": "S3",
+    "name": "Green Sports Car",
+    "player": null,
+    "xyz": [
+      1530,
+      2970,
+      0.5
+    ],
+    "ypr": [
+      151,
+      -4,
+      0
+    ],
+    "fov": [
+      57,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Green Sports Car [1]"
+  },
+  {
+    "id": "S3/4",
+    "group": "S3",
+    "name": "Ultimate Edition 02 (Green Sports Car)",
+    "player": null,
+    "xyz": [
+      -469,
+      -1674,
+      1.798
+    ],
+    "ypr": [
+      31.401,
+      10.5,
+      0
+    ],
+    "fov": [
+      20,
+      11.329
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Ultimate Edition 02 [1]"
+  },
+  {
+    "id": "S3/8",
+    "group": "S3",
+    "name": "'95 Grotti Cheetah 04 (Garage)",
+    "player": null,
+    "xyz": [
+      -53,
+      -964,
+      30.476
+    ],
+    "ypr": [
+      99.701,
+      -2,
+      0
+    ],
+    "fov": [
+      43.6,
+      25.359
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "'95 Grotti Cheetah 04 [1]"
+  },
+  {
+    "id": "S3/17",
+    "group": "S3",
+    "name": "Jason's Safehouse Vehicles (X)",
+    "player": null,
+    "xyz": [
+      -2333.6,
+      -5551.3,
+      5.61
+    ],
+    "ypr": [
+      36.829,
+      -1.9,
+      0
+    ],
+    "fov": [
+      57,
+      33.967
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Jason's Safehouse Vehicles [1]"
+  },
+  {
+    "id": "S3/19",
+    "group": "S3",
+    "name": "Crest Kayak",
+    "player": null,
+    "xyz": [
+      -2392,
+      -5498,
+      0.972
+    ],
+    "ypr": [
+      129.419,
+      -4.5,
+      4.5
+    ],
+    "fov": [
+      45.1,
+      26.294
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Crest Kayak [1]"
+  },
+  {
+    "id": "S3/24",
+    "group": "S3",
+    "name": "Sara's Unisex Salon 01 (Exterior)",
+    "player": null,
+    "xyz": [
+      -2564,
+      -3410,
+      9.5
+    ],
+    "ypr": [
+      210,
+      1,
+      2
+    ],
+    "fov": [
+      45,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Sara's Unisex Salon 01 [1]"
+  },
+  {
+    "id": "S3/31",
+    "group": "S3",
+    "name": "Stock 305 Clothing Store 01 (Van)",
+    "player": null,
+    "xyz": [
+      -350,
+      1750,
+      5.5
+    ],
+    "ypr": [
+      315,
+      20,
+      10
+    ],
+    "fov": [
+      60,
+      null
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Stock 305 Clothing Store 01 [1]"
+  },
+  {
+    "id": "S3/55",
+    "group": "S3",
+    "name": "Vintage Vice City Pack 02 (Port)",
+    "player": null,
+    "xyz": [
+      919,
+      -1187,
+      0.135
+    ],
+    "ypr": [
+      341.882,
+      3,
+      0
+    ],
+    "fov": [
+      42.2,
+      24.492
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vintage Vice City Pack 02 [1]"
+  },
+  {
+    "id": "S3/63",
+    "group": "S3",
+    "name": "Vintage Vice City Outfits and Hairstyles 04 (Rooftop)",
+    "player": null,
+    "xyz": [
+      -476,
+      851,
+      193.606
+    ],
+    "ypr": [
+      155.351,
+      -6.7,
+      0
+    ],
+    "fov": [
+      28,
+      15.967
+    ],
+    "size": [
+      3840,
+      2160
+    ],
+    "source": "Vintage Vice City Outfits and Hairstyles 04 [1]"
+  }
+]
