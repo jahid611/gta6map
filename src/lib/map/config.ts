@@ -78,16 +78,30 @@ function normalizeBase(value: string | undefined, fallback: string): string {
 }
 
 /**
+ * Base d'un miroir d'assets (dossier `public/` en dev, bucket R2/S3 en prod), ou
+ * `null` si aucun n'est configuré : `src/lib/media.ts` sert alors la source
+ * publique d'origine. Ne jamais retomber sur `/photos` & co. par défaut : ces
+ * dossiers sont ignorés par git et absents des déploiements.
+ */
+function mirrorBase(value: string | undefined): string | null {
+  const base = value?.trim().replace(/\/+$/, "");
+  return base ? base : null;
+}
+
+/**
  * Base URL des tuiles. Par défaut : CDN communautaire maps.gtadb.org (attribution
  * obligatoire). En prod, miroir R2/S3 via `scripts/mirror-tiles.ts` +
  * `NEXT_PUBLIC_TILES_BASE_URL`.
  */
 export const TILES_BASE_URL = normalizeBase(process.env.NEXT_PUBLIC_TILES_BASE_URL, "https://maps.gtadb.org/tiles/6");
 
-/** Photos landmarks (in-game / réel), frames de trailers et vignettes wiki. */
-export const PHOTOS_BASE_URL = normalizeBase(process.env.NEXT_PUBLIC_PHOTOS_BASE_URL, "/photos");
-export const FRAMES_BASE_URL = normalizeBase(process.env.NEXT_PUBLIC_FRAMES_BASE_URL, "/frames");
-export const WIKI_IMAGES_BASE_URL = normalizeBase(process.env.NEXT_PUBLIC_WIKI_IMAGES_BASE_URL, "/wiki");
+/** Miroirs (facultatifs) des photos landmarks, frames de trailers et vignettes wiki. */
+export const PHOTOS_BASE_URL = mirrorBase(process.env.NEXT_PUBLIC_PHOTOS_BASE_URL);
+export const FRAMES_BASE_URL = mirrorBase(process.env.NEXT_PUBLIC_FRAMES_BASE_URL);
+export const WIKI_IMAGES_BASE_URL = mirrorBase(process.env.NEXT_PUBLIC_WIKI_IMAGES_BASE_URL);
+
+/** Source publique des photos gtadb : `{origine}/{id},{ig|rl}.jpg` (Public Domain). */
+export const GTADB_PHOTOS_ORIGIN = "https://map.gtadb.org/photos/6";
 
 /** Tuile 1×1 px transparente (data URI) hors couverture — évite les 404. */
 export const BLANK_TILE_URL =
