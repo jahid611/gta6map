@@ -40,8 +40,6 @@ loadEnv();
 const ROOT = path.resolve(__dirname, "..");
 const RAW_DIR = path.join(ROOT, "data", "raw");
 const OUT_DIR = path.join(ROOT, "src", "data", "generated");
-const FRAMES_DIR = path.join(ROOT, "public", "frames");
-const PHOTOS_DIR = path.join(ROOT, "public", "photos", "gtadb");
 
 const args = new Set(process.argv.slice(2));
 const DRY_RUN = args.has("--dry-run");
@@ -137,7 +135,9 @@ function toWiki(p: WikiPlace | undefined): LocationWiki | null {
     title: p.title,
     url: p.url,
     extract: p.extract ? p.extract.slice(0, 600) : null,
-    image: p.image ? (p.image.local ?? p.image.thumb) : null,
+    // Nom dans le miroir + URL d'origine : l'app choisit selon la config (cf. src/lib/media.ts).
+    image: p.image?.local ?? null,
+    imageUrl: p.image?.thumb ?? null,
   };
 }
 
@@ -239,13 +239,14 @@ function build(): { locations: Location[]; sections: MapSection[]; areas: AreaIn
         break;
       }
     }
-    // Photos (téléchargées par fetch-sources dans public/photos/gtadb)
+    // Photos : présence déclarée par la source (dimensions), pas par le miroir local —
+    // l'app sert depuis public/photos, R2 ou map.gtadb.org selon la config (src/lib/media.ts).
     const photos = { ig: null as string | null, irl: null as string | null };
-    if (igPhoto.length === 2 && existsSync(path.join(PHOTOS_DIR, `${legacyId}-ig.jpg`))) {
+    if (igPhoto.length === 2) {
       photos.ig = `gtadb/${legacyId}-ig.jpg`;
       stats.photosIg += 1;
     }
-    if (rlPhoto.length === 2 && existsSync(path.join(PHOTOS_DIR, `${legacyId}-rl.jpg`))) {
+    if (rlPhoto.length === 2) {
       photos.irl = `gtadb/${legacyId}-rl.jpg`;
       stats.photosRl += 1;
     }
@@ -290,7 +291,6 @@ function build(): { locations: Location[]; sections: MapSection[]; areas: AreaIn
   for (const cam of cameras) {
     const slugBase = `${cam.group.toLowerCase()}-${cam.id.split("/")[1]}-${slugify(cam.name)}`;
     const frameFile = `${slugBase}.jpg`;
-    const hasFrame = existsSync(path.join(FRAMES_DIR, frameFile));
     const categorySlug = categoryForCamera(cam.group);
     const [x, y, z] = cam.xyz.map((v) => Number(v.toFixed(2)));
     const sourceMatch = /^(.*?)\s*\[(\d+|\?)\]$/.exec(cam.source);
@@ -327,20 +327,18 @@ function build(): { locations: Location[]; sections: MapSection[]; areas: AreaIn
       flags: [],
       color: categorySlug === "trailer-1" ? "#f976b0" : categorySlug === "trailer-2" ? "#eb4c93" : "#8cdbf3",
       photos: { ig: null, irl: null },
-      media: hasFrame
-        ? {
-            frame: frameFile,
-            thumb: `${slugBase}-thumb.jpg`,
-            sourceLabel,
-            source: cam.source,
-            frameIndex,
-            yaw: cam.ypr[0],
-            pitch: cam.ypr[1],
-            hfov: cam.fov[0],
-            width: cam.size[0],
-            height: cam.size[1],
-          }
-        : null,
+      media: {
+        frame: frameFile,
+        thumb: `${slugBase}-thumb.jpg`,
+        sourceLabel,
+        source: cam.source,
+        frameIndex,
+        yaw: cam.ypr[0],
+        pitch: cam.ypr[1],
+        hfov: cam.fov[0],
+        width: cam.size[0],
+        height: cam.size[1],
+      },
       wiki: null,
       areaWiki: areaWikiFor(area),
       realWorld: { name: null, address: null, lat: null, lng: null, status: "unknown" },

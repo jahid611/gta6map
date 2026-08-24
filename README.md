@@ -64,11 +64,25 @@ src/
 3. `npm run seed` → `categories`, `locations` (ids déterministes, idempotent).
 4. Activer Google / Magic link → progression et marqueurs synchronisés (RLS par utilisateur).
 
+## Images : miroir local, bucket ou source d'origine
+
+`public/{tiles,photos,frames,wiki}` est ignoré par git (déploiement léger) : ces dossiers existent après `npm run setup` mais **jamais** sur un déploiement. Chaque image est donc résolue à l'exécution par `src/lib/media.ts`, dans cet ordre :
+
+| Priorité | Source | Quand |
+| --- | --- | --- |
+| 1 | `NEXT_PUBLIC_*_BASE_URL` | variable renseignée (bucket R2/S3) |
+| 2 | `/tiles`, `/photos`, `/frames`, `/wiki` | le dossier existe dans `public/` (auto-détecté par `next.config.ts` au build) |
+| 3 | `maps.gtadb.org`, `map.gtadb.org`, `gta.wiki` | par défaut — aucune config requise |
+
+Conséquence : un déploiement sans aucune variable affiche les tuiles, les 1 900 photos gtadb et les vignettes wiki depuis leurs sources d'origine. Les données générées ne référencent plus que des **noms de fichiers** (`gtadb/L1478-ig.jpg`) : `npm run seed` n'inspecte plus `public/`, la donnée décrit ce qui existe à la source, pas ce qui traîne sur la machine du dev.
+
+**Seule exception, les frames de trailers** (`media.frame`) : extraites d'une archive de 1,5 Go, elles n'ont pas d'URL publique unitaire. Sans hébergement, les 101 fiches caméra s'affichent sans image (le cône d'orientation sur la carte, lui, reste correct). Pour les servir : `npm run fetch:frames`, `npm run assets:upload`, puis `NEXT_PUBLIC_FRAMES_BASE_URL`.
+
 ## Production (Vercel + Cloudflare R2)
 
-1. `npm run assets:mirror` (optionnel, ≈300 Mo) puis `npm run assets:upload` avec les variables `S3_*`.
-2. Sur Vercel : `NEXT_PUBLIC_TILES_BASE_URL`, `NEXT_PUBLIC_PHOTOS_BASE_URL`, `NEXT_PUBLIC_FRAMES_BASE_URL`, `NEXT_PUBLIC_WIKI_IMAGES_BASE_URL`, `NEXT_PUBLIC_SITE_URL`, variables Supabase.
-3. `public/photos/gtadb`, `public/frames`, `public/wiki`, `public/tiles` sont ignorés par git : déploiement léger.
+1. Optionnel — auto-héberger les assets : `npm run assets:mirror` (≈300 Mo) puis `npm run assets:upload` avec les variables `S3_*`.
+2. Sur Vercel : `NEXT_PUBLIC_SITE_URL` et les variables Supabase ; les quatre `NEXT_PUBLIC_*_BASE_URL` uniquement si vous hébergez les assets (cf. section ci-dessus).
+3. `cp .env.example .env.local` liste toutes les variables reconnues.
 
 ## Crédits & licences
 

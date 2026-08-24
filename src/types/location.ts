@@ -14,7 +14,7 @@ export type LocationSource = "gtadb" | "gta6map" | "gtamaplib" | "gtamaplib-vc" 
 export type LocationKind = "landmark" | "camera";
 
 export interface LocationPhotos {
-  /** Capture in-game (URL relative à `NEXT_PUBLIC_PHOTOS_BASE_URL`). */
+  /** Capture in-game — nom de fichier résolu par `photoUrl()` (miroir ou map.gtadb.org). */
   ig: string | null;
   /** Photo du lieu réel équivalent. */
   irl: string | null;
@@ -28,7 +28,10 @@ export interface LocationRealWorld {
   status: ConfirmationStatus;
 }
 
-/** Image officielle géolocalisée (frame de trailer ou screenshot Rockstar). */
+/**
+ * Image officielle géolocalisée (frame de trailer ou screenshot Rockstar).
+ * Les champs d'orientation servent au cône caméra, que la frame soit hébergée ou non.
+ */
 export interface LocationMedia {
   /** Fichier JPEG 1600 px (relatif à `NEXT_PUBLIC_FRAMES_BASE_URL`). */
   frame: string;
@@ -55,8 +58,10 @@ export interface LocationWiki {
   title: string;
   url: string;
   extract: string | null;
-  /** Vignette locale (relative à `/wiki`) ou URL distante. */
+  /** Nom de la vignette dans le miroir (`NEXT_PUBLIC_WIKI_IMAGES_BASE_URL`). */
   image: string | null;
+  /** Vignette gta.wiki d'origine — servie quand aucun miroir n'est configuré. */
+  imageUrl: string | null;
 }
 
 /**

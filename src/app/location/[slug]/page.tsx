@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen, Compass, ExternalLink, MapPin } from "lucide-react";
 import { getCategories, getLocationBySlug, getLocations, getStaticLocationSlugs } from "@/lib/data/locations";
-import { FRAMES_BASE_URL, PHOTOS_BASE_URL, WIKI_IMAGES_BASE_URL } from "@/lib/map/config";
+import { frameUrl, photoUrl, wikiImageUrl } from "@/lib/media";
 import { SITE_NAME, SITE_URL } from "@/app/layout";
 
 export const revalidate = 3600;
@@ -11,11 +11,6 @@ export const dynamicParams = true;
 
 export function generateStaticParams() {
   return getStaticLocationSlugs().map((slug) => ({ slug }));
-}
-
-function assetUrl(base: string, file: string | null | undefined): string | null {
-  if (!file) return null;
-  return /^https?:\/\//.test(file) ? file : `${base}/${file}`;
 }
 
 export async function generateMetadata({ params }: PageProps<"/location/[slug]">): Promise<Metadata> {
@@ -29,10 +24,7 @@ export async function generateMetadata({ params }: PageProps<"/location/[slug]">
       : `${location.name} sur la carte GTA VI : coordonnées ${location.x}, ${location.y}${
           location.realWorld.name ? `, inspiré de ${location.realWorld.name}` : ""
         }. Photos, fiche wiki et suivi de complétion.`;
-  const image =
-    assetUrl(FRAMES_BASE_URL, location.media?.frame) ??
-    assetUrl(PHOTOS_BASE_URL, location.photos.ig) ??
-    assetUrl(WIKI_IMAGES_BASE_URL, location.wiki?.image);
+  const image = frameUrl(location.media?.frame) ?? photoUrl(location.photos.ig) ?? wikiImageUrl(location.wiki);
   return {
     title,
     description,
@@ -56,10 +48,10 @@ export default async function LocationPage({ params }: PageProps<"/location/[slu
     .slice(0, 6);
 
   const images = [
-    { src: assetUrl(FRAMES_BASE_URL, location.media?.frame), label: location.media ? `${location.media.sourceLabel} — © Rockstar Games` : "" },
-    { src: assetUrl(PHOTOS_BASE_URL, location.photos.ig), label: "Capture in-game" },
-    { src: assetUrl(WIKI_IMAGES_BASE_URL, location.wiki?.image), label: "GTA Wiki" },
-    { src: assetUrl(PHOTOS_BASE_URL, location.photos.irl), label: "Lieu réel" },
+    { src: frameUrl(location.media?.frame), label: location.media ? `${location.media.sourceLabel} — © Rockstar Games` : "" },
+    { src: photoUrl(location.photos.ig), label: "Capture in-game" },
+    { src: wikiImageUrl(location.wiki), label: "GTA Wiki" },
+    { src: photoUrl(location.photos.irl), label: "Lieu réel" },
   ].filter((i): i is { src: string; label: string } => !!i.src);
 
   const jsonLd = {

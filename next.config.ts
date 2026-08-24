@@ -3,18 +3,24 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 
 /**
- * Tuiles : si un miroir local existe (`npm run assets:mirror` → public/tiles/yanis,15)
- * et qu'aucune URL n'est forcée, on sert depuis /tiles (latence nulle en dev).
+ * Miroirs locaux : les dossiers d'assets (`public/{tiles,photos,frames,wiki}`) sont
+ * ignorés par git — ils existent après `npm run setup` / `assets:mirror` mais jamais
+ * sur un déploiement (Vercel). Si le dossier est là et qu'aucune URL n'est forcée,
+ * on sert depuis /public (latence nulle en dev) ; sinon la variable reste vide et
+ * `src/lib/media.ts` bascule sur la source publique d'origine (voir ce fichier).
  */
-const LOCAL_TILES = existsSync(path.join(process.cwd(), "public", "tiles", "yanis,15", "6"));
-if (!process.env.NEXT_PUBLIC_TILES_BASE_URL && LOCAL_TILES) {
-  process.env.NEXT_PUBLIC_TILES_BASE_URL = "/tiles";
-}
+const LOCAL_MIRRORS: Record<string, { probe: string[]; base: string }> = {
+  NEXT_PUBLIC_TILES_BASE_URL: { probe: ["tiles", "yanis,15", "6"], base: "/tiles" },
+  NEXT_PUBLIC_PHOTOS_BASE_URL: { probe: ["photos", "gtadb"], base: "/photos" },
+  NEXT_PUBLIC_FRAMES_BASE_URL: { probe: ["frames"], base: "/frames" },
+  NEXT_PUBLIC_WIKI_IMAGES_BASE_URL: { probe: ["wiki"], base: "/wiki" },
+};
 
-const tilesHost = safeHost(process.env.NEXT_PUBLIC_TILES_BASE_URL);
-const photosHost = safeHost(process.env.NEXT_PUBLIC_PHOTOS_BASE_URL);
-const framesHost = safeHost(process.env.NEXT_PUBLIC_FRAMES_BASE_URL);
-const wikiHost = safeHost(process.env.NEXT_PUBLIC_WIKI_IMAGES_BASE_URL);
+for (const [key, { probe, base }] of Object.entries(LOCAL_MIRRORS)) {
+  if (!process.env[key]?.trim() && existsSync(path.join(process.cwd(), "public", ...probe))) {
+    process.env[key] = base;
+  }
+}
 
 function safeHost(url: string | undefined): string | null {
   if (!url) return null;
@@ -25,13 +31,20 @@ function safeHost(url: string | undefined): string | null {
   }
 }
 
-const remoteHosts = [...new Set([tilesHost, photosHost, framesHost, wikiHost, "gta.wiki"].filter((h): h is string => !!h))];
+const mirrorHosts = Object.keys(LOCAL_MIRRORS).map((key) => safeHost(process.env[key]));
+/** Hôtes des sources publiques utilisées à défaut de miroir (cf. `src/lib/media.ts`). */
+const originHosts = ["gta.wiki", "map.gtadb.org", "maps.gtadb.org"];
+const remoteHosts = [...new Set([...mirrorHosts, ...originHosts].filter((h): h is string => !!h))];
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Inlinées explicitement : elles sont dérivées ci-dessus, pas lues d'un `.env`.
   env: {
     NEXT_PUBLIC_TILES_BASE_URL: process.env.NEXT_PUBLIC_TILES_BASE_URL ?? "",
+    NEXT_PUBLIC_PHOTOS_BASE_URL: process.env.NEXT_PUBLIC_PHOTOS_BASE_URL ?? "",
+    NEXT_PUBLIC_FRAMES_BASE_URL: process.env.NEXT_PUBLIC_FRAMES_BASE_URL ?? "",
+    NEXT_PUBLIC_WIKI_IMAGES_BASE_URL: process.env.NEXT_PUBLIC_WIKI_IMAGES_BASE_URL ?? "",
   },
   images: {
     formats: ["image/avif", "image/webp"],

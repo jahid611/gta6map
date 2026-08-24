@@ -18,7 +18,7 @@ import {
   Ruler,
 } from "lucide-react";
 import type { Category, Location, LocationWiki } from "@/types";
-import { FRAMES_BASE_URL, PHOTOS_BASE_URL, WIKI_IMAGES_BASE_URL } from "@/lib/map/config";
+import { frameUrl, photoUrl, wikiImageUrl } from "@/lib/media";
 import { FLAG_LABELS } from "@/lib/data/categories";
 import { useProgressStore } from "@/store/useProgressStore";
 import { useMapStore } from "@/store/useMapStore";
@@ -40,11 +40,6 @@ const STATUS_LABEL = {
   unknown: { label: "Inconnu", variant: "outline" as const },
 };
 
-function assetUrl(base: string, file: string | null): string | null {
-  if (!file) return null;
-  return /^https?:\/\//.test(file) ? file : `${base}/${file}`;
-}
-
 /** Fiche lieu — mise en page inspirée des cartes « State of Leonida » : image hero, infos, tags, actions, Full View. */
 export function LocationDetails({ location, category, areaWiki: areaWikiProp = null }: LocationDetailsProps) {
   const areaWiki = areaWikiProp ?? location.areaWiki;
@@ -58,7 +53,7 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
 
   const images = useMemo<LightboxImage[]>(() => {
     const list: LightboxImage[] = [];
-    const frame = assetUrl(FRAMES_BASE_URL, location.media?.frame ?? null);
+    const frame = frameUrl(location.media?.frame);
     if (frame && location.media) {
       list.push({
         src: frame,
@@ -66,19 +61,20 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
         caption: `${location.media.sourceLabel}${location.media.frameIndex !== null ? ` · plan ${location.media.frameIndex}` : ""} — © Rockstar Games`,
       });
     }
-    const ig = assetUrl(PHOTOS_BASE_URL, location.photos.ig);
+    const ig = photoUrl(location.photos.ig);
     if (ig) list.push({ src: ig, alt: `${location.name} — in-game`, caption: "Capture in-game — © Rockstar Games / gtadb.org" });
-    const wikiImg = assetUrl(WIKI_IMAGES_BASE_URL, location.wiki?.image ?? null);
+    const wikiImg = wikiImageUrl(location.wiki);
     if (wikiImg && location.wiki) {
       list.push({ src: wikiImg, alt: `${location.wiki.title} — GTA Wiki`, caption: "GTA Wiki (CC BY-NC-SA)", href: location.wiki.url, hrefLabel: "gta.wiki" });
     }
-    const irl = assetUrl(PHOTOS_BASE_URL, location.photos.irl);
+    const irl = photoUrl(location.photos.irl);
     if (irl) list.push({ src: irl, alt: `${location.realWorld.name ?? location.name} — lieu réel`, caption: `Lieu réel${location.realWorld.name ? ` : ${location.realWorld.name}` : ""}` });
     return list;
   }, [location]);
 
   const hero = images[0] ?? null;
   const thumbs = images.slice(1);
+  const areaWikiImage = wikiImageUrl(areaWiki);
   const nameStatus = STATUS_LABEL[location.nameStatus];
   const irlStatus = STATUS_LABEL[location.realWorld.status];
   const isCamera = location.kind === "camera";
@@ -262,10 +258,10 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
             rel="noopener noreferrer"
             className="group relative block overflow-hidden rounded-2xl border border-border bg-surface-2"
           >
-            {areaWiki.image && (
+            {areaWikiImage && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={assetUrl(WIKI_IMAGES_BASE_URL, areaWiki.image) ?? ""}
+                src={areaWikiImage}
                 alt={areaWiki.title}
                 className="h-28 w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                 loading="lazy"
