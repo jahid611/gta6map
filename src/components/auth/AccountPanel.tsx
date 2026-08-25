@@ -8,7 +8,6 @@ import { ArrowLeft, Check, ChevronDown, Cloud, Loader2, LogOut, Trophy, X } from
 import { useAuth } from "@/hooks/useAuth";
 import { useProgressStore } from "@/store/useProgressStore";
 import { useProgressSync } from "@/hooks/useProgressSync";
-import { Button } from "@/components/ui/button";
 import { MediaMontage, type MontageItem } from "@/components/media/MediaMontage";
 import { cn, formatPercent } from "@/lib/utils";
 import { pastel } from "@/lib/colors";
