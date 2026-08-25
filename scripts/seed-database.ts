@@ -288,7 +288,13 @@ function build(): { locations: Location[]; sections: MapSection[]; areas: AreaIn
   }
 
   // ── 2. Caméras officielles (trailers / screenshots) ──
+  // Plusieurs caméras peuvent partager un id gtamaplib (« [S3/1] Port Vice City (A) / (B) ») :
+  // `legacy_id` est unique en base → suffixe `/2`, `/3`… (le numéro reste en 2e segment).
+  const legacySeen = new Map<string, number>();
   for (const cam of cameras) {
+    const dup = (legacySeen.get(cam.id) ?? 0) + 1;
+    legacySeen.set(cam.id, dup);
+    const legacyId = dup === 1 ? cam.id : `${cam.id}/${dup}`;
     const slugBase = `${cam.group.toLowerCase()}-${cam.id.split("/")[1]}-${slugify(cam.name)}`;
     const frameFile = `${slugBase}.jpg`;
     const categorySlug = categoryForCamera(cam.group);
@@ -310,7 +316,7 @@ function build(): { locations: Location[]; sections: MapSection[]; areas: AreaIn
 
     locations.push({
       id: stableUuid("gtamaplib-camera", cam.id + cam.name),
-      legacyId: cam.id,
+      legacyId,
       slug,
       kind: "camera",
       name: cam.name,
@@ -426,7 +432,7 @@ function writeGenerated(
   writeFileSync(path.join(OUT_DIR, "meta.json"), JSON.stringify(meta, null, 2));
 }
 
-async function upsertSupabase(locations: Location[], categories: readonly Category[]): Promise<void> {
+async function upsertSupabase(locations: Location[], categories: readonly Category[], sections: MapSection[]): Promise<void> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {
@@ -491,6 +497,15 @@ async function upsertSupabase(locations: Location[], categories: readonly Catego
     if (error) throw new Error(`locations upsert (chunk ${i / CHUNK}): ${error.message}`);
     console.log(`  ↑ ${Math.min(i + CHUNK, rows.length)}/${rows.length} lieux`);
   }
+
+  if (sections.length) {
+    const { error } = await supabase.from("map_sections").upsert(
+      sections.map((s) => ({ slug: s.slug, name: s.name, x_min: s.bounds[0], y_min: s.bounds[1], x_max: s.bounds[2], y_max: s.bounds[3], wiki: s.wiki })),
+      { onConflict: "slug" },
+    );
+    if (error) console.warn(`  ⚠ map_sections upsert : ${error.message} (migration 0002 appliquée ?)`);
+    else console.log(`  ↑ ${sections.length} sections`);
+  }
 }
 
 // ───────────────────────────── Main ─────────────────────────────
@@ -508,7 +523,7 @@ async function main(): Promise<void> {
   if (!DRY_RUN) console.log(`  ✓ JSON statiques écrits dans ${path.relative(ROOT, OUT_DIR)}`);
   if (!SKIP_DB) {
     console.log("▶ Upsert Supabase");
-    await upsertSupabase(locations, CATEGORY_DEFINITIONS);
+    await upsertSupabase(locations, CATEGORY_DEFINITIONS, sections);
     console.log("  ✓ terminé");
   }
 }
