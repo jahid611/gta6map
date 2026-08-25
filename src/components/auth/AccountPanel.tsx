@@ -170,7 +170,7 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
               <button onClick={() => setAvatarFilter("all")} className={pill(avatarFilter === "all")}>Tous</button>
               {characters.map((c) => <button key={c} onClick={() => setAvatarFilter(c)} className={pill(avatarFilter === c)}>{c}</button>)}
             </div>
-            <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5">
+            <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {auth.googleAvatarUrl && avatarFilter === "all" && (
                 <li><Choice round src={auth.googleAvatarUrl} label="Photo Google" sub="Votre compte" selected={auth.avatarUrl === auth.googleAvatarUrl} busy={pending === "google"} onClick={() => chooseAvatar(null)} /></li>
               )}
@@ -188,7 +188,7 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
               <button onClick={() => setBannerFilter("all")} className={pill(bannerFilter === "all")}>Tous</button>
               {bannerGroups.map((g) => <button key={g} onClick={() => setBannerFilter(g)} className={pill(bannerFilter === g)}>{g}</button>)}
             </div>
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <ul className="grid grid-cols-2 gap-2">
               {bannerFilter === "all" && (
                 <li><Choice src={autoBanner?.src ?? ""} label="Automatique" sub="Suit votre avatar" selected={auth.bannerUrl === null} busy={pending === "auto"} onClick={() => chooseBanner(null)} /></li>
               )}
@@ -237,24 +237,23 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
     );
   }
 
+  // Structure strictement identique à /auth : même grille, mêmes marges, même panneau média.
   return (
-    <main className="relative min-h-dvh lg:grid lg:grid-cols-[3fr_2fr]">
-      {/* 60 % — informations */}
-      <section className="flex flex-col px-5 py-6 sm:px-10 lg:px-14 lg:py-10">
-        <div className="mb-8 flex items-center justify-between gap-3">
-          <Link href="/" className="inline-flex items-center gap-3" aria-label="Accueil">
+    <main className="relative min-h-dvh lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <section className="relative flex flex-col px-6 py-8 sm:px-10 lg:px-16 lg:py-12">
+        <div className="mb-10 flex items-center justify-between gap-3">
+          <Link href="/" className="inline-flex w-fit items-center gap-3" aria-label="Accueil">
             <Image src="/brand/gta-vi-logo.svg" alt="" width={980} height={744} unoptimized className="h-9 w-auto" />
             <span className="vi-kicker text-muted">Interactive Map</span>
           </Link>
           <Link href="/map" className="rs-pill inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold">
-            <ArrowLeft className="h-4 w-4" /> Retour à la carte
+            <ArrowLeft className="h-4 w-4" /> Carte
           </Link>
         </div>
-        <div className="w-full max-w-3xl">{content}</div>
+        <div className="my-auto w-full max-w-md">{content}</div>
       </section>
 
-      {/* 40 % — montage vidéo / photos, pleine hauteur (sous le contenu sur mobile) */}
-      <aside className="relative min-h-[48vh] lg:sticky lg:top-0 lg:h-dvh lg:min-h-0">
+      <aside className="relative min-h-[38vh] overflow-hidden lg:sticky lg:top-0 lg:h-dvh lg:min-h-0" aria-label="Montage des médias officiels">
         <MediaMontage items={montage} fill />
       </aside>
     </main>

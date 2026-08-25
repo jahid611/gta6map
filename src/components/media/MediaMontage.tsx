@@ -105,13 +105,17 @@ export function MediaMontage({ items, interval = 4500, className, fill = false }
             )}
           </div>
         ))}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/85 to-transparent" />
-        <div className="absolute bottom-4 left-4 right-4">
-          <p className="vi-kicker text-accent-pale">{current.kind === "video" ? "Clip officiel" : "Screenshot officiel"}</p>
-          <p className="font-display mt-1 text-xl font-extrabold leading-tight text-white drop-shadow">{current.title}</p>
-          {current.subtitle && <p className="text-xs text-white/70">{current.subtitle}</p>}
+        {/* Même voile et même légende que le panneau de la page de connexion. */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent lg:bg-gradient-to-r lg:from-background lg:via-background/10 lg:to-transparent" />
+        <div className="absolute bottom-6 left-6 right-6 lg:bottom-12 lg:left-12">
+          <p className="vi-kicker text-accent-pale">Leonida, USA</p>
+          <p className="font-display mt-2 max-w-md text-2xl font-extrabold leading-tight tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] sm:text-3xl">
+            {current.title}
+          </p>
+          <p className="mt-2 text-xs text-white/60">
+            {current.subtitle ?? (current.kind === "video" ? "Clip officiel" : "Screenshot officiel")} — © Rockstar Games
+          </p>
         </div>
-        <p className="absolute right-3 top-3 text-[10px] text-white/50">© Rockstar Games</p>
       </div>
 
       {count > 1 && (

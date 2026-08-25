@@ -97,6 +97,7 @@ function MediaTile({ entry, onOpen }: { entry: MediaEntry; onOpen: () => void })
           src={entry.src}
           poster={entry.poster ?? undefined}
           muted
+          loop
           playsInline
           preload="none"
           onLoadedData={() => setLoaded(true)}
@@ -180,6 +181,7 @@ function Lightbox({ entry, onClose }: { entry: MediaEntry; onClose: () => void }
             poster={entry.poster ?? undefined}
             controls
             autoPlay
+            loop
             playsInline
             preload="auto"
             className="max-h-[80vh] w-full rounded-xl bg-black"
