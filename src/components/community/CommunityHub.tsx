@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, ChevronDown, CornerDownLeft, ExternalLink, Loader2, MapPin, Plus, Trophy, X } from "@/components/ui/icons";
@@ -84,7 +85,7 @@ function ProfileHoverCard({ userId, profile }: { userId: string; profile: ChatPr
   const p = data ?? null;
   const groups = p ? Object.entries(p.byGroup).filter(([, n]) => n > 0) : [];
   return (
-    <div className="rs-card w-72 overflow-hidden rounded-2xl text-left shadow-2xl">
+    <div className="w-72 overflow-hidden rounded-2xl border border-white/12 bg-[#16161d] text-left shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
       <div className="relative h-20">
         {(p?.bannerUrl ?? profile?.bannerUrl) ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -92,7 +93,7 @@ function ProfileHoverCard({ userId, profile }: { userId: string; profile: ChatPr
         ) : (
           <div className="h-full w-full bg-[image:var(--gradient-vi)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(19,19,26,0.95)] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#16161d] via-[rgba(22,22,29,0.35)] to-transparent" />
       </div>
       {/* `relative z-10` : sans ça, la bannière (positionnée) se peint par-dessus l'avatar. */}
       <div className="relative z-10 -mt-6 px-4 pb-4">
@@ -129,28 +130,66 @@ function ProfileHoverCard({ userId, profile }: { userId: string; profile: ChatPr
   );
 }
 
+const HOVER_CARD_W = 288;
+const HOVER_CARD_H = 300;
+
+/**
+ * Pseudo + avatar ; au survol, la carte profil est rendue dans un portail en
+ * position fixe : sous le pseudo s'il reste de la place, sinon au-dessus, et
+ * toujours ramenée dans l'écran — jamais rognée par le composer ni par la liste.
+ */
 function UserHandle({ userId, profile, className }: { userId: string; profile: ChatProfile | undefined; className?: string }) {
-  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const anchorRef = useRef<HTMLSpanElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const place = () => {
+    const r = anchorRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const margin = 8;
+    const below = r.bottom + margin + HOVER_CARD_H <= window.innerHeight - margin;
+    const top = below ? r.bottom + margin : Math.max(margin, r.top - margin - HOVER_CARD_H);
+    const left = Math.min(Math.max(margin, r.left), window.innerWidth - HOVER_CARD_W - margin);
+    setPos({ top, left });
+  };
   const show = () => {
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setOpen(true), 350);
+    timer.current = setTimeout(place, 350);
   };
   const hide = () => {
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setOpen(false), 150);
+    timer.current = setTimeout(() => setPos(null), 150);
   };
+  // Un défilement ou un redimensionnement referme la carte (sa position ne serait plus juste).
+  useEffect(() => {
+    if (!pos) return;
+    const close = () => setPos(null);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [pos]);
+
   return (
-    <span className="relative inline-block" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
+    <span ref={anchorRef} className="relative inline-block" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       <Link href={`/u/${userId}`} className={cn("inline-flex items-center gap-2 hover:underline", className)}>
         <Avatar profile={profile} size={32} />
         <span className="truncate font-semibold">{profile?.displayName ?? "Joueur"}</span>
       </Link>
-      {open && (
-        <span className="absolute left-0 top-full z-40 mt-2 animate-fade-in" onMouseEnter={show} onMouseLeave={hide}>
-          <ProfileHoverCard userId={userId} profile={profile} />
-        </span>
-      )}
+      {pos &&
+        createPortal(
+          <div
+            className="fixed z-[1200] animate-fade-in"
+            style={{ top: pos.top, left: pos.left, width: HOVER_CARD_W }}
+            onMouseEnter={show}
+            onMouseLeave={hide}
+          >
+            <ProfileHoverCard userId={userId} profile={profile} />
+          </div>,
+          document.body,
+        )}
     </span>
   );
 }
