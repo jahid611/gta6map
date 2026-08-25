@@ -93,7 +93,13 @@
       0,
       7000
     ],
-    "wiki": null
+    "wiki": {
+      "title": "Ambrosia",
+      "url": "https://gta.wiki/w/Ambrosia",
+      "extract": "Ambrosia is a city in Ambrosia County, Leonida, due to appear in Grand Theft Auto VI.",
+      "image": "ambrosia.jpg",
+      "imageUrl": "https://gta.wiki/images/thumb/Ambrosia-GTAVI-CroppedPostcard.png/1024px-Ambrosia-GTAVI-CroppedPostcard.png?19f18"
+    }
   },
   {
     "name": "Leonard County",

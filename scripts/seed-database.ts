@@ -357,11 +357,16 @@ function build(): { locations: Location[]; sections: MapSection[]; areas: AreaIn
 
   // ── 3. Sections ──
   const areaWiki = new Map(wikiPlaces.filter((p) => p.kind === "area").map((p) => [matchKey(p.title.replace(/\s*\((HD Universe|town)\)$/, "")), p]));
+  // Page de zone dédiée si elle existe, sinon n'importe quelle page wiki du même
+  // nom (ex. « Ambrosia » n'a pas de page « (town) » mais une page de lieu).
   const sections: MapSection[] = Object.entries(rawSections).map(([name, bounds]) => ({
     name,
     slug: slugify(name),
     bounds,
-    wiki: toWiki(areaWiki.get(matchKey(name.replace(/ National Park$/, "")))) ?? toWiki(areaWiki.get(matchKey(name))),
+    wiki:
+      toWiki(areaWiki.get(matchKey(name.replace(/ National Park$/, "")))) ??
+      toWiki(areaWiki.get(matchKey(name))) ??
+      areaWikiFor(name),
   }));
 
   // ── 4. Zones / quartiers (centre médian des landmarks par `area`) ──
