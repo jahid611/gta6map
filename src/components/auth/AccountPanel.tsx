@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { MediaMontage, type MontageItem } from "@/components/media/MediaMontage";
 import { cn, formatPercent } from "@/lib/utils";
+import { pastel } from "@/lib/colors";
 
 export interface AvatarOption {
   id: string;
@@ -200,9 +201,9 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
           <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted">Pseudo</h2>
-          <form className="flex gap-2" onSubmit={saveName}>
-            <Input value={currentName} onChange={(e) => setName(e.target.value)} maxLength={40} placeholder="Pseudo" className="h-11 rounded-xl border-white/10 bg-white/[0.06]" />
-            <Button type="submit" disabled={saving || !currentName.trim()} className="h-11 rounded-full px-5">
+          <form className="flex max-w-sm gap-2" onSubmit={saveName}>
+            <Input value={currentName} onChange={(e) => setName(e.target.value)} maxLength={40} placeholder="Pseudo" className="h-10 rounded-xl border-white/10 bg-white/[0.06]" />
+            <Button type="submit" disabled={saving || !currentName.trim()} className="h-10 shrink-0 rounded-full px-4">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <Check className="h-4 w-4" /> : null} Enregistrer
             </Button>
           </form>
@@ -218,13 +219,15 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {totals.map((c) => {
               const n = c.ids.reduce((acc, id) => acc + (entries[id]?.found ? 1 : 0), 0);
+              // Même teinte pastel que les marqueurs de la carte.
+              const tint = pastel(c.color);
               return (
                 <li key={c.slug} className="rounded-2xl border border-white/10 px-3 py-2.5 text-xs">
                   <div className="mb-1.5 flex items-center justify-between">
-                    <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: c.color }} />{c.name}</span>
+                    <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: tint }} />{c.name}</span>
                     <span className="font-mono text-muted"><span className={n === c.total ? "text-success" : ""}>{n}</span>/{c.total}</span>
                   </div>
-                  <Progress value={c.total ? (n / c.total) * 100 : 0} color={c.color} size="sm" />
+                  <Progress value={c.total ? (n / c.total) * 100 : 0} color={tint} size="sm" />
                 </li>
               );
             })}
@@ -253,7 +256,6 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
       {/* 40 % — montage vidéo / photos, pleine hauteur (sous le contenu sur mobile) */}
       <aside className="relative min-h-[48vh] lg:sticky lg:top-0 lg:h-dvh lg:min-h-0">
         <MediaMontage items={montage} fill />
-        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-background to-transparent lg:block" />
       </aside>
     </main>
   );
