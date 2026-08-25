@@ -39,7 +39,7 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      gsap.from(".hero-stagger", {
+      const intro = gsap.from(".hero-stagger", {
         y: 26,
         opacity: 0,
         duration: 0.85,
@@ -58,26 +58,46 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          // Si l'on scrolle pendant l'intro, on la termine d'un coup : sinon les
+          // deux animations se disputent les mêmes propriétés du logo.
+          onUpdate: (self) => {
+            if (self.progress > 0 && intro.isActive()) intro.progress(1);
+          },
         },
       });
 
+      // Toutes les étapes sont des `fromTo` avec valeurs de départ explicites :
+      // un `.to()` mémorise la valeur courante au premier rendu, et si le scroll
+      // démarre pendant l'intro (logo encore transparent), c'est cette opacité
+      // quasi nulle qui est « restaurée » en remontant tout en haut — le logo
+      // semble alors disparaître. Avec des bornes fixes, progress 0 = état initial.
+      const step = { ease: "power1.inOut", immediateRender: false } as const;
       tl
         // Le texte part en premier : il deviendrait illisible dès que l'image
         // commence à se découper derrière lui.
-        .to(".hero-stagger", { opacity: 0, y: -30, ease: "power1.inOut" }, 0)
+        .fromTo(".hero-stagger", { opacity: 1, y: 0 }, { opacity: 0, y: -30, ...step }, 0)
         // Le voile ne servait qu'à garder ce texte lisible sur la carte. Une
         // fois le texte parti, il ne fait plus qu'assombrir la découpe : on le
         // retire au même rythme.
-        .to(scrimRef.current, { opacity: 0, ease: "power1.inOut" }, 0)
+        .fromTo(scrimRef.current, { opacity: 1 }, { opacity: 0, ...step }, 0)
         // Et la carte reprend sa pleine luminosité, pour que la forme découpée
         // ressorte au lieu de virer au noir.
-        .to(mapRef.current, { filter: "brightness(1) saturate(1) contrast(1.05)", ease: "power1.inOut" }, 0)
-        // Elle grandit pendant que le masque se resserre : les deux mouvements
-        // en sens inverse accentuent la plongée.
-        .to(mapRef.current, { scale: 1.5, ease: "power1.inOut" }, 0)
-        .to(maskRef.current, { maskSize: "26% 26%", webkitMaskSize: "26% 26%", ease: "power1.inOut" }, 0)
+        .fromTo(
+          mapRef.current,
+          { filter: "brightness(0.55) saturate(0.8) contrast(1.08)", scale: 1 },
+          { filter: "brightness(1) saturate(1) contrast(1.05)", scale: 1.5, ...step },
+          0,
+        )
+        // Le masque se resserre pendant que la carte grandit : les deux
+        // mouvements en sens inverse accentuent la plongée.
+        .fromTo(
+          maskRef.current,
+          { maskSize: "3500% 3500%", webkitMaskSize: "3500% 3500%", opacity: 1 },
+          { maskSize: "26% 26%", webkitMaskSize: "26% 26%", ...step },
+          0,
+        )
         // Puis tout s'efface et laisse place à la section suivante.
-        .to(maskRef.current, { opacity: 0, ease: "power1.inOut" }, 0.88);
+        .fromTo(maskRef.current, { opacity: 1 }, { opacity: 0, ...step }, 0.88);
     }, rootRef);
 
     return () => ctx.revert();
