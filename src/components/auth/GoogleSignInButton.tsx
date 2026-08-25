@@ -66,13 +66,11 @@ function loadGsi(): Promise<void> {
 export function GoogleSignInButton({ next = "/map", onError }: { next?: string; onError?: (message: string) => void }) {
   const router = useRouter();
   const hostRef = useRef<HTMLDivElement>(null);
-  const [state, setState] = useState<"loading" | "ready" | "signing" | "unavailable">("loading");
+  // Sans client ID, le bouton n'est pas rendu du tout (état dérivé, pas de setState dans l'effet).
+  const [state, setState] = useState<"loading" | "ready" | "signing" | "unavailable">(CLIENT_ID ? "loading" : "unavailable");
 
   useEffect(() => {
-    if (!CLIENT_ID) {
-      setState("unavailable");
-      return;
-    }
+    if (!CLIENT_ID) return;
     let cancelled = false;
     let rawNonce = "";
 
