@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CornerDownLeft, Search, X } from "lucide-react";
+import { CornerDownLeft, Search, X } from "@/components/ui/icons";
 import type { Category, Location } from "@/types";
 import { LocationSearchIndex } from "@/lib/search";
 import { useDebouncedValue } from "@/hooks/useDebounce";

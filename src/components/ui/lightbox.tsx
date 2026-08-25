@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ChevronLeft, ChevronRight, ExternalLink, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, X } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
 export interface LightboxImage {

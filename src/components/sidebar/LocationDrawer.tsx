@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X } from "@/components/ui/icons";
 import type { Category, Location, LocationWiki } from "@/types";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { useUIStore } from "@/store/useUIStore";

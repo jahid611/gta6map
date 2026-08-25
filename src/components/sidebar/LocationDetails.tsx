@@ -16,7 +16,7 @@ import {
   Maximize2,
   Mountain,
   Ruler,
-} from "lucide-react";
+} from "@/components/ui/icons";
 import type { Category, Location, LocationWiki } from "@/types";
 import { frameUrl, photoUrl, wikiImageUrl } from "@/lib/media";
 import { FLAG_LABELS } from "@/lib/data/categories";
@@ -24,8 +24,18 @@ import { useProgressStore } from "@/store/useProgressStore";
 import { useMapStore } from "@/store/useMapStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import dynamic from "next/dynamic";
+
+// Chargée à la demande : le cadre Google Maps n'est monté que si l'utilisateur
+// déplie la vue réelle, et n'apparaît donc dans aucun autre parcours.
+const RealWorldMap = dynamic(() => import("./RealWorldMap").then((m) => m.RealWorldMap), {
+  ssr: false,
+  loading: () => <div className="h-48 w-full animate-pulse rounded-xl border border-border bg-surface-3" />,
+});
 import { Lightbox, type LightboxImage } from "@/components/ui/lightbox";
 import { cn } from "@/lib/utils";
+import { pastel } from "@/lib/colors";
+import { CategoryIcon } from "@/components/ui/icons";
 
 interface LocationDetailsProps {
   location: Location;
@@ -50,6 +60,12 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
   const flyTo = useMapStore((s) => s.flyTo);
   const [copied, setCopied] = useState<"coords" | "link" | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [irlOpen, setIrlOpen] = useState(false);
+  const openRealWorldAt = useMapStore((s) => s.openRealWorldAt);
+  const openRealWorldFromGame = useMapStore((s) => s.openRealWorldFromGame);
+  const realWorld = useMapStore((s) => s.realWorld);
+  const toggleRealWorld = useMapStore((s) => s.toggleRealWorld);
+  const hasRealCoords = location.realWorld.lat !== null && location.realWorld.lng !== null;
 
   const images = useMemo<LightboxImage[]>(() => {
     const list: LightboxImage[] = [];
@@ -78,7 +94,11 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
   const nameStatus = STATUS_LABEL[location.nameStatus];
   const irlStatus = STATUS_LABEL[location.realWorld.status];
   const isCamera = location.kind === "camera";
-  const accent = category?.color ?? location.color;
+  // Même teinte pastel que les marqueurs et la légende du panneau latéral :
+  // la couleur doit être exactement la même d'un bout à l'autre, sinon elle
+  // cesse de servir de repère entre la carte et la fiche.
+  const accent = pastel(category?.color ?? location.color);
+
 
   const copy = async (kind: "coords" | "link") => {
     const text = kind === "coords" ? `${location.x}, ${location.y}` : `${window.location.origin}/?l=${location.slug}`;
@@ -107,7 +127,10 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
             <Maximize2 className="h-4 w-4" />
           </span>
           {location.media && (
-            <span className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white" style={{ background: accent }}>
+            <span
+              className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#14111c]"
+              style={{ background: accent }}
+            >
               {location.media.sourceLabel}
               {location.media.frameIndex !== null ? ` · ${location.media.frameIndex}` : ""}
             </span>
@@ -120,8 +143,15 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
       <div className="flex flex-col gap-4 p-4">
         {/* Titre */}
         <div className="flex items-start gap-3 pr-8">
-          <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl text-white shadow-[0_0_18px_rgba(0,0,0,0.4)]" style={{ background: accent }}>
-            {isCamera ? <Compass className="h-5 w-5" /> : <MapPin className="h-5 w-5" />}
+          {/* Aplat pastel : le glyphe doit donc être sombre, comme sur les blips
+              de la carte (cf. `.gta-marker__pin`). */}
+          <span
+            className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#14111c] shadow-[0_2px_14px_rgba(0,0,0,0.35)]"
+            style={{ background: accent }}
+          >
+            {/* Icône de la catégorie, et non un marqueur générique : le même
+                pictogramme que sur la carte et dans la liste des filtres. */}
+            <CategoryIcon name={category?.icon ?? (isCamera ? "Camera" : "MapPin")} className="h-5 w-5" />
           </span>
           <div className="min-w-0">
             <h2 className="font-display text-xl font-extrabold leading-tight tracking-tight">{location.name}</h2>
@@ -157,8 +187,14 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           <li className="flex items-center gap-2">
             <LocateFixed className="h-4 w-4 shrink-0 text-muted" />
             <span className="font-mono text-xs">{location.x}, {location.y}</span>
+            {/* Les deux copies tiennent en deux icônes, à côté de la valeur qu'elles
+                copient. Les boutons pleine largeur qui les doublaient plus bas ont
+                été retirés : deux lignes pour la même action. */}
             <button className="text-muted hover:text-foreground cursor-pointer" onClick={() => copy("coords")} aria-label="Copier les coordonnées">
               {copied === "coords" ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+            </button>
+            <button className="text-muted hover:text-foreground cursor-pointer" onClick={() => copy("link")} aria-label="Copier le lien vers ce lieu">
+              {copied === "link" ? <Check className="h-3.5 w-3.5 text-success" /> : <Link2 className="h-3.5 w-3.5" />}
             </button>
           </li>
           {location.area && (
@@ -213,22 +249,22 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
               <Check className="h-4 w-4" />
               {found ? "Trouvé" : "Marquer trouvé"}
             </Button>
-            <Button variant="secondary" onClick={() => flyTo([location.x, location.y], 6)}>
+            {/* « Centrer » agit sur la carte affichée : sur la vue réelle,
+                `flyTo` piloterait la carte du jeu, cachée derrière — le bouton
+                semblait alors ne rien faire. */}
+            <Button
+              variant="secondary"
+              onClick={() =>
+                realWorld && hasRealCoords
+                  ? openRealWorldAt(location.realWorld.lat as number, location.realWorld.lng as number, 17)
+                  : flyTo([location.x, location.y], 6)
+              }
+            >
               <LocateFixed className="h-4 w-4" />
               Centrer
             </Button>
           </div>
         )}
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant="secondary" className="rs-pill" onClick={() => copy("coords")}>
-            {copied === "coords" ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-            Coordonnées
-          </Button>
-          <Button variant="secondary" className="rs-pill" onClick={() => copy("link")}>
-            {copied === "link" ? <Check className="h-4 w-4 text-success" /> : <Link2 className="h-4 w-4" />}
-            Lien
-          </Button>
-        </div>
         {location.wiki && (
           <a
             href={location.wiki.url}
@@ -244,11 +280,9 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
             <LocateFixed className="h-4 w-4" /> Centrer la caméra
           </Button>
         )}
-        {images.length > 0 && (
-          <Button className="w-full rounded-full text-base font-bold" size="lg" onClick={() => setLightbox(0)}>
-            <Maximize2 className="h-4 w-4" /> Full View
-          </Button>
-        )}
+        {/* Pas de bouton « Full View » : l'image d'en-tête est déjà cliquable et
+            porte une icône d'agrandissement au survol. Un bouton pleine largeur
+            de plus ne faisait que répéter ce geste. */}
 
         {/* Zone / quartier (fiche GTA Wiki) */}
         {areaWiki && (
@@ -278,6 +312,31 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           </a>
         )}
 
+        {/* Bascule vers le monde réel — proposée sur TOUS les lieux : ils
+            existent tous quelque part sur Terre, même ceux dont la
+            correspondance exacte n'a pas encore été relevée. Coordonnées
+            précises quand la fiche en porte, sinon position transposée depuis
+            les lieux voisins, ce que le bandeau de la carte annonce. */}
+        <button
+          onClick={() => {
+            if (realWorld) {
+              // Déjà dans le monde réel : le bouton fait le trajet inverse et
+              // ramène à la position de jeu exacte du lieu.
+              flyTo([location.x, location.y], 7);
+              toggleRealWorld();
+            } else if (hasRealCoords) {
+              openRealWorldAt(location.realWorld.lat as number, location.realWorld.lng as number, 17);
+            } else {
+              openRealWorldFromGame(location.x, location.y);
+            }
+          }}
+          className="rs-pill rs-pill--accent inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold"
+        >
+          {realWorld ? <MapPin className="h-4 w-4" /> : <Compass className="h-4 w-4" />}
+          {realWorld ? "Voir dans GTA VI" : "Voir dans la vraie vie"}
+          {!realWorld && !hasRealCoords && <span className="text-[11px] font-normal opacity-70">· approx.</span>}
+        </button>
+
         {/* Monde réel */}
         {location.realWorld.status !== "unknown" && location.realWorld.name && (
           <section className="rounded-2xl border border-border bg-surface-2/60 p-3">
@@ -288,14 +347,39 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
             <p className="text-sm font-medium">{location.realWorld.name}</p>
             {location.realWorld.address && <p className="text-xs text-muted">{location.realWorld.address}</p>}
             {location.realWorld.lat !== null && location.realWorld.lng !== null && (
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${location.realWorld.lat},${location.realWorld.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-1 text-xs text-accent-2 hover:underline"
-              >
-                Voir sur Google Maps <ExternalLink className="h-3 w-3" />
-              </a>
+              <>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setIrlOpen((v) => !v)}
+                    aria-expanded={irlOpen}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-foreground transition-colors hover:border-accent-2/60 hover:text-accent-2"
+                  >
+                    <Compass className="h-3 w-3" />
+                    {irlOpen ? "Masquer l'aperçu" : "Aperçu"}
+                  </button>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${location.realWorld.lat},${location.realWorld.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-accent-2 hover:underline"
+                  >
+                    Google Maps <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+
+                {irlOpen && (
+                  <div className="mt-2">
+                    <RealWorldMap
+                      lat={location.realWorld.lat}
+                      lng={location.realWorld.lng}
+                      label={location.realWorld.name ?? location.name}
+                    />
+                    <p className="mt-1.5 font-mono text-[10px] text-muted-2">
+                      {location.realWorld.lat.toFixed(5)}, {location.realWorld.lng.toFixed(5)}
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </section>
         )}

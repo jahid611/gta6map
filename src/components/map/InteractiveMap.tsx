@@ -13,6 +13,8 @@ import { GtaTileLayer } from "./GtaTileLayer";
 import { MarkerClusterLayer } from "./MarkerClusterLayer";
 import { CustomMarkersLayer } from "./CustomMarkersLayer";
 import { AreaLabelsLayer } from "./AreaLabelsLayer";
+import { CoordinateGridLayer } from "./CoordinateGridLayer";
+import { MeasureLayer } from "./MeasureLayer";
 import { MapController } from "./MapController";
 import { MapControls } from "./MapControls";
 
@@ -42,12 +44,24 @@ export default function InteractiveMap({ locations, categoriesBySlug, sections, 
   const initialZoom = initial.zoom;
   const tileSet = useMapStore((s) => s.tileSet);
   const showAreaLabels = useMapStore((s) => s.showAreaLabels);
+  const showGrid = useMapStore((s) => s.showGrid);
+  const mapFilter = useMapStore((s) => s.mapFilter);
+  const measuring = useMapStore((s) => s.measuring);
   const entries = useProgressStore((s) => s.entries);
   const selectedSlug = useUIStore((s) => s.selectedSlug);
 
+  // Marge de navigation autour de la zone couverte, sur les quatre côtés. Hors
+  // couverture, `GtaTileLayer` sert une tuile vide et le bleu océan de
+  // `.leaflet-container` transparaît : la marge ne coûte aucune requête. Elle
+  // est large (8 km) pour qu'on puisse amener un lieu côtier au centre de
+  // l'écran sans que le rebond de `maxBounds` le repousse.
+  //
+  // La bande ouest de la couverture porte le cartouche du fond communautaire
+  // (légende, crédits, planche de frames). Il fait partie de la carte et reste
+  // donc visible : on borne bien sur `COVERED_BOUNDS`.
   const maxBounds = useMemo(() => {
     const [[xMin, yMin], [xMax, yMax]] = COVERED_BOUNDS;
-    const pad = 2_500;
+    const pad = 8_000;
     return L.latLngBounds([yMin - pad, xMin - pad], [yMax + pad, xMax + pad]);
   }, []);
 
@@ -66,12 +80,23 @@ export default function InteractiveMap({ locations, categoriesBySlug, sections, 
       zoomDelta={0.5}
       wheelPxPerZoomLevel={120}
       wheelDebounceTime={40}
-      zoomAnimationThreshold={8}
-      fadeAnimation={false}
-      markerZoomAnimation
+      // Au-delà de 4 niveaux d'écart, le zoom est appliqué d'un coup plutôt
+      // qu'animé : animer un saut de 8 niveaux revient à interpoler toute la
+      // couche de tuiles et les 1 500 marqueurs pour une transition que
+      // personne ne suit du regard.
+      zoomAnimationThreshold={4}
+      // Fondu réactivé. Sans lui, chaque niveau de tuiles apparaît et disparaît
+      // d'un coup au zoom — c'est ce clignotement, pas la fluidité du geste, que
+      // l'on voit en premier. Le fondu est une transition d'opacité composée par
+      // le GPU : son coût est marginal comparé au rechargement des tuiles.
+      fadeAnimation
+      // Marqueurs non animés pendant le zoom : Leaflet devrait sinon
+      // repositionner chaque icône image par image.
+      markerZoomAnimation={false}
       className={className ?? "h-full w-full"}
     >
-      <GtaTileLayer tileSet={tileSet} />
+      <GtaTileLayer tileSet={tileSet} filter={mapFilter} />
+      <CoordinateGridLayer visible={showGrid} />
       <AreaLabelsLayer sections={sections} districts={districts} visible={showAreaLabels} />
       <MarkerClusterLayer
         locations={locations}
@@ -80,6 +105,7 @@ export default function InteractiveMap({ locations, categoriesBySlug, sections, 
         selectedSlug={selectedSlug}
       />
       <CustomMarkersLayer />
+      <MeasureLayer active={measuring} />
       <MapController />
       <MapControls />
     </MapContainer>

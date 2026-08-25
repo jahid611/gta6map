@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "GTA VI Interactive Map",
     short_name: "GTA VI Map",
     description: "Carte interactive GTA VI — landmarks, collectibles, suivi de complétion.",
-    start_url: "/",
+    start_url: "/map",
     display: "standalone",
     orientation: "any",
     background_color: "#0b0f14",

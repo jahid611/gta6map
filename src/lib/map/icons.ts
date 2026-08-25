@@ -1,88 +1,30 @@
-import type { IconNode } from "lucide";
-import {
-  Building2,
-  Camera,
-  Car,
-  Check,
-  Clapperboard,
-  Crosshair,
-  Egg,
-  Factory,
-  Film,
-  Flag,
-  Fuel,
-  Gem,
-  Home,
-  Hotel,
-  Landmark,
-  MapPin,
-  Mountain,
-  Palmtree,
-  PartyPopper,
-  Pin,
-  Plane,
-  RadioTower,
-  Star,
-  Store,
-  TreePine,
-  Utensils,
-} from "lucide";
+import { ICON_PATHS, type IconName } from "@/components/ui/icons.generated";
+import { pastel } from "@/lib/colors";
 
 /**
- * Registre d'icônes Lucide (package vanilla `lucide`, pas de React) utilisé pour
- * générer le HTML des `L.divIcon`. Les noms correspondent au champ `icon` des
- * catégories (PascalCase, identique à lucide-react).
+ * Les marqueurs Leaflet sont produits en HTML (`L.divIcon`), pas en React : on y
+ * injecte donc le SVG sous forme de chaîne, à partir des mêmes contours Flaticon
+ * UIcons que le reste du site (voir `scripts/build-icons.ts`). Les clés du
+ * registre correspondent au champ `icon` des catégories.
  */
-const ICON_REGISTRY: Readonly<Record<string, IconNode>> = {
-  Building2,
-  Camera,
-  Car,
-  Check,
-  Clapperboard,
-  Crosshair,
-  Egg,
-  Factory,
-  Film,
-  Flag,
-  Fuel,
-  Gem,
-  Home,
-  Hotel,
-  Landmark,
-  MapPin,
-  Mountain,
-  Palmtree,
-  PartyPopper,
-  Pin,
-  Plane,
-  RadioTower,
-  Star,
-  Store,
-  TreePine,
-  Utensils,
-};
-
 const svgCache = new Map<string, string>();
 
 function escapeAttr(value: string | number): string {
   return String(value).replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
 
-/** SVG inline (string) d'une icône Lucide, mémoïsé par nom+taille. */
-export function iconSvg(name: string, size = 14, strokeWidth = 2.25): string {
-  const key = `${name}:${size}:${strokeWidth}`;
+/**
+ * SVG inline (chaîne) d'une icône, mémoïsé par nom + taille.
+ *
+ * Glyphes pleins : ils se peignent en `fill`, sans `stroke` — c'est ce qui donne
+ * aux blips leur aspect compact plutôt que le trait fin d'une icône linéaire.
+ */
+export function iconSvg(name: string, size = 14): string {
+  const key = `${name}:${size}`;
   const cached = svgCache.get(key);
   if (cached) return cached;
-  const node = ICON_REGISTRY[name] ?? MapPin;
-  const children = node
-    .map(([tag, attrs]) => {
-      const attrString = Object.entries(attrs)
-        .map(([k, v]) => `${k}="${escapeAttr(v as string | number)}"`)
-        .join(" ");
-      return `<${tag} ${attrString}/>`;
-    })
-    .join("");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${children}</svg>`;
+  const d = ICON_PATHS[name as IconName] ?? ICON_PATHS.MapPin;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${escapeAttr(d)}"/></svg>`;
   svgCache.set(key, svg);
   return svg;
 }
@@ -96,9 +38,10 @@ export interface MarkerIconOptions {
   camera?: { label: string; yaw: number } | null;
 }
 
-/** Taille du marqueur (px) — utilisée pour `iconSize` / `iconAnchor`. */
-export const MARKER_SIZE = 28;
-export const CAMERA_MARKER_SIZE = 34;
+/** Taille du marqueur (px) — utilisée pour `iconSize` / `iconAnchor`.
+ *  Doit rester synchronisée avec `.gta-marker` dans globals.css. */
+export const MARKER_SIZE = 22;
+export const CAMERA_MARKER_SIZE = 30;
 
 /**
  * HTML d'un marqueur : pastille colorée + icône de catégorie.
@@ -112,17 +55,18 @@ export function markerHtml({ color, icon, found = false, selected = false, camer
     ? `<span class="gta-marker__cone" style="--yaw:${escapeAttr(camera.yaw.toFixed(1))}deg"></span>`
     : "";
   const label = camera ? `<span class="gta-marker__label">${escapeAttr(camera.label)}</span>` : "";
-  return `<div class="${classes}" style="--marker-color:${escapeAttr(color)}">
+  // Teinte pastel : cf. `lib/colors`. Le glyphe posé dessus est sombre (CSS).
+  return `<div class="${classes}" style="--marker-color:${escapeAttr(pastel(color))}">
     ${cone}
-    <span class="gta-marker__pin">${iconSvg(icon, camera ? 15 : 14)}</span>
-    <span class="gta-marker__check">${iconSvg("Check", 10, 3)}</span>
+    <span class="gta-marker__pin">${iconSvg(icon, camera ? 14 : 12)}</span>
+    <span class="gta-marker__check">${iconSvg("Check", 9)}</span>
     ${label}
   </div>`;
 }
 
 export function clusterHtml(count: number, dominantColor: string): string {
   const size = count < 10 ? "sm" : count < 50 ? "md" : "lg";
-  return `<div class="gta-cluster gta-cluster--${size}" style="--marker-color:${escapeAttr(dominantColor)}"><span>${count}</span></div>`;
+  return `<div class="gta-cluster gta-cluster--${size}" style="--marker-color:${escapeAttr(pastel(dominantColor))}"><span>${count}</span></div>`;
 }
 
 /** Étiquette de zone (grand texte blanc contour sombre, façon carte officielle). */
@@ -131,5 +75,5 @@ export function areaLabelHtml(name: string, level: 1 | 2 = 1): string {
 }
 
 export function isRegisteredIcon(name: string): boolean {
-  return name in ICON_REGISTRY;
+  return name in ICON_PATHS;
 }

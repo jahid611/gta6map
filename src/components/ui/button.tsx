@@ -19,8 +19,10 @@ const buttonVariants = cva(
         default: "h-9 px-4 py-2",
         sm: "h-8 px-3 text-xs",
         lg: "h-11 px-6",
-        icon: "h-9 w-9",
-        "icon-sm": "h-8 w-8",
+        // 44 px au doigt, 36 px à la souris : sur mobile ces boutons sont souvent
+        // la seule façon d'ouvrir les panneaux, ils doivent rester atteignables.
+        icon: "h-11 w-11 sm:h-9 sm:w-9",
+        "icon-sm": "h-10 w-10 sm:h-8 sm:w-8",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

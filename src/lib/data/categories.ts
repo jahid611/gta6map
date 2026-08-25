@@ -30,7 +30,7 @@ export const CATEGORY_DEFINITIONS: readonly Category[] = [
   { slug: "entertainment", name: "Divertissement", description: "Stades, salles de concert, casinos.", group: "landmark", icon: "PartyPopper", color: "#d946ef", sortOrder: 160, trackable: true },
   { slug: "government", name: "Institutions", description: "Bâtiments publics, gouvernementaux, prisons.", group: "landmark", icon: "Landmark", color: "#94a3b8", sortOrder: 170, trackable: true },
   { slug: "industrial", name: "Industrie", description: "Usines, centrales, zones industrielles, chantiers.", group: "landmark", icon: "Factory", color: "#a8a29e", sortOrder: 180, trackable: true },
-  { slug: "infrastructure", name: "Infrastructures", description: "Ponts, tours radio, stations d'épuration.", group: "landmark", icon: "RadioTower", color: "#0ea5e9", sortOrder: 190, trackable: true },
+  { slug: "infrastructure", name: "Infrastructures", description: "Ponts, tours radio, stations d'épuration.", group: "landmark", icon: "Road", color: "#0ea5e9", sortOrder: 190, trackable: true },
   { slug: "transport", name: "Transports", description: "Aéroports, gares, ports, métro.", group: "landmark", icon: "Plane", color: "#eab308", sortOrder: 200, trackable: true },
   { slug: "public", name: "Espaces publics", description: "Parcs, places, espaces urbains.", group: "landmark", icon: "TreePine", color: "#84cc16", sortOrder: 210, trackable: true },
   { slug: "service", name: "Services", description: "Stations-service, garages, services de proximité.", group: "landmark", icon: "Fuel", color: "#14b8a6", sortOrder: 220, trackable: true },

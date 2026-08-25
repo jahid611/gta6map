@@ -15,7 +15,18 @@ export const MIN_NATIVE_ZOOM = 0;
 export const MAX_NATIVE_ZOOM = 6;
 /** Zoom max côté Leaflet : les niveaux > 6 sont des upscales de la tuile z=6. */
 export const MAX_ZOOM = 8;
-export const MIN_ZOOM = 1;
+/**
+ * Zoom minimal.
+ *
+ * Négatif à dessein : les terres font 13 100 m de large, et il faut donc
+ * 33,6 m/px pour les contenir sur un écran de téléphone de 390 px. Or l'échelle
+ * au zoom 0 est de 32 m/px — il manque un cheveu, et le cadrage d'ouverture
+ * échouait en portrait, laissant Vice City hors de l'écran.
+ *
+ * Les tuiles n'existent pas sous le niveau 0 : Leaflet réduit celles du niveau 0
+ * (`minNativeZoom`), ce qui suffit pour une vue d'ensemble.
+ */
+export const MIN_ZOOM = -0.5;
 
 /** Facteur px/m au zoom 0 : 1024 px pour 32 768 m. */
 export const ZOOM0_SCALE = ZOOM0_PIXELS / MAP_SIZE_METERS; // 1/32
@@ -35,7 +46,54 @@ export const COVERED_BOUNDS: readonly [WorldXY, WorldXY] = [
   [3_584, 12_032],
 ];
 
-/** Vue par défaut (identique au site d'origine). */
+/**
+ * Quadrillage de repérage optionnel.
+ *
+ * Maille de 1 024 m : puissance de deux alignée sur la grille de tuiles, et
+ * découpage de la zone couverte (≈ 20 × 20 km) en un peu moins de 20 × 20
+ * cellules — donc une seule lettre par colonne (A → T).
+ *
+ * L'origine est le coin haut-gauche de la zone couverte, pour que la cellule
+ * A1 tombe sur un coin de la carte plutôt qu'au milieu de l'océan.
+ */
+export const GRID_CELL_METERS = 1_024;
+
+/**
+ * Coin haut-gauche du quadrillage, en mètres.
+ *
+ * Calé sur la côte ouest et non sur `COVERED_BOUNDS` : la bande ouest de la
+ * couverture porte le cartouche du fond communautaire (légende, crédits,
+ * planche de frames), qu'il serait absurde de recouvrir de repères A1, B1…
+ * Le quadrillage ne couvre donc que les terres et leurs abords.
+ */
+export const GRID_ORIGIN: WorldXY = [-10_200, 12_032];
+
+/** Étendue étiquetée du quadrillage : `[[xMin, yMin], [xMax, yMax]]`. */
+export const GRID_BOUNDS: readonly [WorldXY, WorldXY] = [
+  [-10_200, -8_064],
+  [3_584, 12_032],
+];
+
+/**
+ * Emprise des terres : union des bornes des 8 régions.
+ *
+ * Sert de cadrage d'ouverture (`fitBounds`) plutôt qu'un couple centre/zoom
+ * figé. Le panneau latéral occupe 340 px et la hauteur utile varie d'un écran
+ * à l'autre : un zoom constant cadrait forcément de travers quelque part —
+ * au zoom 2, Vice City sortait par la droite. `fitBounds` mesure le conteneur
+ * réel et centre les terres dedans.
+ *
+ * Bornes calées sur l'étendue réelle des lieux (x ∈ [−9 240, 2 714],
+ * y ∈ [−7 932, 7 797]) plus une marge, et non sur l'union des boîtes de
+ * régions : celles-ci débordent de 4 km au nord sur une zone sans aucun point,
+ * ce qui décentrait le cadrage vers le haut et rognait Leonida Keys.
+ */
+export const LANDMASS_BOUNDS: readonly [WorldXY, WorldXY] = [
+  [-9_800, -8_400],
+  [3_300, 8_400],
+];
+
+/** Vue par défaut (repli si le conteneur n'est pas encore mesurable). */
 export const DEFAULT_VIEW = {
   center: [-4_000, 2_000] as WorldXY,
   zoom: 2,
@@ -51,12 +109,22 @@ const YANIS_RANGES = {
   6: [[0, 34], [155, 190]],
 } as const;
 
+/**
+ * Fonds de carte proposés.
+ *
+ * Les libellés décrivent le rendu plutôt que l'auteur et son numéro de version :
+ * « Yanis v15 » ne dit rien à personne, alors que le choix porte en réalité sur
+ * un style cartographique. Les auteurs restent crédités dans le contrôle
+ * d'attribution de Leaflet.
+ *
+ * Le jeu « yanis,14 » a été retiré : le serveur de tuiles répond 404 sur toutes
+ * ses tuiles, il n'affichait donc qu'une carte vide.
+ */
 export const TILE_SETS: Readonly<Record<TileSetId, TileSetDefinition>> = {
-  "yanis,15": { id: "yanis,15", label: "Yanis v15 (recommandé)", author: "Yanis", ranges: YANIS_RANGES },
-  "yanis,14": { id: "yanis,14", label: "Yanis v14", author: "Yanis", ranges: YANIS_RANGES },
+  "yanis,15": { id: "yanis,15", label: "Détaillée", author: "Yanis", ranges: YANIS_RANGES },
   "dupzor,51": {
     id: "dupzor,51",
-    label: "Dupzor v51",
+    label: "Relief",
     author: "Dupzor",
     ranges: {
       0: [[0, 0], [2, 2]],
@@ -107,5 +175,3 @@ export const GTADB_PHOTOS_ORIGIN = "https://map.gtadb.org/photos/6";
 export const BLANK_TILE_URL =
   "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
-/** Couleur de fond de l'océan hors tuiles (assortie aux tuiles Yanis). */
-export const OCEAN_COLOR = "#2d8fd5";

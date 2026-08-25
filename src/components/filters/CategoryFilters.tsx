@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import * as Icons from "lucide-react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, categoryIcon } from "@/components/ui/icons";
 import type { CategoryWithCount } from "@/types";
 import { CATEGORY_GROUP_LABELS, CATEGORY_GROUP_ORDER } from "@/lib/data/categories";
 import { useFilterStore } from "@/store/useFilterStore";
@@ -10,16 +9,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { pastel } from "@/lib/colors";
 
 interface CategoryFiltersProps {
   categories: readonly CategoryWithCount[];
-}
-
-type LucideIcon = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
-
-function iconComponent(name: string): LucideIcon {
-  const lib = Icons as unknown as Record<string, LucideIcon>;
-  return lib[name] ?? Icons.MapPin;
 }
 
 const GROUP_ORDER = CATEGORY_GROUP_ORDER;
@@ -50,7 +43,9 @@ export function CategoryFilters({ categories }: CategoryFiltersProps) {
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted">
-          {visibleCount}/{allSlugs.length} catégories visibles
+          <span className="vi-num font-semibold text-foreground">{visibleCount}</span>
+          <span className="mx-1 opacity-40">·</span>
+          <span className="vi-num">{allSlugs.length}</span> catégories visibles
         </p>
         <div className="flex gap-1">
           <Button variant="ghost" size="sm" onClick={showAll}>
@@ -92,7 +87,7 @@ export function CategoryFilters({ categories }: CategoryFiltersProps) {
             <ul className="flex flex-col gap-0.5">
               {items.map((cat) => {
                 const visible = !hidden.includes(cat.slug);
-                const Icon = iconComponent(cat.icon);
+                const Icon = categoryIcon(cat.icon);
                 const pct = cat.total ? Math.round((cat.found / cat.total) * 100) : 0;
                 return (
                   <li key={cat.slug}>
@@ -106,20 +101,25 @@ export function CategoryFilters({ categories }: CategoryFiltersProps) {
                       <Checkbox
                         checked={visible}
                         onCheckedChange={() => toggleCategory(cat.slug)}
-                        color={cat.color}
+                        color={pastel(cat.color)}
                         aria-label={cat.name}
                       />
-                      <span
-                        className="grid h-6 w-6 shrink-0 place-items-center rounded-md text-white"
-                        style={{ background: cat.color }}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </span>
+                      {/* Icône nue, teintée à la couleur de la catégorie. La pastille
+                          pleine derrière alourdissait la liste et écrasait les nuances
+                          entre catégories voisines. */}
+                      <Icon className="h-[1.05rem] w-[1.05rem] shrink-0" style={{ color: pastel(cat.color) }} />
                       <span className="flex-1 truncate">{cat.name}</span>
-                      <span className="font-mono text-[11px] tabular-nums text-muted">
+                      {/* Pas de barre oblique : le trouvé et le total se distinguent
+                          par la graisse et la couleur, ce qui se lit mieux qu'un
+                          « 0/43 » où le séparateur pèse autant que les chiffres. */}
+                      <span className="vi-num shrink-0 text-[11px] text-muted-2">
                         {cat.trackable && cat.total > 0 ? (
                           <>
-                            <span className={cn(pct === 100 && "text-success")}>{cat.found}</span>/{cat.total}
+                            <span className={cn("font-semibold", pct === 100 ? "text-success" : "text-foreground")}>
+                              {cat.found}
+                            </span>
+                            <span className="mx-1 opacity-40">·</span>
+                            {cat.total}
                           </>
                         ) : (
                           cat.total

@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BookOpen, Compass, ExternalLink, MapPin } from "lucide-react";
+import { ArrowLeft } from "@/components/ui/icons";
+import { RevealProvider } from "@/components/landing/RevealProvider";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 import { getCategories, getLocationBySlug, getLocations, getStaticLocationSlugs } from "@/lib/data/locations";
 import { frameUrl, photoUrl, wikiImageUrl } from "@/lib/media";
+import { MEDIA_CATALOG } from "@/lib/media-catalog";
 import { SITE_NAME, SITE_URL } from "@/app/layout";
+import { LocationPageBody, type PageImage } from "./LocationPageBody";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -17,6 +21,7 @@ export async function generateMetadata({ params }: PageProps<"/location/[slug]">
   const { slug } = await params;
   const location = await getLocationBySlug(slug);
   if (!location) return { title: "Lieu introuvable" };
+
   const title = `${location.name}${location.area ? ` — ${location.area}` : ""}`;
   const description =
     location.kind === "camera"
@@ -25,6 +30,7 @@ export async function generateMetadata({ params }: PageProps<"/location/[slug]">
           location.realWorld.name ? `, inspiré de ${location.realWorld.name}` : ""
         }. Photos, fiche wiki et suivi de complétion.`;
   const image = frameUrl(location.media?.frame) ?? photoUrl(location.photos.ig) ?? wikiImageUrl(location.wiki);
+
   return {
     title,
     description,
@@ -33,7 +39,14 @@ export async function generateMetadata({ params }: PageProps<"/location/[slug]">
   };
 }
 
-/** Page SEO statique par lieu (SSG + ISR) : contenu indexable, JSON-LD, lien profond vers la carte. */
+/**
+ * Page dédiée d'un lieu (SSG + ISR).
+ *
+ * Reste un composant serveur : c'est elle qui porte le rendu statique, le
+ * JSON-LD et les métadonnées indexables. Seul ce qui réclame de l'interaction
+ * — visionneuse, copie des coordonnées — bascule côté client dans
+ * `LocationPageBody`.
+ */
 export default async function LocationPage({ params }: PageProps<"/location/[slug]">) {
   const { slug } = await params;
   const location = await getLocationBySlug(slug);
@@ -41,22 +54,51 @@ export default async function LocationPage({ params }: PageProps<"/location/[slu
 
   const [categories, all] = await Promise.all([getCategories(), getLocations()]);
   const category = categories.find((c) => c.slug === location.categorySlug);
+
   const nearby = all
     .filter((l) => l.id !== location.id)
     .map((l) => ({ l, d: Math.hypot(l.x - location.x, l.y - location.y) }))
     .sort((a, b) => a.d - b.d)
-    .slice(0, 6);
+    .slice(0, 6)
+    .map(({ l, d }) => {
+      const cat = categories.find((c) => c.slug === l.categorySlug);
+      return {
+        slug: l.slug,
+        name: l.name,
+        distance: d,
+        color: cat?.color ?? l.color,
+        icon: cat?.icon ?? "MapPin",
+      };
+    });
 
-  const images = [
+  const images: PageImage[] = [
     { src: frameUrl(location.media?.frame), label: location.media ? `${location.media.sourceLabel} — © Rockstar Games` : "" },
     { src: photoUrl(location.photos.ig), label: "Capture in-game" },
     { src: wikiImageUrl(location.wiki), label: "GTA Wiki" },
     { src: photoUrl(location.photos.irl), label: "Lieu réel" },
-  ].filter((i): i is { src: string; label: string } => !!i.src);
+  ].filter((i): i is PageImage => !!i.src);
+
+  /**
+   * Illustration de repli quand le lieu n'a aucune image.
+   *
+   * Tirée de la galerie des visuels officiels, en variant selon le slug : chaque
+   * page a la sienne, et l'ensemble du site tourne au lieu d'afficher partout le
+   * même écran vide. Le choix est déterministe plutôt qu'aléatoire — la page est
+   * mise en cache (ISR), un tirage à chaque rendu ne changerait rien pour le
+   * visiteur tout en rendant les captures et le débogage imprévisibles.
+   *
+   * Elle est signalée comme décorative : ce n'est pas une photo de ce lieu, et
+   * l'afficher comme telle serait trompeur.
+   */
+  const backdrops = MEDIA_CATALOG.filter((m) => m.kind === "screenshot" || m.kind === "artwork");
+  const fallbackHero =
+    images.length === 0 && backdrops.length > 0
+      ? backdrops[[...location.slug].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % backdrops.length].src
+      : null;
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": location.kind === "camera" ? "ImageObject" : "Place",
+    "@type": "Place",
     name: location.name,
     url: `${SITE_URL}/location/${location.slug}`,
     description: location.description ?? `${location.name} — ${category?.name ?? "lieu"} dans GTA VI.`,
@@ -70,93 +112,49 @@ export default async function LocationPage({ params }: PageProps<"/location/[slu
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
   };
 
+  /**
+   * Description de repli, rédigée à partir des données.
+   *
+   * Elle n'est pas décorative : sans texte, la page n'aurait rien d'indexable
+   * au-delà de son titre, alors que ces pages existent précisément pour ça.
+   */
+  const summary =
+    location.description ??
+    [
+      `${location.name} est un lieu de type ${category?.name?.toLowerCase() ?? "landmark"}`,
+      location.area ? ` situé dans la zone ${location.area}` : "",
+      " de l’État de Leonida (GTA VI).",
+      location.realWorld.name
+        ? ` Il s’inspire de ${location.realWorld.name}${location.realWorld.address ? ` (${location.realWorld.address})` : ""}${
+            location.realWorld.status === "unconfirmed" ? " — correspondance non confirmée." : "."
+          }`
+        : "",
+      location.height !== null ? ` Hauteur estimée : ${Math.round(location.height)} m.` : "",
+    ].join("");
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <nav className="mb-6 text-sm text-muted">
-        <Link href="/" className="inline-flex items-center gap-1 hover:text-foreground">
+
+      <nav className="fixed left-4 top-4 z-50 text-sm">
+        <Link href="/map" className="rs-pill inline-flex items-center gap-2 px-4 py-2 text-foreground">
           <ArrowLeft className="h-4 w-4" /> Retour à la carte
         </Link>
       </nav>
 
-      <header className="mb-6 flex items-start gap-4">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white" style={{ background: category?.color ?? location.color }}>
-          {location.kind === "camera" ? <Compass className="h-6 w-6" /> : <MapPin className="h-6 w-6" />}
-        </span>
-        <div>
-          <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight">{location.name}</h1>
-          <p className="mt-1 text-muted">
-            {category?.name}
-            {location.area ? ` · ${location.area}` : ""} · <span className="font-mono text-sm">{location.x}, {location.y}</span>
-          </p>
-        </div>
-      </header>
-
-      {images.length > 0 && (
-        <div className={`mb-6 grid gap-3 ${images.length > 1 ? "sm:grid-cols-2" : ""}`}>
-          {images.map((img) => (
-            <figure key={img.src} className="overflow-hidden rounded-2xl border border-border bg-surface">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.src} alt={`${location.name} — ${img.label}`} className="aspect-video w-full object-cover" loading="lazy" />
-              <figcaption className="px-3 py-1.5 text-xs text-muted">{img.label}</figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
-
-      <section className="mb-8 text-sm leading-relaxed text-foreground/90">
-        {location.description ? (
-          <p>{location.description}</p>
-        ) : (
-          <p>
-            <strong>{location.name}</strong> est un lieu de type <em>{category?.name?.toLowerCase() ?? "landmark"}</em>
-            {location.area ? ` situé dans la zone ${location.area}` : ""} de l&apos;État de Leonida (GTA VI).
-            {location.realWorld.name && (
-              <>
-                {" "}Il s&apos;inspire de <strong>{location.realWorld.name}</strong>
-                {location.realWorld.address ? ` (${location.realWorld.address})` : ""}
-                {location.realWorld.status === "unconfirmed" ? " — correspondance non confirmée." : "."}
-              </>
-            )}
-            {location.height !== null && ` Hauteur estimée : ${Math.round(location.height)} m.`}
-          </p>
-        )}
-      </section>
-
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href={`/?l=${location.slug}`}
-          className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-white hover:bg-accent-deep"
-        >
-          <MapPin className="h-4 w-4" /> Ouvrir sur la carte interactive
-        </Link>
-        {location.wiki && (
-          <a
-            href={location.wiki.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rs-pill inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold"
-          >
-            <BookOpen className="h-4 w-4 text-accent-2" /> GTA Wiki <ExternalLink className="h-3 w-3 text-muted" />
-          </a>
-        )}
-      </div>
-
-      {nearby.length > 0 && (
-        <section className="mt-10">
-          <h2 className="mb-3 font-display text-lg font-bold">À proximité</h2>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {nearby.map(({ l, d }) => (
-              <li key={l.id}>
-                <Link href={`/location/${l.slug}`} className="flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2 text-sm hover:bg-surface-2">
-                  <span className="truncate">{l.name}</span>
-                  <span className="ml-3 shrink-0 font-mono text-xs text-muted">{Math.round(d)} m</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </div>
+      <RevealProvider>
+        <main>
+          <LocationPageBody
+            location={location}
+            category={category}
+            images={images}
+            nearby={nearby}
+            summary={summary}
+            fallbackHero={fallbackHero}
+          />
+        </main>
+        <LandingFooter />
+      </RevealProvider>
+    </>
   );
 }

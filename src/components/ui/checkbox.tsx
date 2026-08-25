@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type CheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> & {
@@ -20,12 +19,13 @@ export function Checkbox({ className, color, style, ...props }: CheckboxProps) {
       style={{ ...style, ...(color ? ({ "--cb-color": color } as React.CSSProperties) : {}) }}
       {...props}
     >
+      {/* Aplat plein, sans coche : à 16 px, le glyphe se réduisait à une tache
+          et brouillait la couleur, seule information utile ici — c'est elle qui
+          rattache la ligne à sa catégorie sur la carte. */}
       <CheckboxPrimitive.Indicator
-        className="flex items-center justify-center rounded-[3px]"
+        className="block h-full w-full rounded-[3px]"
         style={{ background: color ?? "var(--accent)" }}
-      >
-        <Check className="h-3.5 w-3.5" strokeWidth={3} />
-      </CheckboxPrimitive.Indicator>
+      />
     </CheckboxPrimitive.Root>
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { RotateCcw, Trophy } from "lucide-react";
+import { RotateCcw, Trophy } from "@/components/ui/icons";
 import type { CategoryWithCount, ProgressSummary } from "@/types";
 import { useProgressStore } from "@/store/useProgressStore";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { formatPercent } from "@/lib/utils";
+import { pastel } from "@/lib/colors";
 
 interface ProgressOverviewProps {
   categories: readonly CategoryWithCount[];
@@ -29,7 +30,7 @@ export function ProgressOverview({ categories, global, syncStatus }: ProgressOve
           <h3 className="flex items-center gap-2 text-sm font-semibold">
             <Trophy className="h-4 w-4 text-accent" /> Complétion globale
           </h3>
-          <span className="font-mono text-lg font-bold tabular-nums">{formatPercent(global.percent)}</span>
+          <span className="vi-num text-lg font-bold ">{formatPercent(global.percent)}</span>
         </div>
         <Progress value={global.percent} />
         <p className="mt-2 text-xs text-muted">
@@ -45,14 +46,17 @@ export function ProgressOverview({ categories, global, syncStatus }: ProgressOve
             <div key={c.slug}>
               <div className="mb-1 flex items-center justify-between text-xs">
                 <span className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full" style={{ background: c.color }} />
+                  <span className="h-2 w-2 rounded-full" style={{ background: pastel(c.color) }} />
                   {c.name}
                 </span>
-                <span className="font-mono tabular-nums text-muted">
-                  {c.found}/{c.total} · {formatPercent(pct)}
+                <span className="vi-num text-muted-2">
+                  <span className="font-semibold text-foreground">{c.found}</span>
+                  <span className="mx-1 opacity-40">·</span>
+                  {c.total}
+                  <span className="ml-2 opacity-70">{formatPercent(pct)}</span>
                 </span>
               </div>
-              <Progress value={pct} color={c.color} size="sm" />
+              <Progress value={pct} color={pastel(c.color)} size="sm" />
             </div>
           );
         })}

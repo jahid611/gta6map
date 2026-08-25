@@ -6,7 +6,7 @@ import { useMap, useMapEvents } from "react-leaflet";
 import { useMapStore } from "@/store/useMapStore";
 import { useUIStore } from "@/store/useUIStore";
 import { decodeViewHash, encodeViewHash, latLngToWorld } from "@/lib/map/coords";
-import { MAX_ZOOM, MIN_ZOOM } from "@/lib/map/config";
+import { DEFAULT_VIEW, LANDMASS_BOUNDS, MAX_ZOOM, MIN_ZOOM } from "@/lib/map/config";
 import { clamp } from "@/lib/utils";
 
 /**
@@ -25,12 +25,25 @@ export function MapController() {
   const setPendingCustomMarker = useUIStore((s) => s.setPendingCustomMarker);
   const hashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Vue initiale depuis le hash (compatible gta6map.github.io : #x,y,z)
+  // Vue initiale. Priorité au hash d'URL (compatible gta6map.github.io :
+  // #x,y,z), puis à la vue persistée si l'utilisateur en a déjà bougé une.
+  //
+  // À défaut, on cadre sur les terres avec `fitBounds` plutôt que d'appliquer
+  // le centre/zoom fixe de `DEFAULT_VIEW` : celui-ci ignorait la largeur réelle
+  // du conteneur (amputée de 340 px par le panneau latéral) et laissait Vice
+  // City hors cadre à droite.
   useEffect(() => {
     const parsed = decodeViewHash(window.location.hash);
     if (parsed) {
       map.setView([parsed.center[1], parsed.center[0]], clamp(parsed.zoom, MIN_ZOOM, MAX_ZOOM), { animate: false });
+      return;
     }
+    const { center, zoom } = useMapStore.getState();
+    const untouched = center[0] === DEFAULT_VIEW.center[0] && center[1] === DEFAULT_VIEW.center[1] && zoom === DEFAULT_VIEW.zoom;
+    if (!untouched) return;
+
+    const [[xMin, yMin], [xMax, yMax]] = LANDMASS_BOUNDS;
+    map.fitBounds(L.latLngBounds([yMin, xMin], [yMax, xMax]), { padding: [24, 24], animate: false });
   }, [map]);
 
   useEffect(() => {
@@ -56,12 +69,18 @@ export function MapController() {
       }, 250);
     },
     click(e: L.LeafletMouseEvent) {
+      // Règle active : le clic pose un point de mesure, il ne doit pas en plus
+      // désélectionner le lieu affiché (cf. `MeasureLayer`).
+      if (useMapStore.getState().measuring) return;
       const target = e.originalEvent.target as HTMLElement | null;
       if (target?.closest(".gta-marker, .gta-cluster, .leaflet-marker-icon")) return;
       selectLocation(null);
     },
     contextmenu(e: L.LeafletMouseEvent) {
       e.originalEvent.preventDefault();
+      // Idem : pendant une mesure, le clic droit retire le dernier point au lieu
+      // de proposer un marqueur personnalisé.
+      if (useMapStore.getState().measuring) return;
       const [x, y] = latLngToWorld(e.latlng.lat, e.latlng.lng);
       setPendingCustomMarker({ x: Math.round(x), y: Math.round(y) });
     },

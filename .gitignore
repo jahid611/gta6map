@@ -49,3 +49,4 @@ next-env.d.ts
 /public/photos/gtadb
 /data/raw/gtamapdata.py
 /data/raw/frames-index.json
+/public/media

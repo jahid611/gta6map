@@ -63,6 +63,13 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
   const stateKeysRef = useRef<Map<string, string>>(new Map());
   const locationByIdRef = useRef<Map<string, Location>>(new Map());
   const selectLocation = useUIStore((s) => s.selectLocation);
+  const setHoverPreview = useUIStore((s) => s.setHoverPreview);
+  const previewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearPreviewTimer = () => {
+    if (previewTimer.current) clearTimeout(previewTimer.current);
+    previewTimer.current = null;
+  };
   const setHovered = useUIStore((s) => s.setHovered);
 
   // ── Création du groupe ──
@@ -96,7 +103,8 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
           }
         }
         const count = cluster.getChildCount();
-        const size = count < 10 ? 34 : count < 50 ? 42 : 52;
+        // Doit rester synchronisé avec `.gta-cluster--sm|md|lg` (globals.css).
+        const size = count < 10 ? 30 : count < 50 ? 36 : 44;
         return L.divIcon({
           html: clusterHtml(count, dominant),
           className: "gta-cluster-wrapper",
@@ -135,7 +143,9 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
       const selected = location.slug === selectedSlug;
       const marker = L.marker(location.latLng as [number, number], {
         icon: iconFor(location, category, found, selected),
-        title: location.name,
+        // Pas de `title` : le navigateur en ferait une infobulle native, au style
+        // non maîtrisé et redondante avec l'aperçu au survol (`MarkerPreview`).
+        // Le nom accessible est porté par `alt`/`aria-label` côté aperçu.
         alt: location.name,
         keyboard: false,
         riseOnHover: true,
@@ -143,8 +153,23 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
         ...({ gtaColor: category?.color ?? location.color, gtaSlug: location.slug } as object),
       });
       marker.on("click", () => selectLocation(location.slug));
-      marker.on("mouseover", () => setHovered(location.slug));
-      marker.on("mouseout", () => setHovered(null));
+      // Survol : mise en évidence immédiate, mais l'aperçu n'apparaît qu'après un
+      // temps d'arrêt. Sans ce délai, traverser une grappe de points ferait
+      // clignoter une carte après l'autre.
+      marker.on("mouseover", (e: L.LeafletMouseEvent) => {
+        setHovered(location.slug);
+        const { clientX, clientY } = e.originalEvent;
+        clearPreviewTimer();
+        previewTimer.current = setTimeout(
+          () => setHoverPreview({ slug: location.slug, x: clientX, y: clientY }),
+          420,
+        );
+      });
+      marker.on("mouseout", () => {
+        setHovered(null);
+        clearPreviewTimer();
+        setHoverPreview(null);
+      });
       managed.set(location.id, { marker });
       stateKeysRef.current.set(location.id, `${found}|${selected}`);
       toAdd.push(marker);
