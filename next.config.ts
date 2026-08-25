@@ -14,6 +14,7 @@ const LOCAL_MIRRORS: Record<string, { probe: string[]; base: string }> = {
   NEXT_PUBLIC_PHOTOS_BASE_URL: { probe: ["photos", "gtadb"], base: "/photos" },
   NEXT_PUBLIC_FRAMES_BASE_URL: { probe: ["frames"], base: "/frames" },
   NEXT_PUBLIC_WIKI_IMAGES_BASE_URL: { probe: ["wiki"], base: "/wiki" },
+  NEXT_PUBLIC_MEDIA_BASE_URL: { probe: ["media"], base: "/media" },
 };
 
 for (const [key, { probe, base }] of Object.entries(LOCAL_MIRRORS)) {
@@ -45,6 +46,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_PHOTOS_BASE_URL: process.env.NEXT_PUBLIC_PHOTOS_BASE_URL ?? "",
     NEXT_PUBLIC_FRAMES_BASE_URL: process.env.NEXT_PUBLIC_FRAMES_BASE_URL ?? "",
     NEXT_PUBLIC_WIKI_IMAGES_BASE_URL: process.env.NEXT_PUBLIC_WIKI_IMAGES_BASE_URL ?? "",
+    NEXT_PUBLIC_MEDIA_BASE_URL: process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "",
   },
   images: {
     formats: ["image/avif", "image/webp"],
@@ -58,7 +60,7 @@ const nextConfig: NextConfig = {
     return [
       {
         // Tuiles et photos locales : cache CDN agressif (dossiers versionnés).
-        source: "/(tiles|photos|frames|wiki|brand)/:path*",
+        source: "/(tiles|photos|frames|wiki|brand|media)/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {

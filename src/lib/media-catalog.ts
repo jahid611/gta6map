@@ -18,14 +18,33 @@ export interface MediaEntry {
 }
 
 /**
+ * Base des médias.
+ *
+ * Vide en local : les fichiers sont servis depuis `public/media`. En production
+ * ce dossier n'est pas déployé — il pèse ~384 Mo et reste hors du dépôt — et la
+ * variable pointe alors le bucket où `npm run assets:upload` les a envoyés.
+ */
+const MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "").trim().replace(/\/+$/, "");
+
+/** Réécrit un chemin `/media/...` vers le miroir configuré, le cas échéant. */
+function resolve(src: string | null): string | null {
+  if (!src || !MEDIA_BASE) return src;
+  return src.startsWith("/media/") ? MEDIA_BASE + src.slice("/media".length) : src;
+}
+
+/**
  * Catalogue des médias officiels, produit par `npm run build:media`.
  *
  * Le manifeste est versionné alors que les fichiers eux-mêmes sont ignorés par
- * git (375 Mo) : la galerie sait donc toujours ce qu'elle devrait afficher, et
- * se dégrade en vignettes vides plutôt qu'en page cassée si les fichiers ne sont
- * pas présents sur la machine.
+ * git : la galerie sait donc toujours ce qu'elle devrait afficher, et se dégrade
+ * en vignettes vides plutôt qu'en page cassée si les fichiers sont absents.
  */
-export const MEDIA_CATALOG = manifest as MediaEntry[];
+export const MEDIA_CATALOG: MediaEntry[] = (manifest as MediaEntry[]).map((e) => ({
+  ...e,
+  src: resolve(e.src) as string,
+  poster: resolve(e.poster),
+  variants: e.variants.map((v) => resolve(v) as string),
+}));
 
 export interface MediaFilter {
   id: string;

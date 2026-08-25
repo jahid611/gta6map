@@ -11,6 +11,8 @@
  *   S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY
  *   S3_PREFIX              préfixe optionnel (ex. gta6)
  *
+ * Dossiers envoyés : tiles, photos, frames, wiki, media.
+ *
  * Usage : npm run assets:upload [-- --tiles-only | --photos-only] [--concurrency 16]
  */
 import { createReadStream, existsSync, readdirSync, statSync } from "node:fs";
@@ -101,7 +103,15 @@ async function main(): Promise<void> {
   const targets: string[] = [];
   if (!PHOTOS_ONLY) targets.push(path.join(PUBLIC_DIR, "tiles"));
   if (!TILES_ONLY) {
-    targets.push(path.join(PUBLIC_DIR, "photos"), path.join(PUBLIC_DIR, "frames"), path.join(PUBLIC_DIR, "wiki"));
+    targets.push(
+      path.join(PUBLIC_DIR, "photos"),
+      path.join(PUBLIC_DIR, "frames"),
+      path.join(PUBLIC_DIR, "wiki"),
+      // `media` : screenshots, artworks et clips de la galerie. Le dossier pese
+      // ~384 Mo — il ne peut pas partir dans le depot, et sans lui la galerie
+      // n'a rien a afficher en production.
+      path.join(PUBLIC_DIR, "media"),
+    );
   }
   const files = targets.filter(existsSync).flatMap((dir) => [...walk(dir)]);
   console.log(`▶ Upload de ${files.length} fichiers vers ${S3_BUCKET}/${PREFIX || ""}`);
