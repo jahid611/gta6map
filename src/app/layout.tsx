@@ -33,7 +33,9 @@ const fontText = Archivo({ variable: "--font-text", subsets: ["latin"], display:
 // posée sur `<html>`, et les titres retombaient sur Archivo seul.
 const fontDisplay = Archivo({ variable: "--font-archivo-display", subsets: ["latin"], display: "swap", axes: ["wdth"] });
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+/** Domaine canonique : gta6map.pro (surchargé par NEXT_PUBLIC_SITE_URL ; localhost en dev). */
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || (process.env.NODE_ENV === "production" ? "https://gta6map.pro" : "http://localhost:3000");
 export const SITE_NAME = "GTA VI Map — Leonida";
 
 export const metadata: Metadata = {

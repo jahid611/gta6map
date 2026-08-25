@@ -93,7 +93,8 @@ function ProfileHoverCard({ userId, profile }: { userId: string; profile: ChatPr
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(19,19,26,0.95)] to-transparent" />
       </div>
-      <div className="-mt-6 px-4 pb-4">
+      {/* `relative z-10` : sans ça, la bannière (positionnée) se peint par-dessus l'avatar. */}
+      <div className="relative z-10 -mt-6 px-4 pb-4">
         <Avatar profile={p ?? profile} size={48} className="border-2 border-[#13131a]" />
         <p className="font-display mt-2 truncate text-base font-extrabold">{p?.displayName ?? profile?.displayName ?? "Joueur"}</p>
         {data === undefined ? (
