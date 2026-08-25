@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 };
 export const dynamic = "force-dynamic";
 
-export default async function CommunityPage() {
-  const bootstrap = await getCommunityBootstrap();
+export default async function CommunityPage({ searchParams }: PageProps<"/community">) {
+  const [bootstrap, params] = await Promise.all([getCommunityBootstrap(), searchParams]);
+  const share = typeof params.share === "string" && /^[a-z0-9-]+$/.test(params.share) ? params.share : null;
 
   return (
     <div className="flex h-dvh flex-col">
@@ -34,7 +35,7 @@ export default async function CommunityPage() {
 
       <main className="min-h-0 flex-1">
         {bootstrap ? (
-          <CommunityHub bootstrap={bootstrap} />
+          <CommunityHub bootstrap={bootstrap} initialShareSlug={share} />
         ) : (
           <div className="mx-auto max-w-md px-6 py-20 text-center text-sm text-muted">
             <p className="font-display text-xl font-extrabold text-foreground">Communauté indisponible</p>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
   BookOpen,
@@ -60,6 +61,8 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
   const flyTo = useMapStore((s) => s.flyTo);
   const [copied, setCopied] = useState<"coords" | "link" | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  // `/map?share=1` : l'utilisateur vient du chat pour choisir un lieu à partager.
+  const shareMode = useSearchParams().get("share") === "1";
   const [irlOpen, setIrlOpen] = useState(false);
   const openRealWorldAt = useMapStore((s) => s.openRealWorldAt);
   const openRealWorldFromGame = useMapStore((s) => s.openRealWorldFromGame);
@@ -280,6 +283,17 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
             <LocateFixed className="h-4 w-4" /> Centrer la caméra
           </Button>
         )}
+        {/* Partage dans le chat communautaire : ramène sur /community avec ce lieu prêt à envoyer.
+            Mis en avant (rose) quand on vient du chat en mode partage (`/map?share=1`). */}
+        <Link
+          href={`/community?share=${location.slug}`}
+          className={cn(
+            "flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
+            shareMode ? "bg-accent text-white shadow-[0_0_24px_rgba(249,118,176,0.4)] hover:bg-accent-deep" : "rs-pill",
+          )}
+        >
+          <MapPin className="h-4 w-4" /> {shareMode ? "Partager ce lieu" : "Partager dans le chat"}
+        </Link>
         {/* Pas de bouton « Full View » : l'image d'en-tête est déjà cliquable et
             porte une icône d'agrandissement au survol. Un bouton pleine largeur
             de plus ne faisait que répéter ce geste. */}

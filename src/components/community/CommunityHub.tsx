@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, ChevronDown, CornerDownLeft, ExternalLink, Loader2, MapPin, Plus, Search, Trophy, X } from "@/components/ui/icons";
+import { useRouter } from "next/navigation";
+import { Check, ChevronDown, CornerDownLeft, ExternalLink, Loader2, MapPin, Plus, Trophy, X } from "@/components/ui/icons";
 import { useAuth } from "@/hooks/useAuth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
@@ -18,7 +19,7 @@ import {
 } from "@/lib/community/client";
 import { CATEGORY_GROUP_LABELS } from "@/lib/data/categories";
 import { pastel } from "@/lib/colors";
-import { cn, normalizeText } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   POLL_DURATIONS,
   QUICK_EMOJIS,
@@ -351,49 +352,11 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
 
 type ComposerMode = "text" | "location" | "poll";
 
-function LocationPicker({ locations, categories, onPick, onClose }: { locations: SlimLocation[]; categories: Map<string, { name: string; color: string }>; onPick: (l: SlimLocation) => void; onClose: () => void }) {
-  const [q, setQ] = useState("");
-  const results = useMemo(() => {
-    const n = normalizeText(q);
-    if (!n) return locations.slice(0, 8);
-    return locations.filter((l) => normalizeText(l.name).includes(n) || normalizeText(l.area ?? "").includes(n)).slice(0, 10);
-  }, [q, locations]);
-  return (
-    <div className="rounded-2xl border border-white/10 bg-black/40 p-3 animate-fade-in">
-      <div className="flex items-center gap-2">
-        <Search className="h-4 w-4 text-muted" />
-        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Chercher un lieu à partager…" className="h-9 flex-1 bg-transparent text-sm outline-none placeholder:text-muted" />
-        <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-muted hover:text-foreground cursor-pointer" aria-label="Fermer"><X className="h-4 w-4" /></button>
-      </div>
-      <ul className="mt-2 max-h-64 overflow-auto">
-        {results.map((l) => {
-          const c = categories.get(l.categorySlug);
-          return (
-            <li key={l.slug}>
-              <button type="button" onClick={() => onPick(l)} className="flex w-full items-center gap-3 rounded-xl px-2 py-1.5 text-left text-sm hover:bg-white/[0.06] cursor-pointer">
-                {l.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={l.image} alt="" className="h-9 w-12 shrink-0 rounded-md object-cover" loading="lazy" />
-                ) : (
-                  <span className="h-9 w-12 shrink-0 rounded-md" style={{ background: c ? pastel(c.color) : "#333" }} />
-                )}
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{l.name}</span>
-                  <span className="block truncate text-xs text-muted">{c?.name}{l.area ? ` · ${l.area}` : ""}</span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
 /* ────────────────────────────── hub ────────────────────────────── */
 
-export function CommunityHub({ bootstrap }: { bootstrap: CommunityBootstrap }) {
+export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap: CommunityBootstrap; initialShareSlug?: string | null }) {
   const auth = useAuth();
+  const router = useRouter();
   const userId = auth.user?.id ?? null;
   const [messages, setMessages] = useState<ChatMessage[]>(bootstrap.messages);
   const [reactions, setReactions] = useState<ChatReaction[]>(bootstrap.reactions);
@@ -409,9 +372,12 @@ export function CommunityHub({ bootstrap }: { bootstrap: CommunityBootstrap }) {
     [storedProfiles, auth.user, auth.displayName, auth.avatarUrl, auth.bannerUrl],
   );
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
-  const [mode, setMode] = useState<ComposerMode>("text");
+  // Arrivée depuis une fiche lieu (`/community?share=slug`) : le lieu est déjà prêt à partager.
+  const [mode, setMode] = useState<ComposerMode>(initialShareSlug ? "location" : "text");
   const [text, setText] = useState("");
-  const [pickedLocation, setPickedLocation] = useState<SlimLocation | null>(null);
+  const [pickedLocation, setPickedLocation] = useState<SlimLocation | null>(
+    () => (initialShareSlug ? (bootstrap.locations.find((l) => l.slug === initialShareSlug) ?? null) : null),
+  );
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState(["", ""]);
   const [pollMinutes, setPollMinutes] = useState<number>(POLL_DURATIONS[2].minutes);
@@ -432,6 +398,17 @@ export function CommunityHub({ bootstrap }: { bootstrap: CommunityBootstrap }) {
     const found = await fetchProfiles(missing);
     setProfiles((p) => ({ ...p, ...found }));
   }, [profiles]);
+
+  // Nettoie `?share=…` de l'URL et place le curseur dans le message d'accompagnement.
+  useEffect(() => {
+    if (!initialShareSlug) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("share")) {
+      url.searchParams.delete("share");
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+    textareaRef.current?.focus();
+  }, [initialShareSlug]);
 
   // Défilement : coller en bas quand l'utilisateur y est déjà.
   const scrollToBottom = useCallback((smooth = true) => {
@@ -620,16 +597,20 @@ export function CommunityHub({ bootstrap }: { bootstrap: CommunityBootstrap }) {
                 </div>
               )}
 
-              {mode === "location" && !pickedLocation && (
-                <div className="mb-2">
-                  <LocationPicker locations={bootstrap.locations} categories={categories} onPick={setPickedLocation} onClose={() => setMode("text")} />
-                </div>
-              )}
               {mode === "location" && pickedLocation && (
                 <div className="mb-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm">
-                  <MapPin className="h-4 w-4 text-accent" />
-                  <span className="min-w-0 flex-1 truncate"><span className="font-semibold">{pickedLocation.name}</span>{pickedLocation.area ? <span className="text-muted"> · {pickedLocation.area}</span> : null}</span>
-                  <button type="button" onClick={() => setPickedLocation(null)} className="text-muted hover:text-foreground cursor-pointer" aria-label="Changer de lieu"><X className="h-3.5 w-3.5" /></button>
+                  {pickedLocation.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={pickedLocation.image} alt="" className="h-10 w-14 shrink-0 rounded-md object-cover" />
+                  ) : (
+                    <MapPin className="h-4 w-4 text-accent" />
+                  )}
+                  <span className="min-w-0 flex-1 truncate">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-accent-pale">Lieu à partager</span>
+                    <br />
+                    <span className="font-semibold">{pickedLocation.name}</span>{pickedLocation.area ? <span className="text-muted"> · {pickedLocation.area}</span> : null}
+                  </span>
+                  <button type="button" onClick={() => { setPickedLocation(null); setMode("text"); }} className="text-muted hover:text-foreground cursor-pointer" aria-label="Annuler le partage"><X className="h-3.5 w-3.5" /></button>
                 </div>
               )}
 
@@ -675,8 +656,13 @@ export function CommunityHub({ bootstrap }: { bootstrap: CommunityBootstrap }) {
               {error && <p role="alert" className="mt-2 text-xs text-accent-pale">{error}</p>}
 
               <div className="mt-2 flex items-center gap-2">
-                <button type="button" onClick={() => setMode(mode === "location" ? "text" : "location")} className={cn("rs-pill inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer", mode === "location" && "rs-pill--accent")}>
-                  <MapPin className="h-3.5 w-3.5" /> Partager un lieu
+                {/* Le choix du lieu se fait sur la carte (mode partage) : chaque fiche a « Partager dans le chat ». */}
+                <button
+                  type="button"
+                  onClick={() => router.push("/map?share=1")}
+                  className={cn("rs-pill inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer", mode === "location" && "rs-pill--accent")}
+                >
+                  <MapPin className="h-3.5 w-3.5" /> {mode === "location" && pickedLocation ? "Changer de lieu" : "Partager un lieu"}
                 </button>
                 <button type="button" onClick={() => setMode(mode === "poll" ? "text" : "poll")} className={cn("rs-pill inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer", mode === "poll" && "rs-pill--accent")}>
                   <Trophy className="h-3.5 w-3.5" /> Sondage

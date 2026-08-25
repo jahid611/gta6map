@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Camera, SlidersHorizontal, Trophy } from "@/components/ui/icons";
 import type { AreaInfo, Category, CategoryWithCount, Location, LocationWiki, MapSection, ProgressSummary } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -53,6 +55,8 @@ const PANEL_TABS: { id: Exclude<SidebarPanel, "location">; label: string; icon: 
  */
 export function AppShell({ locations, categories, sections, areas, initialSlug = null }: AppShellProps) {
   const isDesktop = useIsDesktop();
+  // `/map?share=1` : venu du chat pour choisir un lieu à partager (bandeau d'aide).
+  const shareMode = useSearchParams().get("share") === "1";
   const auth = useAuth();
   useProgressSync(auth.user?.id ?? null);
 
@@ -199,6 +203,22 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
           )}
 
           <main className="relative min-w-0 flex-1">
+            {shareMode && (
+              <div className="pointer-events-none absolute inset-x-0 top-3 z-[1060] flex justify-center px-3">
+                <div className="rs-card pointer-events-auto flex max-w-xl items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm animate-fade-in">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent text-white">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="font-semibold">Mode partage</span>
+                    <span className="text-muted"> — parcourez la carte, ouvrez un lieu et cliquez « Partager ce lieu ».</span>
+                  </span>
+                  <Link href="/community" className="rs-pill shrink-0 px-3 py-1.5 text-xs font-semibold">
+                    Annuler
+                  </Link>
+                </div>
+              </div>
+            )}
             <MapLoader
               locations={visibleLocations}
               categoriesBySlug={categoriesBySlug}
