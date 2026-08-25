@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { MEDIA_CATALOG, clipFor } from "@/lib/media-catalog";
+import { MediaMontage, type MontageItem } from "@/components/media/MediaMontage";
 
 export const metadata: Metadata = {
   title: "Connexion / Créer un compte",
@@ -15,12 +16,22 @@ function safeNext(value: string | string[] | undefined): string {
   return v.startsWith("/") && !v.startsWith("//") ? v : "/map";
 }
 
-/** Visuels officiels du panneau : clip Lucia (ou Jason) + son affiche, artwork de secours. */
-function pickVisuals(mode: "signin" | "signup") {
-  const name = mode === "signup" ? "Lucia Caminos" : "Jason Duval";
-  const clip = MEDIA_CATALOG.find((e) => e.kind === "clip" && e.group === name) ?? MEDIA_CATALOG.find((e) => e.kind === "clip" && e.group !== "GTAVI Official Cover Art Landscape");
-  const still = MEDIA_CATALOG.find((e) => e.kind === "screenshot" && e.section === "People" && e.group === name);
-  return { video: clip?.src ?? clipFor(name), poster: clip?.poster ?? still?.src ?? null, character: name };
+/**
+ * Panneau média : tous les clips officiels à la suite (chacun joué une fois),
+ * en commençant par Jason à la connexion, Lucia à l'inscription.
+ */
+function clipSequence(mode: "signin" | "signup"): MontageItem[] {
+  const first = mode === "signup" ? "Lucia Caminos" : "Jason Duval";
+  const clips = MEDIA_CATALOG.filter((e) => e.kind === "clip" && !/cover art/i.test(e.group));
+  const ordered = [...clips.filter((c) => c.group === first), ...clips.filter((c) => c.group !== first)];
+  return ordered.map((clip) => ({
+    id: clip.id,
+    kind: "video",
+    src: clip.src,
+    poster: clip.poster ?? clipFor(clip.group),
+    title: "1 500 lieux, les plans des trailers, et votre progression qui vous suit partout.",
+    subtitle: clip.group,
+  }));
 }
 
 export default async function AuthPage({ searchParams }: PageProps<"/auth">) {
@@ -28,7 +39,7 @@ export default async function AuthPage({ searchParams }: PageProps<"/auth">) {
   const next = safeNext(params.next);
   const mode = params.mode === "signup" ? "signup" : "signin";
   const authError = params.auth === "error";
-  const visuals = pickVisuals(mode);
+  const sequence = clipSequence(mode);
 
   return (
     <main className="relative min-h-dvh lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
@@ -48,32 +59,9 @@ export default async function AuthPage({ searchParams }: PageProps<"/auth">) {
         </div>
       </section>
 
-      {/* Panneau média : clip officiel en boucle (affiche sur mobile) */}
-      <aside className="relative min-h-[38vh] overflow-hidden lg:min-h-0" aria-hidden>
-        {visuals.video ? (
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            src={visuals.video}
-            poster={visuals.poster ?? undefined}
-            autoPlay
-            muted
-            playsInline
-            preload="metadata"
-          />
-        ) : visuals.poster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={visuals.poster} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        ) : (
-          <div className="absolute inset-0 bg-[image:var(--gradient-vi)]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent lg:bg-gradient-to-r lg:from-background lg:via-background/10 lg:to-transparent" />
-        <div className="absolute bottom-6 left-6 right-6 lg:bottom-12 lg:left-12">
-          <p className="vi-kicker text-accent-pale">Leonida, USA</p>
-          <p className="font-display mt-2 max-w-md text-2xl font-extrabold leading-tight tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] sm:text-3xl">
-            1 500 lieux, les plans des trailers, et votre progression qui vous suit partout.
-          </p>
-          <p className="mt-2 text-xs text-white/60">{visuals.character} — © Rockstar Games</p>
-        </div>
+      {/* Panneau média : tous les clips officiels à la suite, chacun joué une fois */}
+      <aside className="relative min-h-[38vh] overflow-hidden lg:sticky lg:top-0 lg:h-dvh lg:min-h-0" aria-label="Clips officiels">
+        {sequence.length ? <MediaMontage items={sequence} fill /> : <div className="absolute inset-0 bg-[image:var(--gradient-vi)]" />}
       </aside>
     </main>
   );
