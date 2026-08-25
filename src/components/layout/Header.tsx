@@ -53,7 +53,9 @@ export function Header({ locations, categoriesBySlug, global, auth }: HeaderProp
         <SlidersHorizontal className="h-4 w-4" />
       </Button>
 
-      <AuthButton auth={auth} />
+      <div className="ml-auto flex shrink-0 items-center">
+        <AuthButton auth={auth} />
+      </div>
     </header>
   );
 }

@@ -18,13 +18,15 @@ interface MediaMontageProps {
   /** Durée d'affichage d'un élément (ms) — les clips Rockstar durent ~1 s et bouclent. */
   interval?: number;
   className?: string;
+  /** `true` : occupe tout son conteneur (panneau plein écran), sans ratio imposé. */
+  fill?: boolean;
 }
 
 /**
  * Montage auto : enchaîne clips (en boucle, muets) et images avec un fondu,
  * navigation flèches / points / clavier, pause au survol.
  */
-export function MediaMontage({ items, interval = 4500, className }: MediaMontageProps) {
+export function MediaMontage({ items, interval = 4500, className, fill = false }: MediaMontageProps) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -54,7 +56,7 @@ export function MediaMontage({ items, interval = 4500, className }: MediaMontage
 
   return (
     <div
-      className={cn("group relative overflow-hidden rounded-3xl bg-black", className)}
+      className={cn("group relative overflow-hidden bg-black", fill ? "h-full w-full" : "rounded-3xl", className)}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onKeyDown={(e) => {
@@ -65,7 +67,7 @@ export function MediaMontage({ items, interval = 4500, className }: MediaMontage
       aria-roledescription="carrousel"
       aria-label="Montage des médias officiels"
     >
-      <div className="relative aspect-[4/5] w-full sm:aspect-[3/4] lg:aspect-[4/5]">
+      <div className={cn("relative w-full", fill ? "h-full" : "aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5]")}>
         {items.map((item, i) => (
           <div
             key={item.id}

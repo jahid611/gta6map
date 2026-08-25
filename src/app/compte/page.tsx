@@ -54,15 +54,14 @@ export default async function AccountPage() {
     })
     .filter((c) => c.total > 0);
   const total = locations.filter((l) => trackable.has(l.categorySlug)).length;
+  // `AccountPanel` rend lui-même le <main> en écran scindé (comme /auth).
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
-      <AccountPanel
-        totals={totals}
-        total={total}
-        avatars={avatarsJson as AvatarOption[]}
-        banners={bannerOptions()}
-        montage={montageItems()}
-      />
-    </main>
+    <AccountPanel
+      totals={totals}
+      total={total}
+      avatars={avatarsJson as AvatarOption[]}
+      banners={bannerOptions()}
+      montage={montageItems()}
+    />
   );
 }

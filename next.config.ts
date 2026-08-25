@@ -18,8 +18,15 @@ const LOCAL_MIRRORS: Record<string, { probe: string[]; base: string }> = {
 };
 
 for (const [key, { probe, base }] of Object.entries(LOCAL_MIRRORS)) {
-  if (!process.env[key]?.trim() && existsSync(path.join(process.cwd(), "public", ...probe))) {
+  const localExists = existsSync(path.join(process.cwd(), "public", ...probe));
+  const value = process.env[key]?.trim() ?? "";
+  if (!value && localExists) {
     process.env[key] = base;
+  } else if (value.startsWith("/") && !localExists) {
+    // Base relative (ex. `/photos` recopiée d'un .env.local) sans dossier local sur
+    // ce déploiement : on l'ignore pour retomber sur la source publique d'origine,
+    // sinon toutes les images seraient des 404 (placeholders).
+    process.env[key] = "";
   }
 }
 
