@@ -19,7 +19,9 @@
     "build:hero-map": "tsx scripts/build-hero-map.ts",
     "build:icons": "tsx scripts/build-icons.ts",
     "build:media": "tsx scripts/build-media-manifest.ts",
-    "optimize:clips": "tsx scripts/optimize-clips.ts"
+    "optimize:clips": "tsx scripts/optimize-clips.ts",
+    "media:upload": "tsx scripts/upload-supabase-storage.ts",
+    "optimize:wiki": "tsx scripts/optimize-wiki-images.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

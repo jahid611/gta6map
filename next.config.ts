@@ -34,7 +34,7 @@ function safeHost(url: string | undefined): string | null {
 
 const mirrorHosts = Object.keys(LOCAL_MIRRORS).map((key) => safeHost(process.env[key]));
 /** Hôtes des sources publiques utilisées à défaut de miroir (cf. `src/lib/media.ts`). */
-const originHosts = ["gta.wiki", "map.gtadb.org", "maps.gtadb.org"];
+const originHosts = ["gta.wiki", "map.gtadb.org", "maps.gtadb.org", safeHost(process.env.NEXT_PUBLIC_SUPABASE_URL)];
 const remoteHosts = [...new Set([...mirrorHosts, ...originHosts].filter((h): h is string => !!h))];
 
 const nextConfig: NextConfig = {

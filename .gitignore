@@ -46,7 +46,7 @@ next-env.d.ts
 /public/photos/*.jpg
 # public/frames (27 Mo, 101 frames officielles) est VERSIONNÉ : aucune source
 # publique unitaire, Vercel les sert directement depuis /frames.
-/public/wiki
+# public/wiki : vignettes JPEG optimisées (~4 Mo), versionnées pour Vercel
 /public/photos/gtadb
 /data/raw/gtamapdata.py
 /data/raw/frames-index.json

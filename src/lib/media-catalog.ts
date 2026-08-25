@@ -24,7 +24,21 @@ export interface MediaEntry {
  * ce dossier n'est pas déployé — il pèse ~384 Mo et reste hors du dépôt — et la
  * variable pointe alors le bucket où `npm run assets:upload` les a envoyés.
  */
-const MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "").trim().replace(/\/+$/, "");
+const MEDIA_BASE = resolveMediaBase();
+
+/**
+ * Ordre de priorité :
+ *  1. `NEXT_PUBLIC_MEDIA_BASE_URL` explicite (R2, CDN…) ou `/media` posé par
+ *     `next.config.ts` quand `public/media` existe localement ;
+ *  2. sinon, le bucket public Supabase Storage « media » du projet
+ *     (`npm run media:upload`) — aucune variable à ajouter sur Vercel.
+ */
+function resolveMediaBase(): string {
+  const explicit = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "").trim().replace(/\/+$/, "");
+  if (explicit) return explicit;
+  const supabase = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim().replace(/\/+$/, "");
+  return supabase ? `${supabase}/storage/v1/object/public/media` : "";
+}
 
 /** Réécrit un chemin `/media/...` vers le miroir configuré, le cas échéant. */
 function resolve(src: string | null): string | null {
