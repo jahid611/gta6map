@@ -193,7 +193,7 @@ export function MapControls() {
             <div className="flex items-center gap-2">
               {([["X", gotoX, setGotoX], ["Y", gotoY, setGotoY]] as const).map(([axis, value, setValue]) => (
                 <label key={axis} className="flex flex-1 items-center gap-1.5">
-                  <span className="font-mono text-[11px] text-muted-2">{axis}</span>
+                  <span className="vi-num text-[11px] text-muted-2">{axis}</span>
                   <input
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
@@ -278,7 +278,7 @@ export function MapControls() {
       </div>
 
       <div className="leaflet-bottom leaflet-left pointer-events-none hidden md:block">
-        <div className="leaflet-control mb-2 ml-2 flex items-center gap-1.5 rounded-full bg-background/80 px-2.5 py-1 font-mono text-[11px] text-muted backdrop-blur">
+        <div className="leaflet-control mb-2 ml-2 flex items-center gap-1.5 rounded-full bg-background/80 px-2.5 py-1 vi-num text-[11px] text-muted backdrop-blur">
           <Crosshair className="h-3 w-3" />
           {cursor ? `${cursor[0]}, ${cursor[1]}` : "—"}
         </div>

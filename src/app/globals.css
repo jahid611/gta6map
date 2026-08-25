@@ -74,6 +74,12 @@ body {
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* RÈGLE — Nombres : tous les chiffres de l'app sont tabulaires (pas de saut de
+     largeur d'un chiffre à l'autre), et tout nombre mis en avant (compteurs,
+     pourcentages, coordonnées, totaux) porte la classe `vi-num` : police display
+     + chiffres tabulaires + zéro barré. `font-mono` est interdit dans src/ — le
+     script `scripts/check-numbers.mjs` (exécuté avant chaque build) le vérifie. */
+  font-variant-numeric: tabular-nums;
 }
 
 h1,

@@ -45,7 +45,7 @@ function CustomMarkerForm({ x, y, onClose }: { x: number; y: number; onClose: ()
       <h2 className="flex items-center gap-2 text-base font-semibold">
         <Pin className="h-4 w-4" style={{ color }} /> Nouveau marqueur
       </h2>
-      <p className="font-mono text-xs text-muted">
+      <p className="vi-num text-xs text-muted">
         {x}, {y} m
       </p>
       <Input autoFocus placeholder="Nom" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} required />

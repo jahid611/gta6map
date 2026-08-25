@@ -46,7 +46,7 @@ export function CustomMarkersLayer() {
         const desc = L.DomUtil.create("p", "text-xs text-muted", popup);
         desc.textContent = m.description;
       }
-      const coords = L.DomUtil.create("p", "font-mono text-[11px] text-muted", popup);
+      const coords = L.DomUtil.create("p", "vi-num text-[11px] text-muted", popup);
       coords.textContent = `${m.x}, ${m.y} m`;
       const del = L.DomUtil.create("button", "text-xs text-red-400 hover:underline cursor-pointer", popup);
       del.type = "button";

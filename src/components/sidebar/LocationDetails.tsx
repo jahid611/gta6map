@@ -186,7 +186,7 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
         <ul className="flex flex-col gap-1.5 text-sm">
           <li className="flex items-center gap-2">
             <LocateFixed className="h-4 w-4 shrink-0 text-muted" />
-            <span className="font-mono text-xs">{location.x}, {location.y}</span>
+            <span className="vi-num text-xs">{location.x}, {location.y}</span>
             {/* Les deux copies tiennent en deux icônes, à côté de la valeur qu'elles
                 copient. Les boutons pleine largeur qui les doublaient plus bas ont
                 été retirés : deux lignes pour la même action. */}
@@ -206,11 +206,11 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           {location.z !== null && (
             <li className="flex items-center gap-2">
               <Mountain className="h-4 w-4 shrink-0 text-muted" />
-              <span className="font-mono text-xs">altitude {location.z} m</span>
+              <span className="vi-num text-xs">altitude {location.z} m</span>
               {location.height !== null && (
                 <>
                   <Ruler className="ml-2 h-4 w-4 shrink-0 text-muted" />
-                  <span className="font-mono text-xs">≈ {Math.round(location.height)} m</span>
+                  <span className="vi-num text-xs">≈ {Math.round(location.height)} m</span>
                 </>
               )}
             </li>
@@ -218,7 +218,7 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           {location.media && (
             <li className="flex items-center gap-2">
               <Compass className="h-4 w-4 shrink-0 text-muted" />
-              <span className="font-mono text-xs">
+              <span className="vi-num text-xs">
                 cap {Math.round(location.media.yaw)}° · {location.media.hfov ? `FOV ${Math.round(location.media.hfov)}°` : `${location.media.width}×${location.media.height}`}
               </span>
             </li>
@@ -374,7 +374,7 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
                       lng={location.realWorld.lng}
                       label={location.realWorld.name ?? location.name}
                     />
-                    <p className="mt-1.5 font-mono text-[10px] text-muted-2">
+                    <p className="mt-1.5 vi-num text-[10px] text-muted-2">
                       {location.realWorld.lat.toFixed(5)}, {location.realWorld.lng.toFixed(5)}
                     </p>
                   </div>
@@ -410,7 +410,7 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           <Link href={`/location/${location.slug}`} className="inline-flex items-center gap-1 hover:text-foreground">
             Page dédiée <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
-          <span className="ml-auto font-mono text-[10px] text-muted-2">
+          <span className="ml-auto vi-num text-[10px] text-muted-2">
             {location.legacyId} · {location.source}
           </span>
         </div>

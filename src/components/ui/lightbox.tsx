@@ -92,7 +92,7 @@ export function Lightbox({ images, index, onClose, onIndexChange }: LightboxProp
               )}
             </span>
             {images.length > 1 && (
-              <span className="pointer-events-auto shrink-0 font-mono text-xs">
+              <span className="pointer-events-auto shrink-0 vi-num text-xs">
                 {current + 1} / {images.length}
               </span>
             )}

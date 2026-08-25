@@ -50,7 +50,7 @@ export default async function AccountPage() {
     .filter((c) => c.trackable)
     .map((c) => {
       const ids = locations.filter((l) => l.categorySlug === c.slug).map((l) => l.id);
-      return { slug: c.slug, name: c.name, color: c.color, total: ids.length, ids };
+      return { slug: c.slug, name: c.name, color: c.color, group: c.group, total: ids.length, ids };
     })
     .filter((c) => c.total > 0);
   const total = locations.filter((l) => trackable.has(l.categorySlug)).length;
