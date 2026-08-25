@@ -24,6 +24,12 @@ export function LandingFooter() {
             <Link href="/galerie" className="px-3 py-2.5 hover:text-foreground">
               Galerie
             </Link>
+            <Link href="/privacy" className="px-3 py-2.5 hover:text-foreground">
+              Confidentialité
+            </Link>
+            <Link href="/terms" className="px-3 py-2.5 hover:text-foreground">
+              Conditions
+            </Link>
             <a href="#regions" className="px-3 py-2.5 hover:text-foreground">
               Régions
             </a>

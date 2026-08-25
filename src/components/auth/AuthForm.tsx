@@ -236,8 +236,9 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
       )}
 
       <p className="mt-6 text-center text-[11px] leading-relaxed text-muted-2">
-        Carte non officielle, sans lien avec Rockstar Games. Vos données servent uniquement à synchroniser votre
-        progression.
+        Carte non officielle, sans lien avec Rockstar Games. En continuant, vous acceptez les{" "}
+        <Link href="/terms" className="underline hover:text-foreground">conditions d&apos;utilisation</Link> et les{" "}
+        <Link href="/privacy" className="underline hover:text-foreground">règles de confidentialité</Link>.
       </p>
     </div>
   );
