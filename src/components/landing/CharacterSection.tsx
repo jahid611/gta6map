@@ -41,7 +41,8 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
     if (!video) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) void video.play().catch(() => {});
+        // Joué une seule fois : un clip terminé reste sur sa dernière image (pas de rejeu).
+        if (entry.isIntersecting && !video.ended) void video.play().catch(() => {});
         else video.pause();
       },
       { threshold: 0.25 },
@@ -92,7 +93,6 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
                 ref={videoRef}
                 src={clip}
                 muted
-                loop
                 playsInline
                 preload="none"
                 poster={images[2]}

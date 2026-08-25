@@ -109,3 +109,10 @@ Les comptes (email + mot de passe, Google, lien magique) et la synchronisation d
 7. `npm run seed` pour peupler `categories` / `locations`, puis redémarrer `npm run dev`.
 
 Pages : `/auth` (connexion / inscription / mot de passe oublié / lien magique), `/auth/update-password`, `/compte` (profil, complétion, déconnexion). Sans variables Supabase, l'app reste 100 % locale (progression dans `localStorage`) et ces pages l'expliquent.
+
+## Cron anti-pause Supabase (Vercel)
+
+Les projets Supabase gratuits sont mis en pause après 7 jours sans activité. `vercel.json` déclare un cron quotidien (06:00 UTC) qui appelle `/api/cron/keepalive` : une lecture REST + un ping Auth suffisent à compter comme activité.
+
+- Optionnel mais recommandé : définir `CRON_SECRET` (chaîne aléatoire) dans les variables Vercel — Vercel l'envoie en `Authorization: Bearer` et la route refuse tout autre appel.
+- Test manuel : `curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/keepalive`.

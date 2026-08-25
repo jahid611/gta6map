@@ -34,11 +34,13 @@ export function MediaMontage({ items, interval = 4500, className, fill = false }
 
   const go = useCallback((delta: number) => setIndex((i) => (count ? (i + delta + count) % count : 0)), [count]);
 
+  // Les images avancent au bout de `interval` ; les clips (≈ 1 s) avancent à leur fin
+  // (`onEnded`) et ne sont jamais rejoués — un clip d'une seconde en boucle fait moche.
   useEffect(() => {
-    if (paused || count < 2) return;
+    if (paused || count < 2 || items[index]?.kind === "video") return;
     const t = setTimeout(() => go(1), interval);
     return () => clearTimeout(t);
-  }, [index, paused, count, interval, go]);
+  }, [index, paused, count, interval, go, items]);
 
   // Lecture du clip courant uniquement (les autres restent en pause pour économiser CPU/réseau).
   useEffect(() => {
@@ -50,6 +52,13 @@ export function MediaMontage({ items, interval = 4500, className, fill = false }
       } else v.pause();
     });
   }, [index]);
+
+  // Reprise après pause sur un clip déjà terminé : on passe au suivant plutôt que de le rejouer.
+  useEffect(() => {
+    if (paused) return;
+    const v = videoRefs.current[index];
+    if (v && v.ended && count > 1) go(1);
+  }, [paused, index, count, go]);
 
   if (!count) return null;
   const current = items[index];
@@ -82,9 +91,12 @@ export function MediaMontage({ items, interval = 4500, className, fill = false }
                 src={item.src}
                 poster={item.poster ?? undefined}
                 muted
-                loop
                 playsInline
                 preload={i === index ? "auto" : "metadata"}
+                onEnded={() => {
+                  // Joué une seule fois : on enchaîne (ou on reste sur la dernière image si en pause).
+                  if (i === index && !paused && count > 1) go(1);
+                }}
                 className="h-full w-full object-cover"
               />
             ) : (

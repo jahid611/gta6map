@@ -57,7 +57,6 @@ export default async function AuthPage({ searchParams }: PageProps<"/auth">) {
             poster={visuals.poster ?? undefined}
             autoPlay
             muted
-            loop
             playsInline
             preload="metadata"
           />
