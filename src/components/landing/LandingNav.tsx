@@ -46,6 +46,12 @@ export function LandingNav() {
           >
             Galerie
           </Link>
+          <Link
+            href="/community"
+            className="hidden min-h-11 items-center px-3 text-sm font-medium text-muted transition-colors hover:text-foreground sm:flex"
+          >
+            Communauté
+          </Link>
           <NavAccountLink />
           <Link
             href="/map"

@@ -53,7 +53,10 @@ export function Header({ locations, categoriesBySlug, global, auth }: HeaderProp
         <SlidersHorizontal className="h-4 w-4" />
       </Button>
 
-      <div className="ml-auto flex shrink-0 items-center">
+      <div className="ml-auto flex shrink-0 items-center gap-1">
+        <Link href="/community" className="rs-pill hidden px-3 py-1.5 text-xs font-semibold md:inline-flex" title="Chat communautaire">
+          Communauté
+        </Link>
         <AuthButton auth={auth} />
       </div>
     </header>
