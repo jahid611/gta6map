@@ -24,6 +24,9 @@ export interface AuthState {
   googleAvatarUrl: string | null;
   /** Change la photo de profil (`null` = revenir à la photo Google / aux initiales). */
   updateAvatar: (url: string | null) => Promise<AuthResult>;
+  /** Bannière de profil choisie (metadata `banner_url`), `null` = automatique. */
+  bannerUrl: string | null;
+  updateBanner: (url: string | null) => Promise<AuthResult>;
   signInWithGoogle: (next?: string) => Promise<void>;
   /** Lien magique (sans mot de passe). */
   signInWithEmail: (email: string, next?: string) => Promise<AuthResult>;
@@ -154,6 +157,15 @@ export function useAuth(): AuthState {
     return { error: translateError(error?.message) };
   }, []);
 
+  const updateBanner = useCallback(async (url: string | null): Promise<AuthResult> => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return { error: "Supabase non configuré" };
+    const { data, error } = await supabase.auth.updateUser({ data: { banner_url: url } });
+    // Colonne ajoutée par la migration 0004 : best-effort si elle n'est pas encore appliquée.
+    if (!error && data.user) await supabase.from("profiles").upsert({ id: data.user.id, banner_url: url });
+    return { error: translateError(error?.message) };
+  }, []);
+
   const signOut = useCallback(async () => {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
@@ -166,8 +178,10 @@ export function useAuth(): AuthState {
     full_name?: string;
     name?: string;
     avatar_url?: string | null;
+    banner_url?: string | null;
     picture?: string;
   };
+  const bannerUrl = user ? (meta.banner_url ?? null) : null;
   const displayName = user ? (meta.display_name || meta.full_name || meta.name || user.email?.split("@")[0] || null) : null;
   const googleAvatarUrl = user ? (meta.picture ?? null) : null;
   const avatarUrl = user ? (meta.avatar_url ?? googleAvatarUrl) : null;
@@ -181,6 +195,8 @@ export function useAuth(): AuthState {
     avatarUrl,
     googleAvatarUrl,
     updateAvatar,
+    bannerUrl,
+    updateBanner,
     signInWithGoogle,
     signInWithEmail,
     signInWithPassword,
