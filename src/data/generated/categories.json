@@ -174,7 +174,7 @@
     "name": "Infrastructures",
     "description": "Ponts, tours radio, stations d'épuration.",
     "group": "landmark",
-    "icon": "RadioTower",
+    "icon": "Road",
     "color": "#0ea5e9",
     "sortOrder": 190,
     "trackable": true

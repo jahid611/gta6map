@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pin } from "lucide-react";
+import { Pin } from "@/components/ui/icons";
 import { useUIStore } from "@/store/useUIStore";
 import { useProgressStore } from "@/store/useProgressStore";
 import { Sheet, SheetContent } from "@/components/ui/sheet";

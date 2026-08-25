@@ -1,16 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Inter_Tight } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 
 /**
- * Typographie : le site officiel utilise « Helvetica Now Display / Text »
- * (police propriétaire Monotype). Inter Tight / Inter en sont les équivalents
- * libres les plus proches. Pour utiliser Helvetica Now si vous disposez de la
- * licence : remplacer ces deux imports par `next/font/local` pointant vers
- * `src/app/fonts/HelveticaNowDisplay*.woff2` — les variables CSS restent identiques.
+ * Typographie.
+ *
+ * GTA VI utilise « GTAArtDeco » (Colophon Foundry) : sa licence, embarquée dans
+ * le fichier de police lui-même, la réserve strictement aux matériaux de marque
+ * Rockstar Games et en interdit le partage à tout tiers non commissionné. Elle
+ * est donc inutilisable ici, quand bien même des copies circulent sur GitHub.
+ * Le site rockstargames.com, lui, compose en Helvetica Now (Monotype, payante).
+ *
+ * Helvetica Now (Monotype) est la police du site officiel. Elle est demandée en
+ * premier dans `--font-sans` et `--font-display`, et employée dès qu'elle est
+ * disponible — depuis le système, ou depuis `public/fonts/` si l'on y dépose
+ * des fichiers sous licence (voir les @font-face de globals.css). Ses fichiers
+ * ne sont pas versionnés ici : sa licence commerciale interdit d'en distribuer
+ * les copies, ce qu'un webfont fait par construction.
+ *
+ * Archivo (Omnibus-Type, OFL) est le repli, et reste la police effective tant
+ * qu'Helvetica Now est absente : grotesque géométrique à axe de chasse variable
+ * (`wdth` 62–125), ce qui permet d'approcher le lettrage large et compact de la
+ * DA VI via `font-variation-settings: "wdth"` (cf. `.vi-display`).
+ *
+ * Le wordmark « GRAND THEFT AUTO VI » ne dépend d'aucune police : c'est un SVG
+ * vectoriel officiel (`public/brand/gta-vi-logo.svg`).
  */
-const fontText = Inter({ variable: "--font-text", subsets: ["latin"], display: "swap" });
-const fontDisplay = Inter_Tight({ variable: "--font-display", subsets: ["latin"], display: "swap", weight: ["600", "700", "800", "900"] });
+const fontText = Archivo({ variable: "--font-text", subsets: ["latin"], display: "swap", axes: ["wdth"] });
+// `--font-archivo-display` et non `--font-display` : ce dernier est le token de
+// thème Tailwind, qui compose la pile complète (Helvetica Now puis Archivo).
+// Réutiliser le même nom faisait écraser le token par la valeur de `next/font`
+// posée sur `<html>`, et les titres retombaient sur Archivo seul.
+const fontDisplay = Archivo({ variable: "--font-archivo-display", subsets: ["latin"], display: "swap", axes: ["wdth"] });
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const SITE_NAME = "GTA VI Map — Leonida";

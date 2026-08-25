@@ -18,7 +18,7 @@ export type WorldXY = readonly [x: number, y: number];
 export type LatLngTuple = readonly [lat: number, lng: number];
 
 /** Identifiant d'un jeu de tuiles (dossier sur maps.gtadb.org/tiles/6). */
-export type TileSetId = "yanis,15" | "yanis,14" | "dupzor,51";
+export type TileSetId = "yanis,15" | "dupzor,51";
 
 /** Plage de tuiles `[[xMin, yMin], [xMax, yMax]]` pour un niveau de zoom donné. */
 export type TileRange = readonly [readonly [number, number], readonly [number, number]];

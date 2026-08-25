@@ -55,8 +55,11 @@
   --color-red: var(--red);
   --color-success: var(--success);
   --color-gold: var(--gold);
-  --font-sans: var(--font-text), "Helvetica Now Text", "Helvetica Neue", Arial, sans-serif;
-  --font-display: var(--font-display), "Helvetica Now Display", "Helvetica Neue", Arial, sans-serif;
+  /* Helvetica Now en tête : elle est employée dès qu'elle est disponible, que
+     ce soit depuis le système ou depuis `public/fonts` (cf. les @font-face plus
+     bas). Sinon la pile retombe sur Archivo, notre équivalent libre. */
+  --font-sans: "Helvetica Now Text", var(--font-text), "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Helvetica Now Display", "Helvetica Now Text", var(--font-archivo-display), "Helvetica Neue", Arial, sans-serif;
   --radius-app: var(--radius);
 }
 
@@ -113,38 +116,136 @@ button:disabled {
 }
 
 /* Carte « verre » (fiche lieu, contrôles) */
+/* ═════════════ Verre liquide ═════════════
+
+   Trois strates par surface, superposees dans un seul `background` :
+     1. un degrade blanc tres faible, qui simule la lumiere rasant le haut du
+        panneau — c'est lui qui donne l'epaisseur ;
+     2. un aplat sombre translucide, pour la lisibilite du texte ;
+     3. le flou d'arriere-plan, qui capte les couleurs de ce qu'il y a dessous.
+   Un liseré interieur clair en haut acheve le relief.
+
+   `saturate` compte autant que `blur` : sans lui le flou delave, et la surface
+   vire au gris au lieu de reprendre les teintes de la carte.
+
+   A NE PAS appliquer sur un voile plein ecran contenant une video : le
+   compositeur refloute alors toute la page a chaque image (cf. la visionneuse
+   de la galerie, volontairement opaque). */
 .rs-glass {
-  background: rgba(17, 17, 23, 0.82);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 45%, rgba(255, 255, 255, 0) 100%),
+    rgba(16, 15, 24, 0.62);
+  backdrop-filter: blur(26px) saturate(180%);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    0 18px 50px rgba(0, 0, 0, 0.5);
 }
 
-/* Carte flottante opaque (fiche lieu) — toujours au-dessus des panes Leaflet */
+/* Meme matiere, plus dense : la fiche de lieu porte du texte long et se pose
+   sur une carte tres chargee. */
 .rs-card {
-  background: rgba(24, 24, 30, 0.97);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid var(--border-strong);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0) 100%),
+    rgba(18, 17, 26, 0.82);
+  backdrop-filter: blur(30px) saturate(170%);
+  -webkit-backdrop-filter: blur(30px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 24px 70px rgba(0, 0, 0, 0.6);
 }
 
-/* Bouton pill Rockstar */
+/* Pilule : la forme par defaut de tout ce qui se clique. */
 .rs-pill {
   border-radius: 9999px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  transition: background 150ms ease, border-color 150ms ease, transform 120ms ease;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .rs-pill:hover {
-  background: var(--surface-3);
-  border-color: var(--border-strong);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%),
+    rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+.rs-pill:active {
+  transform: scale(0.97);
+}
+
+/* Pilule teintee a la couleur d'accent, pour l'action principale d'un ecran. */
+.rs-pill--accent {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 100%),
+    color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent-pale);
+}
+.rs-pill--accent:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.07) 100%),
+    color-mix(in srgb, var(--accent) 42%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 62%, transparent);
+}
+
+/* Reduction de transparence (macOS/iOS) : on retombe sur des aplats opaques,
+   le flou etant precisement ce que ce reglage demande d'eviter. */
+@media (prefers-reduced-transparency: reduce) {
+  .rs-glass,
+  .rs-card,
+  .rs-pill {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .rs-glass {
+    background: var(--surface);
+  }
+  .rs-card {
+    background: var(--surface-2);
+  }
+  .rs-pill {
+    background: var(--surface-2);
+  }
 }
 
 /* ───────────── Leaflet ───────────── */
+/* Fond hors carte : coucher de soleil Vice City, en dégradés CSS.
+
+   Volontairement sombre et sans motif figuratif. La carte est claire et dense ;
+   tout ce qui l'entoure doit lui céder le regard, sinon les deux se disputent
+   l'attention. Un aplat bleu vif faisait exactement ça — il avait le même poids
+   visuel que l'océan des tuiles, et la carte ne se détachait plus de son cadre.
+
+   Quatre couches seulement, du dessus vers le dessous : vignette, trame
+   d'horizon, halo de soleil bas, dégradé de ciel. Tout en CSS, donc aucun
+   fichier à charger et aucune image à recadrer selon la fenêtre. */
 .leaflet-container {
-  background: #2d8fd5; /* océan hors tuiles, assorti aux tuiles Yanis */
+  background-color: #0a0814;
+  /* De haut en bas : vignette, voile sombre, puis l'illustration. Le voile est
+     dense — la carte est claire et dense, tout ce qui l'entoure doit lui céder
+     le regard. Sans lui, les palmiers et le ciel orangé rivalisent avec elle. */
+  background-image:
+    radial-gradient(120% 100% at 50% 40%, transparent 45%, rgba(5, 3, 11, 0.6) 100%),
+    linear-gradient(180deg, rgba(10, 8, 20, 0.82) 0%, rgba(14, 9, 26, 0.7) 55%, rgba(24, 10, 30, 0.62) 100%),
+    url("/brand/map-backdrop.jpg");
+  background-size: cover, cover, cover;
+  background-position: center, center, center bottom;
+  background-repeat: no-repeat;
+  /* Fixe par rapport au cadre : le décor ne défile pas avec la carte, ce qui
+     laisserait apparaître ses bords au bout de quelques déplacements. */
+  background-attachment: scroll;
   font-family: inherit;
   outline: none;
 }
@@ -181,75 +282,84 @@ button:disabled {
 /* ───────────── Marqueurs ───────────── */
 .gta-marker {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
   /* Pas de will-change ni de transition globale : 1 500 couches GPU = zoom saccadé. */
 }
+/* Blip facon carte GTA : carre arrondi plein, glyphe blanc, pas d'anneau
+   blanc ni d'ombre portee. Le contraste sur le fond clair vient d'un liseré
+   sombre d'1 px — largement suffisant, et beaucoup moins bruyant sur une carte
+   qui affiche jusqu'a 1 500 points. */
 .gta-marker__pin {
   position: relative;
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 9999px;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
   background: var(--marker-color);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(0, 0, 0, 0.3);
+  /* Aplat pastel = fond clair : le glyphe doit etre sombre pour rester lisible. */
+  color: #14111c;
+  box-shadow: 0 0 0 1px rgba(9, 6, 16, 0.45);
 }
 .gta-marker__check {
   position: absolute;
-  right: -3px;
-  top: -3px;
+  right: -4px;
+  top: -4px;
   z-index: 3;
   display: none;
   place-items: center;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 9999px;
   background: var(--success);
   color: #111117;
-  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 1.5px rgba(9, 6, 16, 0.6);
 }
 .gta-marker:hover {
-  transform: scale(1.15);
+  transform: scale(1.14);
   z-index: 1000;
 }
 .gta-marker.is-found .gta-marker__pin {
-  opacity: 0.45;
-  filter: saturate(0.4);
+  opacity: 0.4;
+  filter: saturate(0.25);
 }
 .gta-marker.is-found .gta-marker__check {
   display: grid;
 }
 .gta-marker.is-selected {
-  transform: scale(1.3);
+  transform: scale(1.22);
 }
 .gta-marker.is-selected .gta-marker__pin {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(249, 118, 176, 0.4), 0 4px 16px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px rgba(9, 6, 16, 0.6);
   opacity: 1;
   filter: none;
 }
+/* Marqueur personnel : liseré blanc pointillé, pour le distinguer d'un point
+   du jeu de données sans changer sa forme. */
 .gta-marker--custom .gta-marker__pin {
-  border-style: dashed;
+  outline: 1.5px dashed rgba(255, 255, 255, 0.9);
+  outline-offset: -3px;
 }
 
 /* Marqueur caméra (trailers / screenshots) : badge + cône d'orientation + libellé */
 .gta-marker--camera {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
 }
+/* Caméras : même blip, inversé (fond clair, glyphe coloré) pour se distinguer
+   des lieux au premier coup d'œil sans recourir à une forme différente. */
 .gta-marker--camera .gta-marker__pin {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  background: #fdfbff;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  /* Cameras : l'inverse du blip de lieu — fond sombre, glyphe pastel. C'est ce
+     contraste inverse qui les distingue au premier coup d'oeil. */
+  background: #191622;
   color: var(--marker-color);
-  border: 2.5px solid var(--marker-color);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(17, 17, 23, 0.6);
+  box-shadow: 0 0 0 1.5px var(--marker-color);
 }
 .gta-marker__cone {
   position: absolute;
@@ -258,9 +368,9 @@ button:disabled {
   z-index: 1;
   width: 0;
   height: 0;
-  border-left: 22px solid transparent;
-  border-right: 22px solid transparent;
-  border-bottom: 46px solid color-mix(in srgb, var(--marker-color) 45%, transparent);
+  border-left: 19px solid transparent;
+  border-right: 19px solid transparent;
+  border-bottom: 40px solid color-mix(in srgb, var(--marker-color) 38%, transparent);
   transform-origin: 50% 100%;
   transform: translate(-50%, -100%) rotate(var(--yaw));
   pointer-events: none;
@@ -287,36 +397,45 @@ button:disabled {
 }
 
 /* ───────────── Clusters ───────────── */
+/* Agregat : pastille sombre, chiffre blanc, fin liseré à la couleur dominante
+   des points regroupés. L'ancienne version cumulait un anneau blanc de 2 px, un
+   halo colore de 6 px et une ombre portee — sur une carte qui en affiche des
+   dizaines, c'est ce triple contour qui faisait « jouet ». Ici le contraste tient
+   au fond sombre, et la couleur ne sert plus qu'a signaler la categorie. */
 .gta-cluster {
   display: grid;
   place-items: center;
   border-radius: 9999px;
   color: #fff;
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   font-size: 12px;
-  background: color-mix(in srgb, var(--marker-color) 78%, #111117);
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--marker-color) 30%, transparent), 0 4px 14px rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.01em;
+  background: var(--marker-color);
+  color: #14111c;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(9, 6, 16, 0.35);
   cursor: pointer;
-  transition: transform 120ms ease;
+  transition: transform 140ms ease, filter 140ms ease;
 }
 .gta-cluster:hover {
-  transform: scale(1.08);
+  transform: scale(1.1);
+  filter: brightness(1.06);
 }
 .gta-cluster--sm {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
 }
 .gta-cluster--md {
-  width: 42px;
-  height: 42px;
-  font-size: 13px;
+  width: 36px;
+  height: 36px;
+  font-size: 12.5px;
 }
 .gta-cluster--lg {
-  width: 52px;
-  height: 52px;
-  font-size: 14px;
+  width: 44px;
+  height: 44px;
+  font-size: 13.5px;
 }
 .marker-cluster {
   background: transparent !important;
@@ -400,4 +519,344 @@ button:disabled {
 }
 .animate-fade-in {
   animation: fade-in 200ms ease;
+}
+
+/* ═════════════════ Landing (route `/`) ═════════════════ */
+
+/* Titre display : Archivo pousse a fond sur son axe de chasse (`wdth` 62-125)
+   pour approcher le lettrage large de la DA VI. Voir la note de layout.tsx :
+   la vraie police (GTAArtDeco) est sous licence exclusive Rockstar. */
+.vi-display {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 118;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  line-height: 0.88;
+}
+
+/* Variante etroite pour les sur-titres / kickers */
+.vi-kicker {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 88;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 0.6875rem;
+}
+
+/* Le degrade officiel VI, en fond de bloc */
+.vi-gradient-bg {
+  background: var(--gradient-vi);
+}
+
+/* Grain fin : casse le banding des grands aplats de degrade. Purement
+   decoratif -> masque aux lecteurs d'ecran via aria-hidden cote JSX. */
+.vi-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Halo neon derriere le logo du hero */
+.vi-halo {
+  background:
+    radial-gradient(58% 46% at 50% 44%, rgba(249, 118, 176, 0.42) 0%, transparent 68%),
+    radial-gradient(46% 38% at 28% 62%, rgba(59, 76, 192, 0.38) 0%, transparent 70%),
+    radial-gradient(42% 34% at 74% 34%, rgba(255, 122, 92, 0.3) 0%, transparent 70%);
+}
+
+/* Filet degrade 1px facon separateur Rockstar */
+.vi-rule {
+  height: 1px;
+  background: var(--gradient-vi-h);
+  opacity: 0.55;
+}
+
+/* Etat initial des blocs animes au scroll : masque UNIQUEMENT sous
+   `[data-reveal="on"]`, attribut pose par le composant client une fois monte.
+   Sans JS l attribut n existe pas -> le contenu s affiche normalement.
+   `.is-in` est ensuite pose element par element par GSAP ScrollTrigger.
+   Idem si l utilisateur refuse les animations : tout reste visible. */
+[data-reveal="on"] .vi-reveal {
+  opacity: 0;
+  /* Amplitude franche : a 28 px, l'apparition passait inapercue et la page
+     donnait l'impression de ne rien animer du tout. Le leger retrait d'echelle
+     ajoute une profondeur que la seule translation ne donne pas. */
+  transform: translateY(64px) scale(0.965);
+  will-change: opacity, transform;
+}
+[data-reveal="on"] .vi-reveal.is-in {
+  opacity: 1;
+  transform: none;
+  /* La couche GPU est relachee des que l element est apparu. Garder
+     `will-change` en permanence promeut chaque bloc en couche composee et les
+     y laisse : sur la galerie, c est jusqu a 96 couches retenues pour des
+     animations depuis longtemps terminees, au detriment de tout ce qui doit
+     encore etre compose — une video en lecture, par exemple. Le navigateur
+     promeut de lui-meme pendant la transition, qui reste donc fluide. */
+  will-change: auto;
+  transition:
+    opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal="on"] .vi-reveal,
+  [data-reveal="on"] .vi-reveal.is-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Piste de carrousel : on masque la barre de defilement native, la position
+   etant deja signalee par les fleches et par le debord des cartes voisines.
+   Le defilement lui-meme reste natif (molette, glisse tactile, clavier). */
+.vi-scroller {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.vi-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Hero : revelation par masque ──────────────────────────────────────────
+   Reprise de l'effet du projet JSM (adrianhajdin/jsm_gta_vi_landing) : le
+   wordmark sert de masque alpha a l'image de fond. Au repos le masque est
+   demesurement grand (3500 %), donc l'image occupe tout l'ecran ; au scroll il
+   se resserre jusqu'a la taille du logo et l'image se resorbe dans les lettres.
+
+   `mask-size` est ensuite pilote par GSAP. Les variantes `-webkit-` restent
+   necessaires pour Safari, qui ne supporte pas `mask-*` sans prefixe. */
+.vi-mask {
+  -webkit-mask-image: url("/brand/gta-vi-logo.svg");
+  mask-image: url("/brand/gta-vi-logo.svg");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 50% 44%;
+  mask-position: 50% 44%;
+  -webkit-mask-size: 3500% 3500%;
+  mask-size: 3500% 3500%;
+}
+
+/* Sans JS ou en mouvement reduit, aucun masque : l'image reste pleine page. */
+@media (prefers-reduced-motion: reduce) {
+  .vi-mask {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* ── Regle de mesure ──────────────────────────────────────────────────────
+   Etiquettes posees en `divIcon` de taille nulle : le point et le libelle sont
+   positionnes en CSS autour de l'ancre, ce qui evite d'avoir a recalculer un
+   decalage en JS a chaque zoom. */
+.gta-measure {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-5px, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.gta-measure i {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px rgba(9, 6, 16, 0.75);
+}
+.gta-measure b {
+  border-radius: 9999px;
+  background: rgba(17, 17, 23, 0.9);
+  padding: 2px 8px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Repere sur la carte du monde reel (fiche de lieu). */
+.gta-irl-pin {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+/* La carte reelle est petite : on resserre l attribution pour qu elle tienne. */
+.gta-irl-pin-wrapper + * .leaflet-control-attribution,
+.leaflet-container .leaflet-control-attribution {
+  font-size: 9px;
+}
+
+/* Chiffres de compteurs : Archivo en chasse fixe, avec les alternatives
+   tabulaires et le zero barre. Sur des colonnes de nombres qui se mettent a
+   jour, la chasse fixe evite le tremblement d un chiffre a l autre. */
+/* Chiffres : chasse fixe et zero barre, sans toucher au crenage.
+   `letter-spacing` est deliberement absent : la regle est declaree apres
+   `.vi-display`, elle desserrerait donc les grands nombres de la page d accueil
+   qui portent les deux classes. Le crenage releve du contexte, pas des chiffres. */
+.vi-num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* Apparition de l apercu au survol d un marqueur. */
+@keyframes vi-preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes vi-preview-in {
+    from { opacity: 1; }
+    to { opacity: 1; }
+  }
+}
+
+/* Blocs de chargement : balayage lumineux plutot qu un pouls d opacite, qui
+   passe mieux sur les grilles denses. Neutralise en mouvement reduit. */
+.vi-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+.vi-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent);
+  animation: vi-shimmer 1.4s infinite;
+}
+@keyframes vi-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vi-skeleton::after {
+    animation: none;
+  }
+}
+
+/* ── Helvetica Now (Monotype, sous licence) ───────────────────────────────
+   La police officielle de rockstargames.com. Elle n'est PAS livrée avec ce
+   dépot : sa licence commerciale interdit d'en distribuer les fichiers, ce
+   qu'un webfont fait par definition en les servant a chaque visiteur.
+
+   Ces declarations la rendent utilisable sans rien changer au code :
+     1. `local(...)` la prend depuis le systeme si elle y est installee ;
+     2. sinon, elle est chargee depuis `public/fonts/` — il suffit d'y deposer
+        les .woff2 aux noms ci-dessous si vous detenez une licence Monotype ;
+     3. si ni l'un ni l'autre, la face echoue silencieusement et la pile
+        retombe sur Archivo (cf. `--font-sans` / `--font-display`).
+
+   Aucun 404 bloquant : une face introuvable est simplement ignoree. */
+@font-face {
+  font-family: "Helvetica Now Text";
+  src: local("Helvetica Now Text"), url("/fonts/HelveticaNowText-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Helvetica Now Text";
+  src: local("Helvetica Now Text Medium"), url("/fonts/HelveticaNowText-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Helvetica Now Text";
+  src: local("Helvetica Now Text Bold"), url("/fonts/HelveticaNowText-Bold.woff2") format("woff2");
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Helvetica Now Display";
+  src: local("Helvetica Now Display Bold"), url("/fonts/HelveticaNowDisplay-Bold.woff2") format("woff2");
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Helvetica Now Display";
+  src: local("Helvetica Now Display Black"), url("/fonts/HelveticaNowDisplay-Black.woff2") format("woff2");
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Signal du marqueur selectionne.
+   L animation se rejoue a chaque fois que l icone est recreee — c est-a-dire a
+   chaque selection — parce qu une animation CSS demarre au montage du noeud.
+   C est ce qui permet de repérer d un coup d oeil le point qu on vient
+   d atteindre, notamment apres une bascule entre les deux cartes. */
+@keyframes gta-flash {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px rgba(9, 6, 16, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 10px color-mix(in srgb, var(--marker-color) 55%, transparent),
+      0 0 22px 6px color-mix(in srgb, var(--marker-color) 45%, transparent);
+  }
+}
+.gta-marker.is-selected .gta-marker__pin {
+  animation: gta-flash 1.1s ease-in-out 3;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gta-marker.is-selected .gta-marker__pin {
+    animation: none;
+  }
+}
+
+/* ── Cibles tactiles ──────────────────────────────────────────────────────
+   Filet de securite base sur le TYPE DE POINTEUR, et non sur la largeur.
+   Une tablette fait 768 px de large tout en etant tactile : un seuil en pixels
+   la traite comme un ordinateur et lui laisse des boutons de 36 px.
+   `pointer: coarse` designe exactement les appareils ou l on vise au doigt.
+
+   44 px est le minimum confortable retenu par les recommandations
+   d accessibilite (WCAG 2.5.5 / Apple HIG). Les liens en plein texte sont
+   exclus : les agrandir casserait l interligne du paragraphe qui les porte. */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  [role="tab"],
+  a.rs-pill,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+  button:not(.leaflet-control-zoom a),
+  [role="button"] {
+    min-width: 44px;
+  }
+  /* Exception : la barre d attribution de Leaflet est de la mention legale,
+     volontairement discrete, et l agrandir couvrirait la carte. */
+  .leaflet-control-attribution a {
+    min-height: 0;
+    min-width: 0;
+  }
 }

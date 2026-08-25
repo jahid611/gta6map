@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { SlidersHorizontal, Trophy } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Camera, SlidersHorizontal, Trophy } from "@/components/ui/icons";
 import type { AreaInfo, Category, CategoryWithCount, Location, LocationWiki, MapSection, ProgressSummary } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgressSync } from "@/hooks/useProgressSync";
@@ -13,7 +14,16 @@ import { useUIStore, type SidebarPanel } from "@/store/useUIStore";
 import { MapLoader } from "@/components/map/MapLoader";
 import { CustomMarkerDialog } from "@/components/map/CustomMarkerDialog";
 import { LocationDrawer } from "@/components/sidebar/LocationDrawer";
+import { MarkerPreview } from "@/components/map/MarkerPreview";
+// Leaflet touche `window` dès son import : la vue réelle est chargée sans rendu
+// serveur, comme la carte principale via `MapLoader`. Sans cela, `/map` renvoie
+// une 500 au pré-rendu.
+const RealWorldView = dynamic(
+  () => import("@/components/map/RealWorldView").then((m) => m.RealWorldView),
+  { ssr: false },
+);
 import { CategoryFilters } from "@/components/filters/CategoryFilters";
+import { MediaLibrary } from "@/components/media/MediaLibrary";
 import { ProgressOverview } from "@/components/progress/ProgressOverview";
 import { Header } from "./Header";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -32,6 +42,7 @@ interface AppShellProps {
 
 const PANEL_TABS: { id: Exclude<SidebarPanel, "location">; label: string; icon: typeof Trophy }[] = [
   { id: "filters", label: "Filtres", icon: SlidersHorizontal },
+  { id: "media", label: "Médias", icon: Camera },
   { id: "progress", label: "Progression", icon: Trophy },
 ];
 
@@ -162,6 +173,10 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
       <ScrollArea className="min-h-0 flex-1">
         {activePanel === "progress" ? (
           <ProgressOverview categories={categoriesWithCounts} global={global} syncStatus={syncStatus} />
+        ) : activePanel === "media" ? (
+          // `locations` et non `visibleLocations` : masquer une catégorie allège
+          // la carte, ça n'ampute pas la bibliothèque.
+          <MediaLibrary locations={locations} />
         ) : (
           <CategoryFilters categories={categoriesWithCounts} />
         )}
@@ -191,6 +206,8 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
               districts={districts}
             />
             <LocationDrawer location={selectedLocation} categoriesBySlug={categoriesBySlug} areaWiki={selectedAreaWiki} />
+            <MarkerPreview locations={locations} categoriesBySlug={categoriesBySlug} />
+            <RealWorldView locations={locations} categoriesBySlug={categoriesBySlug} />
             <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full border border-border bg-background/85 px-3 py-1 text-[11px] text-muted backdrop-blur md:hidden">
               {visibleLocations.length} points · {Math.round(global.percent)} %
             </div>
@@ -199,7 +216,11 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
 
         {!isDesktop && (
           <Sheet open={mobilePanelOpen} onOpenChange={setSidebarOpen}>
-            <SheetContent side="bottom" title={activePanel === "progress" ? "Progression" : "Filtres"} className="h-[75dvh]">
+            <SheetContent
+              side="bottom"
+              title={activePanel === "progress" ? "Progression" : activePanel === "media" ? "Médias" : "Filtres"}
+              className="h-[75dvh]"
+            >
               {sidebarPanel}
             </SheetContent>
           </Sheet>

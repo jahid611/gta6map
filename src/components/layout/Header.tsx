@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { PanelLeft, SlidersHorizontal, Trophy } from "lucide-react";
+import { PanelLeft, SlidersHorizontal, Trophy } from "@/components/ui/icons";
 import type { Category, Location, ProgressSummary } from "@/types";
 import type { useAuth } from "@/hooks/useAuth";
 import { useUIStore } from "@/store/useUIStore";
@@ -29,8 +29,8 @@ export function Header({ locations, categoriesBySlug, global, auth }: HeaderProp
         <PanelLeft className="h-4 w-4" />
       </Button>
 
-      <Link href="/" className="rs-pill flex items-center gap-2.5 py-1 pl-1.5 pr-3" aria-label="GTA VI Map — accueil">
-        <Image src="/brand/gta-vi-logo.png" alt="GTA VI" width={60} height={25} className="h-[25px] w-auto object-contain" priority />
+      <Link href="/" className="rs-pill flex min-h-11 items-center gap-2.5 py-1 pl-1.5 pr-3 sm:min-h-0" aria-label="GTA VI Map — accueil">
+        <Image src="/brand/gta-vi-logo.svg" alt="GTA VI" width={980} height={744} unoptimized className="h-[25px] w-auto object-contain" priority />
         <span className="hidden flex-col leading-none sm:flex">
           <span className="rs-title text-[13px]">Leonida</span>
           <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">Interactive map</span>
@@ -40,12 +40,12 @@ export function Header({ locations, categoriesBySlug, global, auth }: HeaderProp
       <SearchBar locations={locations} categoriesBySlug={categoriesBySlug} className="min-w-0 flex-1 lg:max-w-xl" />
 
       <button
-        className="rs-pill hidden items-center gap-2 px-3 py-1.5 text-xs cursor-pointer md:flex"
+        className="rs-pill hidden min-h-11 items-center gap-2 px-3 text-xs cursor-pointer md:flex lg:min-h-0 lg:py-1.5"
         onClick={() => setActivePanel("progress")}
         aria-label="Voir la progression"
       >
         <Trophy className="h-3.5 w-3.5 text-accent" />
-        <span className="font-mono tabular-nums">{formatPercent(global.percent)}</span>
+        <span className="vi-num ">{formatPercent(global.percent)}</span>
         <Progress value={global.percent} size="sm" className="w-16" />
       </button>
 

@@ -1,54 +1,92 @@
 import type { Metadata } from "next";
-import { getAreas, getCategories, getLocations, getSections } from "@/lib/data/locations";
-import { AppShell } from "@/components/layout/AppShell";
+import { redirect } from "next/navigation";
+import { getLandingStats } from "@/lib/landing-stats";
+import { clipFor } from "@/lib/media-catalog";
+import { RevealProvider } from "@/components/landing/RevealProvider";
+import { LandingNav } from "@/components/landing/LandingNav";
+import { Hero } from "@/components/landing/Hero";
+import { StatsBand } from "@/components/landing/StatsBand";
+import { FeatureSections } from "@/components/landing/FeatureSections";
+import { TrailerGallery } from "@/components/landing/TrailerGallery";
+import { TrailerSection } from "@/components/landing/TrailerSection";
+import { CharacterSection } from "@/components/landing/CharacterSection";
+import { RegionGrid } from "@/components/landing/RegionGrid";
+import { ClosingCta } from "@/components/landing/ClosingCta";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 import { SITE_NAME, SITE_URL } from "./layout";
 
-export const revalidate = 3600; // ISR : données rafraîchies toutes les heures
+export const revalidate = 3600; // ISR : suit le rythme des données de la carte
 
-export async function generateMetadata({ searchParams }: PageProps<"/">): Promise<Metadata> {
-  const { l } = await searchParams;
-  const slug = typeof l === "string" ? l : null;
-  if (!slug) return {};
-  const locations = await getLocations();
-  const location = locations.find((x) => x.slug === slug);
-  if (!location) return {};
-  return {
-    title: location.name,
-    description: `${location.name}${location.area ? ` (${location.area})` : ""} sur la carte interactive GTA VI — coordonnées ${location.x}, ${location.y}.`,
-    alternates: { canonical: `/location/${location.slug}` },
-  };
-}
+export const metadata: Metadata = {
+  title: "GTA VI Map — Carte interactive de Leonida & Vice City",
+  description:
+    "Explorez Leonida : lieux répertoriés, plans des trailers officiels géolocalisés, fiches wiki et suivi de complétion. Vice City, Leonida Keys, Port Gellhorn, Grassrivers, Ambrosia.",
+  alternates: { canonical: "/" },
+};
 
-export default async function HomePage({ searchParams }: PageProps<"/">) {
-  const [{ l }, locations, categories, sections, areas] = await Promise.all([
-    searchParams,
-    getLocations(),
-    getCategories(),
-    getSections(),
-    getAreas(),
-  ]);
-  const initialSlug = typeof l === "string" ? l : null;
+export default async function LandingPage({ searchParams }: PageProps<"/">) {
+  const [{ l }, stats] = await Promise.all([searchParams, getLandingStats()]);
 
-  // Allège le payload client : la fiche wiki de zone est résolue côté client via `areas`
-  // (sinon l'extrait est dupliqué sur ~1 400 lieux).
-  const clientLocations = locations.map((loc) => (loc.areaWiki ? { ...loc, areaWiki: null } : loc));
+  // La carte vivait sur `/` avant d'être déplacée sur `/map` : les liens partagés
+  // de la forme `/?l=slug` doivent continuer de tomber sur le bon lieu.
+  if (typeof l === "string" && l) redirect(`/map?l=${encodeURIComponent(l)}`);
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
+    "@type": "WebSite",
     name: SITE_NAME,
     url: SITE_URL,
-    applicationCategory: "GameApplication",
-    operatingSystem: "Web",
+    inLanguage: "fr-FR",
     description: "Carte interactive GTA VI : lieux, trailers géolocalisés, wiki, suivi de complétion.",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/map?l={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <h1 className="sr-only">Carte interactive GTA VI — Leonida & Vice City</h1>
-      <AppShell locations={clientLocations} categories={categories} sections={sections} areas={areas} initialSlug={initialSlug} />
+      <LandingNav />
+      <RevealProvider>
+        <main>
+          <Hero locationCount={stats.total} regionCount={stats.regions.length} />
+          <StatsBand stats={stats} />
+          <FeatureSections stats={stats} />
+          <TrailerGallery shots={stats.showcase} />
+
+          <CharacterSection
+            name="Jason Duval"
+            tagline="Jason veut une vie tranquille. Elle ne cesse de se compliquer."
+            bio="Jason a grandi entre arnaqueurs et petites frappes. Après un passage à l'armée censé solder une adolescence agitée, il s'est retrouvé dans les Keys à faire ce qu'il sait faire : travailler pour les convoyeurs de drogue du coin. Il serait peut-être temps d'essayer autre chose."
+            images={[
+              "/brand/characters/jason-1.webp",
+              "/brand/characters/jason-3.webp",
+              "/brand/characters/jason-2.webp",
+            ]}
+            clip={clipFor("Jason Duval")}
+          />
+
+          <CharacterSection
+            name="Lucia Caminos"
+            tagline="Lucia a passé sa vie à se battre. La prison lui a appris pour quoi."
+            bio="Le père de Lucia lui a appris très tôt à encaisser. La vie à Leonida s'est chargée du reste, et la prison de Leonida Penitentiary a fini le travail. Elle n'a plus qu'une idée : basculer du bon côté de la chance, quel qu'en soit le prix."
+            images={[
+              "/brand/characters/lucia-2.webp",
+              "/brand/characters/lucia-3.webp",
+              "/brand/characters/lucia-1.webp",
+            ]}
+            clip={clipFor("Lucia Caminos")}
+            reverse
+          />
+
+          <TrailerSection />
+          <RegionGrid regions={stats.regions} />
+          <ClosingCta total={stats.total} />
+        </main>
+        <LandingFooter />
+      </RevealProvider>
     </>
   );
 }

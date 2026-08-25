@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Cloud, CloudOff, LogIn, LogOut, Mail } from "lucide-react";
+import { Cloud, CloudOff, LogIn, LogOut, Mail } from "@/components/ui/icons";
 import type { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
