@@ -131,73 +131,54 @@ button:disabled {
    A NE PAS appliquer sur un voile plein ecran contenant une video : le
    compositeur refloute alors toute la page a chaque image (cf. la visionneuse
    de la galerie, volontairement opaque). */
+/* Surfaces : un aplat sombre translucide + un simple flou d'arrière-plan.
+   Pas de dégradés « verre liquide », pas de liserés internes, pas de saturation. */
 .rs-glass {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 45%, rgba(255, 255, 255, 0) 100%),
-    rgba(16, 15, 24, 0.62);
-  backdrop-filter: blur(26px) saturate(180%);
-  -webkit-backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-    0 18px 50px rgba(0, 0, 0, 0.5);
+  background: rgba(17, 17, 23, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
 }
 
-/* Meme matiere, plus dense : la fiche de lieu porte du texte long et se pose
-   sur une carte tres chargee. */
+/* Plus dense : la fiche de lieu porte du texte long sur une carte chargée. */
 .rs-card {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.012) 40%, rgba(255, 255, 255, 0) 100%),
-    rgba(18, 17, 26, 0.82);
-  backdrop-filter: blur(30px) saturate(170%);
-  -webkit-backdrop-filter: blur(30px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 24px 70px rgba(0, 0, 0, 0.6);
+  background: rgba(19, 19, 26, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
 }
 
-/* Pilule : la forme par defaut de tout ce qui se clique. */
+/* Pilule : la forme par défaut de tout ce qui se clique. */
 .rs-pill {
   border-radius: 9999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%),
-    rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(16px) saturate(170%);
-  -webkit-backdrop-filter: blur(16px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 10px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   transition:
-    background 200ms ease,
-    border-color 200ms ease,
-    box-shadow 200ms ease,
-    transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 140ms ease;
 }
 .rs-pill:hover {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%),
-    rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.24);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 6px 18px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 .rs-pill:active {
   transform: scale(0.97);
 }
 
-/* Pilule teintee a la couleur d'accent, pour l'action principale d'un ecran. */
+/* Pilule teintée à la couleur d'accent, pour l'action principale d'un écran. */
 .rs-pill--accent {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 100%),
-    color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
   border-color: color-mix(in srgb, var(--accent) 45%, transparent);
   color: var(--accent-pale);
 }
 .rs-pill--accent:hover {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.07) 100%),
-    color-mix(in srgb, var(--accent) 42%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 62%, transparent);
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 /* Reduction de transparence (macOS/iOS) : on retombe sur des aplats opaques,

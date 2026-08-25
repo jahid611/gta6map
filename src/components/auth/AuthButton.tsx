@@ -62,7 +62,14 @@ export function AuthButton({ auth }: { auth: AuthApi }) {
         aria-expanded={open}
         aria-label="Menu du compte"
       >
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-[image:var(--gradient-vi)] text-[11px] font-black text-white">{initials}</span>
+        <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-[image:var(--gradient-vi)] text-[11px] font-black text-white">
+          {auth.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={auth.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+          ) : (
+            initials
+          )}
+        </span>
         <span className="hidden max-w-[120px] truncate font-medium sm:inline">{auth.displayName}</span>
         <ChevronDown className={cn("h-3.5 w-3.5 text-muted transition-transform", open && "rotate-180")} />
       </button>

@@ -1,0 +1,158 @@
+[
+  {
+    "id": "jason-duval",
+    "character": "Jason Duval",
+    "label": "Jason — pick-up",
+    "src": "/avatars/jason-duval.jpg"
+  },
+  {
+    "id": "jason-duval-2",
+    "character": "Jason Duval",
+    "label": "Jason — moto",
+    "src": "/avatars/jason-duval-2.jpg"
+  },
+  {
+    "id": "jason-duval-3",
+    "character": "Jason Duval",
+    "label": "Jason — bar",
+    "src": "/avatars/jason-duval-3.jpg"
+  },
+  {
+    "id": "lucia-caminos",
+    "character": "Lucia Caminos",
+    "label": "Lucia — piscine",
+    "src": "/avatars/lucia-caminos.jpg"
+  },
+  {
+    "id": "lucia-caminos-2",
+    "character": "Lucia Caminos",
+    "label": "Lucia — salle de sport",
+    "src": "/avatars/lucia-caminos-2.jpg"
+  },
+  {
+    "id": "lucia-caminos-3",
+    "character": "Lucia Caminos",
+    "label": "Lucia — club",
+    "src": "/avatars/lucia-caminos-3.jpg"
+  },
+  {
+    "id": "lucia-caminos-4",
+    "character": "Lucia Caminos",
+    "label": "Lucia — Leonida Penitentiary",
+    "src": "/avatars/lucia-caminos-4.jpg"
+  },
+  {
+    "id": "boobie-ike",
+    "character": "Boobie Ike",
+    "label": "Boobie — gros plan",
+    "src": "/avatars/boobie-ike.jpg"
+  },
+  {
+    "id": "boobie-ike-2",
+    "character": "Boobie Ike",
+    "label": "Boobie — artwork",
+    "src": "/avatars/boobie-ike-2.jpg"
+  },
+  {
+    "id": "boobie-ike-3",
+    "character": "Boobie Ike",
+    "label": "Boobie — Jack of Hearts",
+    "src": "/avatars/boobie-ike-3.jpg"
+  },
+  {
+    "id": "brian-heder",
+    "character": "Brian Heder",
+    "label": "Brian — lunettes",
+    "src": "/avatars/brian-heder.jpg"
+  },
+  {
+    "id": "brian-heder-2",
+    "character": "Brian Heder",
+    "label": "Brian — artwork",
+    "src": "/avatars/brian-heder-2.jpg"
+  },
+  {
+    "id": "brian-heder-3",
+    "character": "Brian Heder",
+    "label": "Brian — hangar",
+    "src": "/avatars/brian-heder-3.jpg"
+  },
+  {
+    "id": "cal-hampton",
+    "character": "Cal Hampton",
+    "label": "Cal — minigolf",
+    "src": "/avatars/cal-hampton.jpg"
+  },
+  {
+    "id": "cal-hampton-2",
+    "character": "Cal Hampton",
+    "label": "Cal — artwork",
+    "src": "/avatars/cal-hampton-2.jpg"
+  },
+  {
+    "id": "cal-hampton-3",
+    "character": "Cal Hampton",
+    "label": "Cal — piscine",
+    "src": "/avatars/cal-hampton-3.jpg"
+  },
+  {
+    "id": "drequan-priest",
+    "character": "Dre'Quan Priest",
+    "label": "Dre'Quan — club",
+    "src": "/avatars/drequan-priest.jpg"
+  },
+  {
+    "id": "drequan-priest-2",
+    "character": "Dre'Quan Priest",
+    "label": "Dre'Quan — artwork",
+    "src": "/avatars/drequan-priest-2.jpg"
+  },
+  {
+    "id": "drequan-priest-3",
+    "character": "Dre'Quan Priest",
+    "label": "Dre'Quan — Dreams",
+    "src": "/avatars/drequan-priest-3.jpg"
+  },
+  {
+    "id": "raul-bautista",
+    "character": "Raul Bautista",
+    "label": "Raul — téléphone",
+    "src": "/avatars/raul-bautista.jpg"
+  },
+  {
+    "id": "raul-bautista-2",
+    "character": "Raul Bautista",
+    "label": "Raul — artwork",
+    "src": "/avatars/raul-bautista-2.jpg"
+  },
+  {
+    "id": "raul-bautista-3",
+    "character": "Raul Bautista",
+    "label": "Raul — yacht",
+    "src": "/avatars/raul-bautista-3.jpg"
+  },
+  {
+    "id": "real-dimez",
+    "character": "Real Dimez",
+    "label": "Real Dimez — studio",
+    "src": "/avatars/real-dimez.jpg"
+  },
+  {
+    "id": "real-dimez-2",
+    "character": "Real Dimez",
+    "label": "Real Dimez — voiture",
+    "src": "/avatars/real-dimez-2.jpg"
+  },
+  {
+    "id": "real-dimez-3",
+    "character": "Real Dimez",
+    "label": "Real Dimez — artwork",
+    "src": "/avatars/real-dimez-3.jpg"
+  },
+  {
+    "id": "real-dimez-4",
+    "character": "Real Dimez",
+    "label": "Real Dimez — artwork II",
+    "src": "/avatars/real-dimez-4.jpg"
+  }
+]

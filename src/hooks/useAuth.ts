@@ -18,6 +18,12 @@ export interface AuthState {
   session: Session | null;
   /** Pseudo (metadata `display_name`) ou début de l'email. */
   displayName: string | null;
+  /** Photo de profil courante : avatar choisi (`avatar_url`) sinon photo Google (`picture`). */
+  avatarUrl: string | null;
+  /** Photo fournie par Google, si le compte est lié à Google. */
+  googleAvatarUrl: string | null;
+  /** Change la photo de profil (`null` = revenir à la photo Google / aux initiales). */
+  updateAvatar: (url: string | null) => Promise<AuthResult>;
   signInWithGoogle: (next?: string) => Promise<void>;
   /** Lien magique (sans mot de passe). */
   signInWithEmail: (email: string, next?: string) => Promise<AuthResult>;
@@ -136,6 +142,18 @@ export function useAuth(): AuthState {
     return { error: translateError(error?.message) };
   }, []);
 
+  const updateAvatar = useCallback(async (url: string | null): Promise<AuthResult> => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return { error: "Supabase non configuré" };
+    const current = (await supabase.auth.getUser()).data.user;
+    const meta = (current?.user_metadata ?? {}) as { picture?: string };
+    // `null` ⇒ retour à la photo Google si elle existe (sinon initiales).
+    const next = url ?? meta.picture ?? null;
+    const { error } = await supabase.auth.updateUser({ data: { avatar_url: next } });
+    if (!error && current) await supabase.from("profiles").upsert({ id: current.id, avatar_url: next });
+    return { error: translateError(error?.message) };
+  }, []);
+
   const signOut = useCallback(async () => {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
@@ -143,8 +161,16 @@ export function useAuth(): AuthState {
   }, []);
 
   const user = session?.user ?? null;
-  const meta = (user?.user_metadata ?? {}) as { display_name?: string; full_name?: string; name?: string };
+  const meta = (user?.user_metadata ?? {}) as {
+    display_name?: string;
+    full_name?: string;
+    name?: string;
+    avatar_url?: string | null;
+    picture?: string;
+  };
   const displayName = user ? (meta.display_name || meta.full_name || meta.name || user.email?.split("@")[0] || null) : null;
+  const googleAvatarUrl = user ? (meta.picture ?? null) : null;
+  const avatarUrl = user ? (meta.avatar_url ?? googleAvatarUrl) : null;
 
   return {
     enabled,
@@ -152,6 +178,9 @@ export function useAuth(): AuthState {
     user,
     session,
     displayName,
+    avatarUrl,
+    googleAvatarUrl,
+    updateAvatar,
     signInWithGoogle,
     signInWithEmail,
     signInWithPassword,

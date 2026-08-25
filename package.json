@@ -21,7 +21,8 @@
     "build:media": "tsx scripts/build-media-manifest.ts",
     "optimize:clips": "tsx scripts/optimize-clips.ts",
     "media:upload": "tsx scripts/upload-supabase-storage.ts",
-    "optimize:wiki": "tsx scripts/optimize-wiki-images.ts"
+    "optimize:wiki": "tsx scripts/optimize-wiki-images.ts",
+    "build:avatars": "tsx scripts/build-avatars.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

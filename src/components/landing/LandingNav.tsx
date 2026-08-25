@@ -76,7 +76,14 @@ function NavAccountLink() {
   const initials = (auth.displayName ?? "?").slice(0, 2).toUpperCase();
   return (
     <Link href="/compte" className="flex min-h-11 items-center gap-2 px-2 text-sm font-medium text-muted transition-colors hover:text-foreground" aria-label="Mon compte">
-      <span className="grid h-7 w-7 place-items-center rounded-full bg-[image:var(--gradient-vi)] text-[11px] font-black text-white">{initials}</span>
+      <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-[image:var(--gradient-vi)] text-[11px] font-black text-white">
+        {auth.avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={auth.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+        ) : (
+          initials
+        )}
+      </span>
       <span className="hidden sm:inline">{auth.displayName}</span>
     </Link>
   );

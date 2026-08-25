@@ -18,8 +18,8 @@ interface AuthFormProps {
 }
 
 const TITLES: Record<Mode, { title: string; subtitle: string }> = {
-  signin: { title: "Connexion", subtitle: "Retrouvez votre progression sur tous vos appareils." },
-  signup: { title: "Créer un compte", subtitle: "Gratuit. Progression, notes et marqueurs synchronisés." },
+  signin: { title: "Bon retour à Leonida", subtitle: "Retrouvez votre progression sur tous vos appareils." },
+  signup: { title: "Rejoindre la carte", subtitle: "Gratuit. Progression, notes et marqueurs synchronisés, avatar GTA au choix." },
   forgot: { title: "Mot de passe oublié", subtitle: "Nous vous envoyons un lien pour le réinitialiser." },
   magic: { title: "Lien magique", subtitle: "Connexion sans mot de passe, par email." },
 };
@@ -37,7 +37,6 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Déjà connecté → retour vers la page demandée.
   useEffect(() => {
     if (auth.user && !success) router.replace(next);
   }, [auth.user, next, router, success]);
@@ -83,15 +82,12 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
 
   if (!auth.enabled) {
     return (
-      <div className="rs-card rounded-3xl p-6 text-sm">
-        <h2 className="font-display text-xl font-bold">Comptes non activés</h2>
+      <div className="text-sm">
+        <h1 className="font-display text-2xl font-extrabold">Comptes non activés</h1>
         <p className="mt-2 text-muted">
-          La base de données n&apos;est pas encore connectée : votre progression est sauvegardée localement dans ce
-          navigateur. Pour activer les comptes, créez un projet Supabase gratuit et renseignez{" "}
-          <code className="rounded bg-surface-2 px-1">NEXT_PUBLIC_SUPABASE_URL</code> et{" "}
-          <code className="rounded bg-surface-2 px-1">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> (voir README).
+          La base de données n&apos;est pas connectée : votre progression est sauvegardée localement dans ce navigateur.
         </p>
-        <Link href="/map" className="rs-pill mt-4 inline-flex items-center gap-2 px-4 py-2 font-semibold">
+        <Link href="/map" className="rs-pill mt-5 inline-flex items-center gap-2 px-4 py-2 font-semibold">
           <ArrowLeft className="h-4 w-4" /> Retour à la carte
         </Link>
       </div>
@@ -99,20 +95,20 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
   }
 
   const { title, subtitle } = TITLES[mode];
+  const inputClass = "h-12 rounded-xl border-white/10 bg-white/[0.06] text-[15px] placeholder:text-white/35 focus-visible:ring-accent";
 
   return (
-    <div className="rs-card rounded-3xl p-6 sm:p-8">
-      {/* Onglets Connexion / Inscription */}
+    <div>
       {(mode === "signin" || mode === "signup") && (
-        <div className="mb-6 grid grid-cols-2 rounded-full bg-surface-2 p-1 text-sm font-semibold">
+        <div className="mb-7 grid grid-cols-2 rounded-full bg-white/[0.06] p-1 text-sm font-semibold">
           {(["signin", "signup"] as const).map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => switchMode(m)}
               className={cn(
-                "rounded-full py-2 transition-colors cursor-pointer",
-                mode === m ? "bg-accent text-white shadow-[0_0_18px_rgba(249,118,176,0.35)]" : "text-muted hover:text-foreground",
+                "rounded-full py-2.5 transition-colors cursor-pointer",
+                mode === m ? "bg-accent text-white shadow-[0_0_24px_rgba(249,118,176,0.4)]" : "text-muted hover:text-foreground",
               )}
               aria-pressed={mode === m}
             >
@@ -122,43 +118,28 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
         </div>
       )}
 
-      <h1 className="font-display text-2xl font-extrabold tracking-tight">{title}</h1>
-      <p className="mt-1 text-sm text-muted">{subtitle}</p>
+      <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight">{title}</h1>
+      <p className="mt-2 text-[15px] text-muted">{subtitle}</p>
 
       {success ? (
-        <div className="mt-6 flex items-start gap-3 rounded-2xl border border-success/30 bg-success/10 p-4 text-sm">
+        <div className="mt-7 flex items-start gap-3 rounded-2xl border border-success/30 bg-success/10 p-4 text-sm">
           <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
           <p>{success}</p>
         </div>
       ) : (
-        <form className="mt-6 flex flex-col gap-3" onSubmit={submit} noValidate>
+        <form className="mt-7 flex flex-col gap-3" onSubmit={submit} noValidate>
           {mode === "signup" && (
-            <label className="flex flex-col gap-1 text-xs font-medium text-muted">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
               Pseudo
-              <Input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Lucia_C"
-                maxLength={40}
-                autoComplete="nickname"
-                className="h-11 rounded-xl text-sm"
-              />
+              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Lucia_C" maxLength={40} autoComplete="nickname" className={inputClass} />
             </label>
           )}
-          <label className="flex flex-col gap-1 text-xs font-medium text-muted">
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
             Email
-            <Input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="vous@exemple.com"
-              autoComplete="email"
-              className="h-11 rounded-xl text-sm"
-            />
+            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vous@exemple.com" autoComplete="email" className={inputClass} />
           </label>
           {(mode === "signin" || mode === "signup") && (
-            <label className="flex flex-col gap-1 text-xs font-medium text-muted">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
               Mot de passe
               <span className="relative">
                 <Input
@@ -169,12 +150,12 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={mode === "signup" ? "8 caractères minimum" : "••••••••"}
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                  className="h-11 rounded-xl pr-11 text-sm"
+                  className={cn(inputClass, "pr-12")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-muted hover:text-foreground cursor-pointer"
+                  className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-muted hover:text-foreground cursor-pointer"
                   aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -189,7 +170,7 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
             </p>
           )}
 
-          <Button type="submit" size="lg" className="mt-1 w-full rounded-full text-base font-bold" disabled={busy}>
+          <Button type="submit" size="lg" className="mt-2 h-12 w-full rounded-full text-base font-bold" disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {mode === "signin" && "Se connecter"}
             {mode === "signup" && "Créer mon compte"}
@@ -212,13 +193,13 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
 
       {(mode === "signin" || mode === "signup") && (
         <>
-          <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-wide text-muted-2">
-            <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
+          <div className="my-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-muted-2">
+            <span className="h-px flex-1 bg-white/10" /> ou <span className="h-px flex-1 bg-white/10" />
           </div>
           <button
             type="button"
             onClick={() => auth.signInWithGoogle(next)}
-            className="rs-pill flex w-full items-center justify-center gap-3 px-4 py-3 text-sm font-semibold cursor-pointer"
+            className="rs-pill flex h-12 w-full items-center justify-center gap-3 px-4 text-sm font-semibold cursor-pointer"
           >
             <GoogleMark /> Continuer avec Google
           </button>
@@ -226,16 +207,12 @@ export function AuthForm({ initialMode = "signin", next = "/map" }: AuthFormProp
       )}
 
       {(mode === "forgot" || mode === "magic" || success) && (
-        <button
-          type="button"
-          onClick={() => switchMode("signin")}
-          className="mt-5 inline-flex items-center gap-1 text-xs text-muted hover:text-foreground cursor-pointer"
-        >
+        <button type="button" onClick={() => switchMode("signin")} className="mt-6 inline-flex items-center gap-1 text-xs text-muted hover:text-foreground cursor-pointer">
           <ArrowLeft className="h-3.5 w-3.5" /> Retour à la connexion
         </button>
       )}
 
-      <p className="mt-6 text-center text-[11px] leading-relaxed text-muted-2">
+      <p className="mt-8 text-[11px] leading-relaxed text-muted-2">
         Carte non officielle, sans lien avec Rockstar Games. En continuant, vous acceptez les{" "}
         <Link href="/terms" className="underline hover:text-foreground">conditions d&apos;utilisation</Link> et les{" "}
         <Link href="/privacy" className="underline hover:text-foreground">règles de confidentialité</Link>.
