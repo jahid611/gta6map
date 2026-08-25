@@ -90,3 +90,22 @@ Conséquence : un déploiement sans aucune variable affiche les tuiles, les 1 90
 - Caméras trailers/screenshots : [gtamaplib](https://github.com/rolux/gtamaplib) (MIT). Seules les caméras officielles (trailers, screenshots Rockstar) sont utilisées ; les fuites sont exclues.
 - Fiches & images de zones : [GTA Wiki](https://gta.wiki) (CC BY-NC-SA 3.0).
 - Frames de trailers, screenshots, logo VI : © Rockstar Games — usage fan non commercial.
+
+## Comptes utilisateurs (Supabase, gratuit)
+
+Les comptes (email + mot de passe, Google, lien magique) et la synchronisation de la progression reposent sur **Supabase** — plan gratuit : 500 Mo Postgres, 50 000 utilisateurs actifs/mois, aucune carte bancaire.
+
+1. Créer un projet sur <https://supabase.com/dashboard> (région `eu-west-3` Paris ou `eu-central-1`).
+2. **SQL Editor** → exécuter dans l'ordre `supabase/migrations/0001_init.sql`, `0002_media_wiki.sql`, `0003_profiles.sql`.
+3. **Project Settings → API** : copier `Project URL` et la clé `anon public` dans `.env.local` :
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+   SUPABASE_SERVICE_ROLE_KEY=eyJ...   # seed uniquement
+   ```
+4. **Authentication → URL Configuration** : `Site URL` = votre domaine (ou `http://localhost:3000`), et ajouter aux `Redirect URLs` : `http://localhost:3000/auth/callback` et `https://<domaine>/auth/callback`.
+5. (Optionnel) **Authentication → Providers → Google** : activer et renseigner un client OAuth Google.
+6. (Optionnel) **Authentication → Providers → Email** : décocher « Confirm email » pour une inscription instantanée sans validation.
+7. `npm run seed` pour peupler `categories` / `locations`, puis redémarrer `npm run dev`.
+
+Pages : `/auth` (connexion / inscription / mot de passe oublié / lien magique), `/auth/update-password`, `/compte` (profil, complétion, déconnexion). Sans variables Supabase, l'app reste 100 % locale (progression dans `localStorage`) et ces pages l'expliquent.
