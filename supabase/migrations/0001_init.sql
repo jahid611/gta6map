@@ -30,6 +30,13 @@ begin
   return new;
 end $$;
 
+-- `array_to_string` est STABLE (dépend du paramètre de session) : interdit dans
+-- une colonne générée. Cette enveloppe IMMUTABLE est sûre pour du texte simple.
+create or replace function public.immutable_array_to_string(arr text[], sep text)
+returns text language sql immutable parallel safe as $$
+  select array_to_string(arr, sep);
+$$;
+
 -- ───────────────────────────── categories ─────────────────────────────
 
 create table if not exists public.categories (
@@ -94,7 +101,7 @@ create table if not exists public.locations (
     setweight(to_tsvector('simple', coalesce(name, '')), 'A') ||
     setweight(to_tsvector('simple', coalesce(area, '')), 'B') ||
     setweight(to_tsvector('simple', coalesce(irl_name, '')), 'B') ||
-    setweight(to_tsvector('simple', array_to_string(tags, ' ')), 'C')
+    setweight(to_tsvector('simple', public.immutable_array_to_string(tags, ' ')), 'C')
   ) stored,
 
   created_at   timestamptz not null default now(),
