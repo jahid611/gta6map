@@ -424,21 +424,25 @@ function Choice({ src, label, sub, selected, busy, onClick, round = false }: { s
       type="button"
       onClick={onClick}
       disabled={busy}
-      className={cn(
-        "group flex w-full flex-col items-center gap-1.5 rounded-2xl p-2 text-center transition-colors cursor-pointer hover:bg-white/[0.06]",
-        selected && "bg-accent/15 ring-1 ring-accent",
-      )}
+      className="group flex w-full flex-col items-center gap-1.5 rounded-2xl p-2 text-center transition-colors cursor-pointer hover:bg-white/[0.06]"
       aria-pressed={selected}
     >
-      <span className={cn("relative overflow-hidden border-2 border-white/10 group-hover:border-accent/60", round ? "h-20 w-20 rounded-full sm:h-24 sm:w-24" : "aspect-video w-full rounded-xl")}>
-        {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={src} alt={label} className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
-        ) : (
-          <span className="block h-full w-full bg-[image:var(--gradient-vi)]" />
+      {/* Le badge « ✔ » vit HORS du cadre `overflow-hidden` : sinon il est rogné par le cercle. */}
+      <span className={cn("relative", round ? "h-20 w-20 sm:h-24 sm:w-24" : "aspect-video w-full")}>
+        <span className={cn("block h-full w-full overflow-hidden border-2 border-white/10 group-hover:border-white/30", round ? "rounded-full" : "rounded-xl")}>
+          {src ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={src} alt={label} className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+          ) : (
+            <span className="block h-full w-full bg-[image:var(--gradient-vi)]" />
+          )}
+          {busy && <span className="absolute inset-0 grid place-items-center rounded-[inherit] bg-black/50"><Loader2 className="h-5 w-5 animate-spin text-white" /></span>}
+        </span>
+        {selected && !busy && (
+          <span className="absolute -bottom-0.5 -right-0.5 z-10 grid h-6 w-6 place-items-center rounded-full border-2 border-[#111117] bg-accent text-white shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+            <Check className="h-3.5 w-3.5" />
+          </span>
         )}
-        {busy && <span className="absolute inset-0 grid place-items-center bg-black/50"><Loader2 className="h-5 w-5 animate-spin text-white" /></span>}
-        {selected && !busy && <span className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-accent text-white"><Check className="h-3.5 w-3.5" /></span>}
       </span>
       <span className="text-xs font-semibold leading-tight">{label}</span>
       <span className="text-[10px] leading-tight text-muted">{sub}</span>
