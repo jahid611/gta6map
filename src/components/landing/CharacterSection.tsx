@@ -120,7 +120,12 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
                 width={3840}
                 height={2160}
                 quality={92}
-                sizes="(max-width: 1024px) 100vw, 34rem"
+                // Volontairement plus large que l'emplacement (~510 px) : à la
+                // taille exacte, un écran sans densité double reçoit un fichier
+                // au pixel près, soit un master de 3 840 px réduit six fois et
+                // sans aucune réserve de détail — les visages y deviennent
+                // pâteux. On sur-échantillonne, le navigateur réduit.
+                sizes="(max-width: 1024px) 100vw, 1024px"
                 className="aspect-video h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
               />
             )}
@@ -136,7 +141,8 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
                 width={3840}
                 height={2160}
                 quality={92}
-                sizes="(max-width: 1024px) 100vw, 40rem"
+                // Idem : l'emplacement fait ~600 px, on en demande le double.
+                sizes="(max-width: 1024px) 100vw, 1200px"
                 className={`h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03] ${
                   i === 0 ? "aspect-[4/3]" : "aspect-video"
                 }`}

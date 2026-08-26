@@ -243,6 +243,67 @@ button:disabled {
   }
 }
 
+/* Indice d'ouverture, galet referme : le chevron de droite pousse vers
+   l'exterieur puis revient, deux fois, avant une longue pause. Le cycle est
+   presque entierement immobile — une pulsation continue dans un coin de l'ecran
+   accroche l'oeil en permanence et finit par gener la lecture. */
+@keyframes rs-nav-hint {
+  0%,
+  74%,
+  100% {
+    transform: translateX(0);
+  }
+  79% {
+    transform: translateX(4px);
+  }
+  84% {
+    transform: translateX(0);
+  }
+  89% {
+    transform: translateX(2.5px);
+  }
+  94% {
+    transform: translateX(0);
+  }
+}
+.rs-nav-hint {
+  animation: rs-nav-hint 5.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* Le galet lui-meme suit le meme mouvement, ancre a gauche : seul le bord droit
+   avance, comme s'il tirait sur sa laisse. Memes bornes et meme duree que le
+   chevron, les deux prenant la classe au meme instant — ils restent en phase.
+   L'etirement reste sous 4 % : au-dela, le texte se deforme visiblement. */
+@keyframes rs-nav-hint-pill {
+  0%,
+  74%,
+  100% {
+    transform: scaleX(1);
+  }
+  79% {
+    transform: scaleX(1.035);
+  }
+  84% {
+    transform: scaleX(1);
+  }
+  89% {
+    transform: scaleX(1.02);
+  }
+  94% {
+    transform: scaleX(1);
+  }
+}
+.rs-nav-hint-pill {
+  transform-origin: left center;
+  animation: rs-nav-hint-pill 5.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-nav-hint,
+  .rs-nav-hint-pill {
+    animation: none;
+  }
+}
+
 /* Pilule teintée à la couleur d'accent, pour l'action principale d'un écran. */
 .rs-pill--accent {
   background: color-mix(in srgb, var(--accent) 28%, transparent);

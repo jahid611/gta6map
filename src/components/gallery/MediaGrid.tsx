@@ -124,7 +124,7 @@ function MediaTile({ entry, onOpen }: { entry: MediaEntry; onOpen: () => void })
           // et plusieurs mégaoctets ; à 94 tuiles, réclamer une largeur généreuse
           // faisait attendre la grille plusieurs secondes.
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 320px"
-          quality={72}
+          quality={75}
           loading="lazy"
           onLoad={() => setLoaded(true)}
           onError={() => setLoaded(true)}

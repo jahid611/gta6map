@@ -3,6 +3,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronRight } from "@/components/ui/icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 
@@ -100,7 +101,13 @@ export function NavPill({ className }: { className?: string }) {
   return (
     <nav
       aria-label="Navigation principale"
-      className={cn("rs-nav3d flex h-12 items-center justify-center overflow-hidden", className)}
+      className={cn(
+        "rs-nav3d flex h-12 items-center justify-center overflow-hidden",
+        // Replié, il signale qu'il s'ouvre : sans indice, rien ne distingue un
+        // galet cliquable d'une simple étiquette de rubrique.
+        !open && "rs-nav-hint-pill",
+        className,
+      )}
       style={widths ? { width: open ? widths.open : widths.shut } : undefined}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
@@ -113,7 +120,12 @@ export function NavPill({ className }: { className?: string }) {
           open ? "opacity-0" : "opacity-100 delay-100",
         )}
       >
-        <span ref={labelRef}>{active.label}</span>
+        {/* Le chevron est dans l'élément mesuré : la largeur repliée doit le
+            comprendre, sinon il se fait rogner par `overflow-hidden`. */}
+        <span ref={labelRef} className="flex items-center gap-1.5">
+          {active.label}
+          <ChevronRight aria-hidden className="rs-nav-hint h-3.5 w-3.5 text-muted" />
+        </span>
       </span>
 
       <ul

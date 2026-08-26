@@ -86,7 +86,9 @@ export function TrailerSection() {
                       alt=""
                       fill
                       quality={88}
-                      sizes="(max-width: 1024px) 100vw, 34rem"
+                      // Affiche de trailer : même sur-échantillonnage que les portraits, c est
+                      // le visuel qui porte la section.
+                      sizes="(max-width: 1024px) 100vw, 1024px"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <span aria-hidden className="absolute inset-0 bg-black/35 transition-colors group-hover:bg-black/25" />

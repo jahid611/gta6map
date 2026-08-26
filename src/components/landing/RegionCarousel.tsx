@@ -88,7 +88,7 @@ export function RegionCarousel({ regions }: { regions: LandingRegion[] }) {
                 fill
                 priority={index === 0}
                 quality={92}
-                sizes="(max-width: 768px) 92vw, 27rem"
+                sizes="(max-width: 768px) 100vw, 900px"
                 className="animate-fade-in object-cover object-center"
                 draggable={false}
               />
