@@ -28,6 +28,9 @@ export function LocationDrawer({ location, categoriesBySlug, areaWiki = null }: 
   if (isDesktop) {
     return (
       <aside
+        // Mesuré par `MapController` : la carte doit centrer ses vols sur la
+        // portion restée visible, pas derrière ce panneau.
+        data-location-panel
         className="rs-card absolute right-3 top-3 bottom-3 z-[1050] flex w-[400px] flex-col overflow-hidden rounded-3xl animate-fade-in"
         aria-label={`Détails : ${location.name}`}
       >

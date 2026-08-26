@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { ArrowRight, Compass, Crosshair, Grid3x3, Layers, LocateFixed, Minus, Plus, RotateCcw, Ruler, Type } from "@/components/ui/icons";
@@ -40,6 +40,8 @@ export function MapControls() {
   const [gotoX, setGotoX] = useState("");
   const [gotoY, setGotoY] = useState("");
   const [cursor, setCursor] = useState<[number, number] | null>(null);
+  /** Dernière position connue de la souris, en pixels du conteneur. */
+  const lastPoint = useRef<L.Point | null>(null);
 
   const goToCoords = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,17 +55,35 @@ export function MapControls() {
     setGotoOpen(false);
   };
 
+  // Le relevé suit la position du curseur DANS le conteneur, et non la dernière
+  // coordonnée lue : après un vol, la carte a défilé sous une souris immobile et
+  // l'affichage restait figé sur le point d'avant.
   useEffect(() => {
-    const onMove = (e: L.LeafletMouseEvent) => {
-      const [x, y] = latLngToWorld(e.latlng.lat, e.latlng.lng);
+    const show = (point: L.Point) => {
+      const latlng = map.containerPointToLatLng(point);
+      const [x, y] = latLngToWorld(latlng.lat, latlng.lng);
       setCursor([Math.round(x), Math.round(y)]);
     };
-    const onOut = () => setCursor(null);
+    const onMove = (e: L.LeafletMouseEvent) => {
+      lastPoint.current = e.containerPoint;
+      show(e.containerPoint);
+    };
+    const onOut = () => {
+      lastPoint.current = null;
+      setCursor(null);
+    };
+    const onMapMove = () => {
+      if (lastPoint.current) show(lastPoint.current);
+    };
     map.on("mousemove", onMove);
     map.on("mouseout", onOut);
+    map.on("move", onMapMove);
+    map.on("zoom", onMapMove);
     return () => {
       map.off("mousemove", onMove);
       map.off("mouseout", onOut);
+      map.off("move", onMapMove);
+      map.off("zoom", onMapMove);
     };
   }, [map]);
 

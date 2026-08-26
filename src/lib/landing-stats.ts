@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import type { Category, Location, MapSection } from "@/types";
+import type { Location, MapSection } from "@/types";
 import { getAreas, getCategories, getLocations, getSections } from "@/lib/data/locations";
 import { frameUrl, wikiImageUrl } from "@/lib/media";
 import { MEDIA_CATALOG } from "@/lib/media-catalog";

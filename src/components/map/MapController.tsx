@@ -5,7 +5,7 @@ import L from "leaflet";
 import { useMap, useMapEvents } from "react-leaflet";
 import { useMapStore } from "@/store/useMapStore";
 import { useUIStore } from "@/store/useUIStore";
-import { decodeViewHash, encodeViewHash, latLngToWorld } from "@/lib/map/coords";
+import { decodeViewHash, encodeViewHash, latLngToWorld, worldToLatLng } from "@/lib/map/coords";
 import { DEFAULT_VIEW, LANDMASS_BOUNDS, MAX_ZOOM, MIN_ZOOM } from "@/lib/map/config";
 import { clamp } from "@/lib/utils";
 
@@ -49,8 +49,16 @@ export function MapController() {
   useEffect(() => {
     if (!flyToRequest) return;
     const [x, y] = flyToRequest.center;
-    const zoom = flyToRequest.zoom ?? Math.max(map.getZoom(), 5);
-    map.flyTo([y, x], clamp(zoom, MIN_ZOOM, MAX_ZOOM), { duration: 0.9, easeLinearity: 0.25 });
+    const zoom = clamp(flyToRequest.zoom ?? Math.max(map.getZoom(), 5), MIN_ZOOM, MAX_ZOOM);
+
+    // La fiche recouvre la partie droite de la carte : centrer sur le conteneur
+    // plaçait le point derrière elle, décalé de la moitié de sa largeur. On vise
+    // donc le centre de la zone RESTÉE visible.
+    const overlay = document.querySelector<HTMLElement>("[data-location-panel]");
+    const hidden = overlay ? overlay.getBoundingClientRect().width : 0;
+    const target = worldToLatLng(x, y);
+    const point = map.project([target[0], target[1]], zoom).add([hidden / 2, 0]);
+    map.flyTo(map.unproject(point, zoom), zoom, { duration: 0.9, easeLinearity: 0.25 });
     consumeFlyTo();
   }, [flyToRequest, map, consumeFlyTo]);
 

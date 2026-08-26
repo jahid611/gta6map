@@ -302,6 +302,7 @@ interface MessageItemProps {
 
 function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll, votes, location, category, userId, onReply, onReact, onVote, onDelete }: MessageItemProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const grouped = useMemo(() => {
     const m = new Map<string, { count: number; mine: boolean }>();
     for (const r of reactions) {
@@ -366,7 +367,14 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
 
       {/* Actions rapides (survol) */}
       {userId && (
-        <div className="absolute right-3 top-2 flex items-center gap-1 rounded-full border border-white/10 bg-[#13131a] p-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+        <div
+          className={cn(
+            "absolute right-3 top-2 flex items-center gap-1 rounded-full border border-white/10 bg-[#13131a] p-0.5 transition-opacity focus-within:opacity-100",
+            // Une confirmation en attente reste visible même si la souris part :
+            // sinon la question disparaîtrait sans qu'on ait pu y répondre.
+            confirming ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+          )}
+        >
           {QUICK_EMOJIS.slice(0, 3).map((e) => (
             <button key={e} type="button" onClick={() => onReact(e)} className="grid h-7 w-7 place-items-center rounded-full text-sm hover:bg-white/10 cursor-pointer" aria-label={`Réagir ${e}`}>{e}</button>
           ))}
@@ -376,10 +384,25 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
           <button type="button" onClick={onReply} className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-white/10 hover:text-foreground cursor-pointer" aria-label="Répondre">
             <CornerDownLeft className="h-3.5 w-3.5" />
           </button>
+          {/* Confirmation en place, jamais `window.confirm()` : la boîte native
+              gèle l'onglet entier (le temps réel compris) et ne ressemble à rien
+              du reste du site. Ici la barre d'actions se change en question. */}
           {message.userId === userId && (
-            <button type="button" onClick={onDelete} className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-white/10 hover:text-red cursor-pointer" aria-label="Supprimer">
-              <X className="h-3.5 w-3.5" />
-            </button>
+            confirming ? (
+              <span className="flex items-center gap-2 pl-1 text-xs">
+                <span className="text-muted">Supprimer ?</span>
+                <button type="button" onClick={onDelete} className="font-semibold text-red hover:underline cursor-pointer" autoFocus>
+                  Oui
+                </button>
+                <button type="button" onClick={() => setConfirming(false)} className="text-muted hover:text-foreground hover:underline cursor-pointer">
+                  Annuler
+                </button>
+              </span>
+            ) : (
+              <button type="button" onClick={() => setConfirming(true)} className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-white/10 hover:text-red cursor-pointer" aria-label="Supprimer">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )
           )}
         </div>
       )}
@@ -424,7 +447,11 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
   const [error, setError] = useState<string | null>(null);
   const [atBottom, setAtBottom] = useState(true);
   const listRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Armé à l'envoi : on descendra sur son propre message dès qu'il arrivera,
+  // même si on lisait plus haut dans la conversation au moment d'écrire.
+  const followOwnMessage = useRef(false);
 
   const locationBySlug = useMemo(() => new Map(bootstrap.locations.map((l) => [l.slug, l])), [bootstrap.locations]);
   const categories = useMemo(() => new Map(bootstrap.categories.map((c) => [c.slug, { name: c.name, color: c.color }])), [bootstrap.categories]);
@@ -458,8 +485,25 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
     scrollToBottom(false);
   }, [scrollToBottom]);
   useEffect(() => {
-    if (atBottom) scrollToBottom();
-  }, [visible.length, atBottom, scrollToBottom]);
+    const last = visible[visible.length - 1];
+    const mine = followOwnMessage.current && !!userId && last?.userId === userId;
+    if (mine) followOwnMessage.current = false;
+    if (atBottom || mine) scrollToBottom();
+  }, [visible, atBottom, userId, scrollToBottom]);
+
+  // Un message riche (aperçu de lieu, image) gagne de la hauteur APRÈS son
+  // insertion : le défilement déclenché à l'arrivée du message visait alors un
+  // bas de liste déjà périmé, et le dernier message restait sous le pli. On
+  // resuit donc la hauteur réelle du contenu tant qu'on est collé en bas.
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      if (atBottom) scrollToBottom(false);
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [atBottom, scrollToBottom]);
 
   // ── Temps réel ──
   useEffect(() => {
@@ -539,6 +583,7 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
         if (r.error) return setError(r.error);
       }
       resetComposer();
+      followOwnMessage.current = true;
       setAtBottom(true);
     } finally {
       setBusy(false);
@@ -561,8 +606,8 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
     if (r.error) setError(r.error);
   };
 
+  // La confirmation est demandée dans la ligne du message (cf. `MessageItem`).
   const remove = async (message: ChatMessage) => {
-    if (!window.confirm("Supprimer ce message ?")) return;
     setMessages((prev) => prev.map((m) => (m.id === message.id ? { ...m, deletedAt: new Date().toISOString() } : m)));
     const r = await deleteMessage(message.id);
     if (r.error) setError(r.error);
@@ -582,7 +627,7 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
         className="min-h-0 flex-1 overflow-y-auto px-2 py-4 sm:px-4"
       >
         {visible.length === 0 && <p className="py-20 text-center text-sm text-muted">Personne n&apos;a encore parlé. Lancez la conversation !</p>}
-        <div className="mx-auto flex max-w-3xl flex-col gap-1">
+        <div ref={contentRef} className="mx-auto flex max-w-3xl flex-col gap-1">
           {visible.map((m) => (
             <MessageItem
               key={m.id}

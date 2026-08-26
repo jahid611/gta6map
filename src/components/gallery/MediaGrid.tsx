@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { MEDIA_FILTERS, countByFilter, type MediaEntry } from "@/lib/media-catalog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { X } from "@/components/ui/icons";
+import { ChevronLeft, ChevronRight, X } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
 /**
@@ -16,14 +16,16 @@ import { cn } from "@/lib/utils";
  */
 export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
   const [filter, setFilter] = useState("all");
-  const [open, setOpen] = useState<MediaEntry | null>(null);
+  // On mémorise un RANG et non une entrée : la visionneuse doit pouvoir passer
+  // au média suivant sans repasser par la grille.
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   // Une vidéo ouverte en grand ne doit pas coexister avec neuf vignettes qui
   // décodent en arrière-plan : on les met toutes en pause à l'ouverture.
   useEffect(() => {
-    if (!open) return;
+    if (openIndex === null) return;
     document.querySelectorAll<HTMLVideoElement>("video[data-gallery-video]").forEach((v) => v.pause());
-  }, [open]);
+  }, [openIndex]);
 
   const counts = useMemo(() => countByFilter(entries), [entries]);
   const active = MEDIA_FILTERS.find((f) => f.id === filter) ?? MEDIA_FILTERS[0];
@@ -35,7 +37,10 @@ export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
         {MEDIA_FILTERS.map((f) => (
           <button
             key={f.id}
-            onClick={() => setFilter(f.id)}
+            onClick={() => {
+              setFilter(f.id);
+              setOpenIndex(null);
+            }}
             aria-pressed={filter === f.id}
             disabled={counts[f.id] === 0}
             className={cn(
@@ -55,7 +60,7 @@ export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {shown.map((entry, i) => (
           <li key={entry.id} className="vi-reveal" data-reveal-delay={(i % 4) * 0.05}>
-            <MediaTile entry={entry} onOpen={() => setOpen(entry)} />
+            <MediaTile entry={entry} onOpen={() => setOpenIndex(i)} />
           </li>
         ))}
       </ul>
@@ -66,7 +71,9 @@ export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
         </p>
       )}
 
-      {open && <Lightbox entry={open} onClose={() => setOpen(null)} />}
+      {openIndex !== null && shown[openIndex] && (
+        <Lightbox entries={shown} index={openIndex} onIndex={setOpenIndex} onClose={() => setOpenIndex(null)} />
+      )}
     </>
   );
 }
@@ -152,8 +159,43 @@ function MediaTile({ entry, onOpen }: { entry: MediaEntry; onOpen: () => void })
   );
 }
 
-/** Visionneuse plein écran. Fermeture au clic sur le fond ou à l'Échap. */
-function Lightbox({ entry, onClose }: { entry: MediaEntry; onClose: () => void }) {
+/**
+ * Visionneuse plein écran. Fermeture au clic sur le fond ou à l'Échap,
+ * navigation aux flèches (clavier ou boutons) dans la sélection courante.
+ *
+ * Les raccourcis sont posés sur `window` et non sur le conteneur : dès que la
+ * lecture d'un clip démarre, le focus part sur les contrôles natifs de la vidéo
+ * et un `onKeyDown` local ne reçoit plus rien.
+ */
+function Lightbox({
+  entries,
+  index,
+  onIndex,
+  onClose,
+}: {
+  entries: MediaEntry[];
+  index: number;
+  onIndex: (index: number) => void;
+  onClose: () => void;
+}) {
+  const entry = entries[index];
+  const go = useCallback(
+    (delta: number) => onIndex((index + delta + entries.length) % entries.length),
+    [entries.length, index, onIndex],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowRight") go(1);
+      else if (e.key === "ArrowLeft") go(-1);
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [go, onClose]);
+
   return (
     <div
       role="dialog"
@@ -161,7 +203,6 @@ function Lightbox({ entry, onClose }: { entry: MediaEntry; onClose: () => void }
       aria-label={entry.title}
       tabIndex={-1}
       onClick={onClose}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
       ref={(el) => el?.focus()}
       // Pas de `backdrop-blur` ici. Un flou d'arrière-plan sur un élément plein
       // écran oblige le compositeur à refloutter toute la page derrière ; avec
@@ -178,7 +219,36 @@ function Lightbox({ entry, onClose }: { entry: MediaEntry; onClose: () => void }
         <X className="h-4 w-4" />
       </button>
 
-      <figure className="max-h-full w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
+      {entries.length > 1 && (
+        <>
+          {/* Ancrées aux bords de l'écran, hors du cadre du média : superposées à
+              l'image, elles masqueraient justement ce qu'on est venu regarder. */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              go(-1);
+            }}
+            aria-label="Média précédent"
+            className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/50 text-white transition-colors hover:bg-black/80 sm:left-4"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              go(1);
+            }}
+            aria-label="Média suivant"
+            className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-black/50 text-white transition-colors hover:bg-black/80 sm:right-4"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </>
+      )}
+
+      {/* `key` : sans remontage, passer d'un clip au suivant réutiliserait le
+          même <video>, qui garde la position de lecture du précédent. */}
+      <figure key={entry.id} className="max-h-full w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
         {entry.kind === "clip" ? (
           <video
             src={entry.src}
@@ -220,6 +290,14 @@ function Lightbox({ entry, onClose }: { entry: MediaEntry; onClose: () => void }
           {entry.title}
           <span className="mx-2 opacity-40">·</span>
           {entry.group}
+          {entries.length > 1 && (
+            <>
+              <span className="mx-2 opacity-40">·</span>
+              <span className="vi-num opacity-60">
+                {index + 1} / {entries.length}
+              </span>
+            </>
+          )}
         </figcaption>
       </figure>
     </div>
