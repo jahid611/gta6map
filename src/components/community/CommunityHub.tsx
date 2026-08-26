@@ -21,6 +21,7 @@ import {
 import { CATEGORY_GROUP_LABELS } from "@/lib/data/categories";
 import { pastel } from "@/lib/colors";
 import { cn } from "@/lib/utils";
+import { Message, MessageAvatar, MessageContent, MessageFooter, MessageHeader } from "@/components/ui/message";
 import {
   POLL_DURATIONS,
   QUICK_EMOJIS,
@@ -138,7 +139,19 @@ const HOVER_CARD_H = 300;
  * position fixe : sous le pseudo s'il reste de la place, sinon au-dessus, et
  * toujours ramenée dans l'écran — jamais rognée par le composer ni par la liste.
  */
-function UserHandle({ userId, profile, className }: { userId: string; profile: ChatProfile | undefined; className?: string }) {
+function UserHandle({
+  userId,
+  profile,
+  className,
+  // Dans le fil, l'avatar est porté par `MessageAvatar`, collé au bas de la
+  // bulle : le répéter dans l'en-tête ferait deux vignettes pour un message.
+  hideAvatar = false,
+}: {
+  userId: string;
+  profile: ChatProfile | undefined;
+  className?: string;
+  hideAvatar?: boolean;
+}) {
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const anchorRef = useRef<HTMLSpanElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -175,7 +188,7 @@ function UserHandle({ userId, profile, className }: { userId: string; profile: C
   return (
     <span ref={anchorRef} className="relative inline-block" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       <Link href={`/u/${userId}`} className={cn("inline-flex items-center gap-2 hover:underline", className)}>
-        <Avatar profile={profile} size={32} />
+        {!hideAvatar && <Avatar profile={profile} size={32} />}
         <span className="truncate font-semibold">{profile?.displayName ?? "Joueur"}</span>
       </Link>
       {pos &&
@@ -314,16 +327,37 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
     return [...m.entries()];
   }, [reactions, userId]);
 
+  const mine = !!userId && message.userId === userId;
+  // La bulle n'habille que le texte. Une carte de lieu ou un sondage sont déjà
+  // des cartes : les poser dans une bulle ferait une carte dans une carte.
+  const bubbled = message.kind === "text" || (!!message.content && message.kind === "location");
+
   return (
-    <article id={`m-${message.id}`} className="group relative flex gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-white/[0.03]">
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-2 text-sm">
-          <UserHandle userId={message.userId} profile={profile} />
+    <Message
+      id={`m-${message.id}`}
+      align={mine ? "end" : "start"}
+      className="items-end gap-2.5 px-1 py-1.5"
+    >
+      <MessageAvatar>
+        <Avatar profile={profile} size={32} />
+      </MessageAvatar>
+
+      <MessageContent className={cn("gap-1", mine ? "items-end" : "items-start")}>
+        <MessageHeader className={cn("gap-2 px-1 text-sm", mine && "flex-row-reverse")}>
+          <UserHandle userId={message.userId} profile={profile} hideAvatar />
           <span className="text-[11px] text-muted">{timeAgo(message.createdAt)}</span>
-        </div>
+        </MessageHeader>
 
         {quoted && (
-          <a href={`#m-${quoted.id}`} className="mt-2 flex items-start gap-2 border-l-2 border-accent/50 pl-3 text-xs text-muted hover:text-foreground">
+          <a
+            href={`#m-${quoted.id}`}
+            className={cn(
+              "flex max-w-[min(34rem,86%)] items-start gap-2 text-xs text-muted hover:text-foreground",
+              // Le filet et la flèche de citation restent du côté de la bulle :
+              // à gauche pour les autres, à droite pour soi.
+              mine ? "flex-row-reverse border-r-2 border-accent/50 pr-3 text-right" : "border-l-2 border-accent/50 pl-3",
+            )}
+          >
             <CornerDownLeft className="mt-0.5 h-3 w-3 shrink-0" />
             <span className="line-clamp-2">
               <span className="font-semibold text-foreground/80">{quotedProfile?.displayName ?? "Joueur"}</span> · {quoted.kind === "poll" ? `Sondage : ${quoted.content}` : quoted.kind === "location" ? `Lieu partagé${quoted.content ? ` — ${quoted.content}` : ""}` : quoted.content}
@@ -331,12 +365,35 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
           </a>
         )}
 
-        {message.content && message.kind !== "poll" && <p className="mt-1.5 whitespace-pre-wrap break-words text-[15px] leading-relaxed">{message.content}</p>}
-        {message.kind === "location" && <LocationCard location={location} categoryName={category?.name} color={category?.color} />}
-        {message.kind === "poll" && (poll ? <PollCard poll={poll} votes={votes} userId={userId} onVote={onVote} /> : <p className="mt-2 text-xs text-muted">Sondage…</p>)}
+        {message.content && message.kind !== "poll" && (
+          <p
+            className={cn(
+              "max-w-[min(34rem,86%)] whitespace-pre-wrap break-words text-[15px] leading-relaxed",
+              bubbled &&
+                cn(
+                  "rounded-2xl border px-3.5 py-2.5",
+                  mine
+                    ? "rounded-br-md border-accent/35 bg-accent/15"
+                    : "rounded-bl-md border-white/10 bg-white/[0.055]",
+                ),
+            )}
+          >
+            {message.content}
+          </p>
+        )}
+        {message.kind === "location" && (
+          <div className="max-w-[min(34rem,86%)]">
+            <LocationCard location={location} categoryName={category?.name} color={category?.color} />
+          </div>
+        )}
+        {message.kind === "poll" && (
+          <div className="max-w-[min(34rem,86%)]">
+            {poll ? <PollCard poll={poll} votes={votes} userId={userId} onVote={onVote} /> : <p className="mt-2 text-xs text-muted">Sondage…</p>}
+          </div>
+        )}
 
         {(grouped.length > 0 || pickerOpen) && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <MessageFooter className="mt-0.5 flex-wrap gap-1.5 px-1">
             {grouped.map(([emoji, g]) => (
               <button
                 key={emoji}
@@ -361,18 +418,21 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
                 ))}
               </span>
             )}
-          </div>
+          </MessageFooter>
         )}
-      </div>
+      </MessageContent>
 
-      {/* Actions rapides (survol) */}
+      {/* Actions rapides (survol). Elles basculent du côté opposé à la bulle :
+          calées à droite sur un message aligné à droite, elles se seraient
+          posées sur lui. */}
       {userId && (
         <div
           className={cn(
-            "absolute right-3 top-2 flex items-center gap-1 rounded-full border border-white/10 bg-[#13131a] p-0.5 transition-opacity focus-within:opacity-100",
+            "absolute top-0 flex items-center gap-1 rounded-full border border-white/10 bg-[#13131a] p-0.5 transition-opacity focus-within:opacity-100",
+            "right-2 group-data-[align=end]/message:left-2 group-data-[align=end]/message:right-auto",
             // Une confirmation en attente reste visible même si la souris part :
             // sinon la question disparaîtrait sans qu'on ait pu y répondre.
-            confirming ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+            confirming ? "opacity-100" : "opacity-0 group-hover/message:opacity-100",
           )}
         >
           {QUICK_EMOJIS.slice(0, 3).map((e) => (
@@ -406,7 +466,7 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
           )}
         </div>
       )}
-    </article>
+    </Message>
   );
 }
 
@@ -627,7 +687,7 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
         className="min-h-0 flex-1 overflow-y-auto px-2 py-4 sm:px-4"
       >
         {visible.length === 0 && <p className="py-20 text-center text-sm text-muted">Personne n&apos;a encore parlé. Lancez la conversation !</p>}
-        <div ref={contentRef} className="mx-auto flex max-w-3xl flex-col gap-1">
+        <div ref={contentRef} className="mx-auto flex max-w-3xl flex-col gap-3">
           {visible.map((m) => (
             <MessageItem
               key={m.id}
