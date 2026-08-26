@@ -6,6 +6,8 @@ import { getAreas, getCategories, getLocations, getSections } from "@/lib/data/l
 import { frameUrl, wikiImageUrl } from "@/lib/media";
 import { MEDIA_CATALOG } from "@/lib/media-catalog";
 import { normalizeText } from "@/lib/utils";
+import { encodeViewHash } from "@/lib/map/coords";
+import { MAX_ZOOM, MIN_ZOOM, ZOOM0_SCALE } from "@/lib/map/config";
 import regionCovers from "@/data/generated/region-covers.json";
 
 /** Une région de la landing : section de carte + ses compteurs dérivés. */
@@ -20,6 +22,8 @@ export interface LandingRegion {
   /** Illustration de fond : plan officiel tourné dans la région, à défaut la
    *  vignette GTA Wiki. `null` si ni l'un ni l'autre n'est disponible. */
   image: string | null;
+  /** Lien vers la carte déjà cadrée sur la région (`/map#x,y,z`). */
+  href: string;
 }
 
 /** Un plan officiel géolocalisé, tel qu'affiché dans la galerie de la landing. */
@@ -55,6 +59,25 @@ function isInside(x: number, y: number, [xMin, yMin, xMax, yMax]: MapSection["bo
 
 function boxArea([xMin, yMin, xMax, yMax]: MapSection["bounds"]): number {
   return (xMax - xMin) * (yMax - yMin);
+}
+
+function sectionCenter({ bounds: [xMin, yMin, xMax, yMax] }: MapSection): [number, number] {
+  return [(xMin + xMax) / 2, (yMin + yMax) / 2];
+}
+
+/**
+ * Zoom qui fait tenir la région dans une fenêtre d'environ 1 200 px.
+ *
+ * À l'échelle `ZOOM0_SCALE` (1 px pour 32 m au zoom 0), un écran de L pixels
+ * couvre `L / (ZOOM0_SCALE · 2^z)` mètres : on inverse la relation sur le plus
+ * grand côté de la région, avec une marge d'un quart pour ne pas la coller aux
+ * bords. Le lien reste juste sur un écran plus étroit — la carte cadre un peu
+ * serré, elle ne rate pas la région.
+ */
+function sectionZoom({ bounds: [xMin, yMin, xMax, yMax] }: MapSection): number {
+  const span = Math.max(xMax - xMin, yMax - yMin) * 1.25;
+  const zoom = Math.log2(1200 / (ZOOM0_SCALE * span));
+  return Math.round(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom)) * 100) / 100;
 }
 
 /**
@@ -233,6 +256,7 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
       count: countBySection.get(section.slug) ?? 0,
       districts: districtsBySection.get(section.slug) ?? [],
       image: regionImage(section),
+      href: `/map#${encodeViewHash(sectionCenter(section), sectionZoom(section))}`,
     }))
     .sort((a, b) => b.count - a.count);
 

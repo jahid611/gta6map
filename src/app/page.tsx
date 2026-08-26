@@ -10,7 +10,7 @@ import { FeatureSections } from "@/components/landing/FeatureSections";
 import { TrailerGallery } from "@/components/landing/TrailerGallery";
 import { TrailerSection } from "@/components/landing/TrailerSection";
 import { CharacterSection } from "@/components/landing/CharacterSection";
-import { RegionGrid } from "@/components/landing/RegionGrid";
+import { RegionCarousel } from "@/components/landing/RegionCarousel";
 import { ClosingCta } from "@/components/landing/ClosingCta";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { SITE_NAME, SITE_URL } from "./layout";
@@ -82,7 +82,7 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
           />
 
           <TrailerSection />
-          <RegionGrid regions={stats.regions} />
+          <RegionCarousel regions={stats.regions} />
           <ClosingCta total={stats.landmarks} />
         </main>
         <LandingFooter />
