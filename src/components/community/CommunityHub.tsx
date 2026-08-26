@@ -22,6 +22,7 @@ import { CATEGORY_GROUP_LABELS } from "@/lib/data/categories";
 import { pastel } from "@/lib/colors";
 import { cn } from "@/lib/utils";
 import { Message, MessageAvatar, MessageContent, MessageFooter, MessageHeader } from "@/components/ui/message";
+import { Action } from "@/components/ui/actions";
 import {
   POLL_DURATIONS,
   QUICK_EMOJIS,
@@ -395,80 +396,97 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
           </div>
         )}
 
-        {(grouped.length > 0 || pickerOpen) && (
-          <MessageFooter className="mt-0.5 flex-wrap gap-1.5 px-1">
+        {/* Une seule rangée sous la bulle : les réactions déjà posées avec leur
+            compte, puis les gestes. Elle remplace à la fois les pastilles
+            bordées et la barre flottante qui venait se poser sur le message.
+
+            Les comptes se lisent en permanence ; les gestes n'apparaissent qu'au
+            survol — et toujours au doigt, faute de survol pour les révéler. */}
+        {(grouped.length > 0 || !!userId) && (
+          <MessageFooter className="mt-0.5 flex-wrap gap-1">
             {grouped.map(([emoji, g]) => (
-              <button
+              <Action
                 key={emoji}
-                type="button"
                 onClick={() => onReact(emoji)}
                 disabled={!userId}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors cursor-pointer",
-                  g.mine ? "border-accent/60 bg-accent/15" : "border-white/10 bg-white/[0.04] hover:border-white/25",
-                )}
                 aria-pressed={g.mine}
+                tooltip={g.mine ? "Retirer ma réaction" : "Réagir"}
+                className={cn("w-auto gap-1 px-2 text-sm", g.mine && "bg-accent/15 text-foreground")}
               >
-                <span>{emoji}</span> <span className="vi-num text-muted">{g.count}</span>
-              </button>
+                <span aria-hidden>{emoji}</span>
+                <span className="vi-num text-[11px] text-muted">{g.count}</span>
+              </Action>
             ))}
-            {pickerOpen && (
-              <span className="inline-flex flex-wrap gap-1 rounded-full border border-white/10 bg-black/40 px-1.5 py-1 animate-fade-in">
-                {QUICK_EMOJIS.map((e) => (
-                  <button key={e} type="button" onClick={() => { onReact(e); setPickerOpen(false); }} className="rounded-full px-1 text-base leading-none hover:scale-125 transition-transform cursor-pointer" aria-label={`Réagir ${e}`}>
-                    {e}
-                  </button>
-                ))}
+
+            {userId && (
+              <span
+                className={cn(
+                  "flex items-center gap-0.5 transition-opacity",
+                  // Un choix d'emoji ouvert ou une suppression en attente restent
+                  // visibles même si la souris part : sinon la question
+                  // disparaîtrait sans qu'on ait pu y répondre.
+                  confirming || pickerOpen
+                    ? "opacity-100"
+                    : "opacity-0 focus-within:opacity-100 group-hover/message:opacity-100 [@media(pointer:coarse)]:opacity-100",
+                )}
+              >
+                <Action onClick={() => setPickerOpen((v) => !v)} aria-expanded={pickerOpen} tooltip="Réagir">
+                  <Plus className="h-3.5 w-3.5" />
+                </Action>
+                <Action onClick={onReply} tooltip="Répondre">
+                  <CornerDownLeft className="h-3.5 w-3.5" />
+                </Action>
+                {/* Confirmation en place, jamais `window.confirm()` : la boîte
+                    native gèle l'onglet entier, le temps réel compris. */}
+                {message.userId === userId &&
+                  (confirming ? (
+                    <span className="flex items-center gap-2 px-1 text-xs">
+                      <span className="text-muted">Supprimer ?</span>
+                      <button type="button" onClick={onDelete} className="font-semibold text-red hover:underline cursor-pointer" autoFocus>
+                        Oui
+                      </button>
+                      <button type="button" onClick={() => setConfirming(false)} className="text-muted hover:text-foreground hover:underline cursor-pointer">
+                        Annuler
+                      </button>
+                    </span>
+                  ) : (
+                    <Action onClick={() => setConfirming(true)} tooltip="Supprimer" className="hover:text-red">
+                      <X className="h-3.5 w-3.5" />
+                    </Action>
+                  ))}
               </span>
             )}
           </MessageFooter>
         )}
+
+        {/* Le choix reste ouvert après un emoji : on peut en poser plusieurs
+            d'affilée sur un même message, ce que l'ancien panneau interdisait en
+            se refermant au premier clic. */}
+        {pickerOpen && (
+          <div className="mt-1 flex flex-wrap gap-1 rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur animate-fade-in">
+            {QUICK_EMOJIS.map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => onReact(e)}
+                className="rounded-full px-1 text-base leading-none transition-transform hover:scale-125 cursor-pointer"
+                aria-label={`Réagir ${e}`}
+              >
+                {e}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setPickerOpen(false)}
+              className="ml-1 grid place-items-center rounded-full px-1 text-muted hover:text-foreground cursor-pointer"
+              aria-label="Fermer le choix d'emoji"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
       </MessageContent>
 
-      {/* Actions rapides (survol). Elles basculent du côté opposé à la bulle :
-          calées à droite sur un message aligné à droite, elles se seraient
-          posées sur lui. */}
-      {userId && (
-        <div
-          className={cn(
-            "absolute top-0 flex items-center gap-1 rounded-full border border-white/10 bg-[#13131a] p-0.5 transition-opacity focus-within:opacity-100",
-            "right-2 group-data-[align=end]/message:left-2 group-data-[align=end]/message:right-auto",
-            // Une confirmation en attente reste visible même si la souris part :
-            // sinon la question disparaîtrait sans qu'on ait pu y répondre.
-            confirming ? "opacity-100" : "opacity-0 group-hover/message:opacity-100",
-          )}
-        >
-          {QUICK_EMOJIS.slice(0, 3).map((e) => (
-            <button key={e} type="button" onClick={() => onReact(e)} className="grid h-7 w-7 place-items-center rounded-full text-sm hover:bg-white/10 cursor-pointer" aria-label={`Réagir ${e}`}>{e}</button>
-          ))}
-          <button type="button" onClick={() => setPickerOpen((v) => !v)} className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-white/10 hover:text-foreground cursor-pointer" aria-label="Plus de réactions">
-            <Plus className="h-3.5 w-3.5" />
-          </button>
-          <button type="button" onClick={onReply} className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-white/10 hover:text-foreground cursor-pointer" aria-label="Répondre">
-            <CornerDownLeft className="h-3.5 w-3.5" />
-          </button>
-          {/* Confirmation en place, jamais `window.confirm()` : la boîte native
-              gèle l'onglet entier (le temps réel compris) et ne ressemble à rien
-              du reste du site. Ici la barre d'actions se change en question. */}
-          {message.userId === userId && (
-            confirming ? (
-              <span className="flex items-center gap-2 pl-1 text-xs">
-                <span className="text-muted">Supprimer ?</span>
-                <button type="button" onClick={onDelete} className="font-semibold text-red hover:underline cursor-pointer" autoFocus>
-                  Oui
-                </button>
-                <button type="button" onClick={() => setConfirming(false)} className="text-muted hover:text-foreground hover:underline cursor-pointer">
-                  Annuler
-                </button>
-              </span>
-            ) : (
-              <button type="button" onClick={() => setConfirming(true)} className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-white/10 hover:text-red cursor-pointer" aria-label="Supprimer">
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )
-          )}
-        </div>
-      )}
     </Message>
   );
 }
