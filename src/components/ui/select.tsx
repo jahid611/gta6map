@@ -152,7 +152,7 @@ export function Select({ label, value, options, onChange, className, align = "st
           disparaîtrait d'un coup au lieu de se replier. */}
       <div
         className={cn(
-          "rs-card absolute z-[1300] mt-2 max-h-72 w-max min-w-[var(--rs-select-min,11rem)] max-w-[min(20rem,80vw)] overflow-y-auto overscroll-contain rounded-2xl p-1.5 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "rs-menu absolute z-[1300] mt-2 max-h-72 w-max min-w-[var(--rs-select-min,11rem)] max-w-[min(20rem,80vw)] overflow-y-auto overscroll-contain rounded-2xl p-1.5 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
           align === "end" ? "right-0" : "left-0",
           open ? "visible translate-y-0 scale-100 opacity-100" : "invisible -translate-y-1 scale-[0.97] opacity-0",
         )}

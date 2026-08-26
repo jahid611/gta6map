@@ -214,7 +214,7 @@ export function MapControls() {
         {gotoOpen && (
           <form
             onSubmit={goToCoords}
-            className="leaflet-control rs-glass pointer-events-auto ml-3 mt-2 w-56 rounded-2xl p-3 animate-fade-in"
+            className="leaflet-control rs-menu pointer-events-auto ml-3 mt-2 w-56 rounded-2xl p-3 animate-fade-in"
           >
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">Aller à</p>
             <div className="flex items-center gap-2">
@@ -244,7 +244,7 @@ export function MapControls() {
         )}
 
         {layersOpen && (
-          <div className="leaflet-control rs-glass pointer-events-auto ml-3 mt-2 w-60 rounded-2xl p-3 text-sm animate-fade-in">
+          <div className="leaflet-control rs-menu pointer-events-auto ml-3 mt-2 w-60 rounded-2xl p-3 text-sm animate-fade-in">
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">Fond de carte</p>
             <div className="space-y-1">
               {TILE_SET_IDS.map((id) => (

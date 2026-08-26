@@ -74,7 +74,7 @@ export function AuthButton({ auth }: { auth: AuthApi }) {
         <ChevronDown className={cn("h-3.5 w-3.5 text-muted transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div role="menu" className="rs-card absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl p-1.5 text-sm animate-fade-in">
+        <div role="menu" className="rs-menu absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl p-1.5 text-sm animate-fade-in">
           <div className="px-3 py-2">
             <p className="truncate font-semibold">{auth.displayName}</p>
             <p className="truncate text-xs text-muted">{auth.user.email}</p>

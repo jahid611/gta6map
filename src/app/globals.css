@@ -50,6 +50,8 @@
      que partiellement. */
   --glass-bg: rgba(0, 0, 0, 0.26);
   --glass-bg-card: rgba(0, 0, 0, 0.58);
+  /* Fond des menus flottants (cf. `.rs-menu`) — quasi opaque. */
+  --menu-bg: rgba(21, 21, 28, 0.95);
   --glass-blur: 24px;
   /* ASSOMBRISSEMENT PROPORTIONNEL — le point cle de la lisibilite.
      Un voile noir a opacite fixe traite de la meme facon un fond deja sombre et
@@ -205,6 +207,32 @@ button:disabled {
 .rs-glass,
 .rs-card {
   background: var(--glass-bg-card);
+}
+
+/* MENUS FLOTTANTS — quasi opaques, et c'est volontaire.
+
+   Un menu se pose par-dessus n'importe quoi : une grille d'avatars, une carte,
+   une photo. Sa lisibilite ne peut donc pas reposer sur le `backdrop-filter`,
+   qui ne s'applique pas partout — il suffit qu'un ancetre porte une transformee,
+   une animation d'opacite ou son propre filtre pour qu'il soit neutralise, et
+   c'est exactement ce qui arrivait au menu deroulant : la liste laissait voir
+   les visages nets derriere elle.
+
+   5 % de transparence : assez pour que la surface ne soit pas un carton mort,
+   trop peu pour qu'on distingue quoi que ce soit au travers. */
+.rs-menu {
+  background: var(--menu-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .rs-menu {
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* La refraction en `backdrop-filter: url(#filtre)` a ete retiree : Chromium

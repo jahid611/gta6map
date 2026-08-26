@@ -169,7 +169,7 @@ export function MediaLibrary({ locations }: MediaLibraryProps) {
         createPortal(
           <div
             aria-hidden
-            className="rs-card pointer-events-none fixed left-[352px] z-[1300] w-[460px] overflow-hidden rounded-2xl p-1.5"
+            className="rs-menu pointer-events-none fixed left-[352px] z-[1300] w-[460px] overflow-hidden rounded-2xl p-1.5"
             style={{ top: zoom.top }}
           >
             <Image
