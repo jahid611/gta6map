@@ -9,6 +9,7 @@ import { useProgressStore } from "@/store/useProgressStore";
 import { useProgressSync } from "@/hooks/useProgressSync";
 import { MediaMontage, type MontageItem } from "@/components/media/MediaMontage";
 import { cn, formatPercent } from "@/lib/utils";
+import { Select } from "@/components/ui/select";
 import { pastel } from "@/lib/colors";
 import type { CategoryGroup } from "@/types";
 import { CATEGORY_GROUP_LABELS } from "@/lib/data/categories";
@@ -89,7 +90,6 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
     setPicker(null);
   };
 
-  const pill = (active: boolean) => cn("rs-pill px-3 py-1.5 text-xs font-semibold cursor-pointer", active && "rs-pill--accent");
 
   let content: React.ReactNode;
   if (!auth.enabled) {
@@ -164,9 +164,13 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
         {picker === "avatar" && (
           <section className="border-t border-white/10 py-5 animate-fade-in">
             <PickerHeader title="Photo de profil" subtitle="Visages des personnages, issus des screenshots et artworks officiels." onClose={() => setPicker(null)} />
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              <button onClick={() => setAvatarFilter("all")} className={pill(avatarFilter === "all")}>Tous</button>
-              {characters.map((c) => <button key={c} onClick={() => setAvatarFilter(c)} className={pill(avatarFilter === c)}>{c}</button>)}
+            <div className="mb-4">
+              <Select
+                label="Personnage"
+                value={avatarFilter}
+                onChange={setAvatarFilter}
+                options={[{ value: "all", label: "Tous" }, ...characters.map((c) => ({ value: c, label: c }))]}
+              />
             </div>
             <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {auth.googleAvatarUrl && avatarFilter === "all" && (
@@ -182,9 +186,13 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
         {picker === "banner" && (
           <section className="border-t border-white/10 py-5 animate-fade-in">
             <PickerHeader title="Bannière" subtitle="Artworks et screenshots officiels : personnages et régions de Leonida." onClose={() => setPicker(null)} />
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              <button onClick={() => setBannerFilter("all")} className={pill(bannerFilter === "all")}>Tous</button>
-              {bannerGroups.map((g) => <button key={g} onClick={() => setBannerFilter(g)} className={pill(bannerFilter === g)}>{g}</button>)}
+            <div className="mb-4">
+              <Select
+                label="Collection"
+                value={bannerFilter}
+                onChange={setBannerFilter}
+                options={[{ value: "all", label: "Tous" }, ...bannerGroups.map((g) => ({ value: g, label: g }))]}
+              />
             </div>
             <ul className="grid grid-cols-2 gap-2">
               {bannerFilter === "all" && (

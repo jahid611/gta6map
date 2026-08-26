@@ -8,6 +8,7 @@ import { frameUrl } from "@/lib/media";
 import { useMapStore } from "@/store/useMapStore";
 import { useUIStore } from "@/store/useUIStore";
 import { Search, X } from "@/components/ui/icons";
+import { Select } from "@/components/ui/select";
 import { canHover, cn } from "@/lib/utils";
 
 interface MediaLibraryProps {
@@ -205,23 +206,7 @@ export function MediaLibrary({ locations }: MediaLibraryProps) {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        {sources.map((s) => (
-          <button
-            key={s}
-            onClick={() => setSource(s)}
-            aria-pressed={source === s}
-            className={cn(
-              "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
-              source === s
-                ? "border-accent/50 bg-accent/15 text-accent"
-                : "border-border text-muted hover:border-border-strong hover:text-foreground",
-            )}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      <Select label="Source" value={source} onChange={setSource} options={sources.map((s) => ({ value: s, label: s }))} />
 
       <p className="text-[11px] text-muted-2">
         {results.length} plan{results.length > 1 ? "s" : ""} sur {entries.length}

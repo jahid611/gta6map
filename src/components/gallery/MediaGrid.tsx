@@ -5,7 +5,7 @@ import Image from "next/image";
 import { MEDIA_FILTERS, countByFilter, type MediaEntry } from "@/lib/media-catalog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, X } from "@/components/ui/icons";
-import { cn } from "@/lib/utils";
+import { Select } from "@/components/ui/select";
 
 /**
  * Grille de médias avec filtres, chargement paresseux et visionneuse.
@@ -33,28 +33,23 @@ export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
 
   return (
     <>
-      <div className="mb-8 flex flex-wrap justify-center gap-2">
-        {MEDIA_FILTERS.map((f) => (
-          <button
-            key={f.id}
-            onClick={() => {
-              setFilter(f.id);
-              setOpenIndex(null);
-            }}
-            aria-pressed={filter === f.id}
-            disabled={counts[f.id] === 0}
-            className={cn(
-              // `min-h-11` : 44 px, le minimum confortable pour une cible tactile.
-              "min-h-11 rounded-full border px-4 text-sm transition-colors disabled:opacity-35",
-              filter === f.id
-                ? "border-accent/50 bg-accent/15 text-accent"
-                : "border-border text-muted hover:border-border-strong hover:text-foreground",
-            )}
-          >
-            {f.label}
-            <span className="vi-num ml-2 text-xs opacity-60">{counts[f.id]}</span>
-          </button>
-        ))}
+      <div className="mb-8 flex justify-center">
+        <Select
+          label="Catégorie"
+          value={filter}
+          onChange={(id) => {
+            setFilter(id);
+            // La visionneuse retient un rang dans la sélection courante : changer
+            // de catégorie sans la fermer ouvrirait un autre média.
+            setOpenIndex(null);
+          }}
+          options={MEDIA_FILTERS.map((f) => ({
+            value: f.id,
+            label: f.label,
+            count: counts[f.id],
+            disabled: counts[f.id] === 0,
+          }))}
+        />
       </div>
 
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

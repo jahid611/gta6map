@@ -5,6 +5,7 @@ import L from "leaflet";
 import { useMap } from "react-leaflet";
 import { ArrowRight, Compass, Crosshair, Grid3x3, Layers, LocateFixed, Minus, Plus, RotateCcw, Ruler, Type } from "@/components/ui/icons";
 import { MAP_FILTERS } from "@/lib/map/filters";
+import { Select } from "@/components/ui/select";
 import { worldToLatLng } from "@/lib/map/coords";
 import { useMapStore } from "@/store/useMapStore";
 import { LANDMASS_BOUNDS, TILE_SETS, TILE_SET_IDS } from "@/lib/map/config";
@@ -261,23 +262,12 @@ export function MapControls() {
             </div>
 
             <p className="mb-2 mt-4 text-[11px] font-semibold uppercase tracking-wide text-muted">Rendu</p>
-            <div className="flex flex-wrap gap-1.5">
-              {MAP_FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setMapFilter(f.id)}
-                  aria-pressed={mapFilter === f.id}
-                  className={cn(
-                    "rounded-full border px-2.5 py-1 text-[11px] transition-colors",
-                    mapFilter === f.id
-                      ? "border-accent/50 bg-accent/15 text-accent"
-                      : "border-border text-muted hover:border-border-strong hover:text-foreground",
-                  )}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
+            <Select
+              label="Rendu"
+              value={mapFilter}
+              onChange={setMapFilter}
+              options={MAP_FILTERS.map((f) => ({ value: f.id, label: f.label }))}
+            />
 
             <p className="mb-2 mt-4 text-[11px] font-semibold uppercase tracking-wide text-muted">Unités</p>
             <div className="flex gap-1.5">
