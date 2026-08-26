@@ -21,6 +21,11 @@ interface ManagedMarker {
   marker: L.Marker;
 }
 
+/** `true` seulement pour une souris / un stylet : pas d'aperçu au survol sur écran tactile. */
+function canHover(): boolean {
+  return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
 function cameraLabel(location: Location): string {
   const num = location.legacyId.split("/")[1] ?? "";
   if (location.categorySlug === "trailer-1") return `T1·${num}`;
@@ -158,6 +163,10 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
       // clignoter une carte après l'autre.
       marker.on("mouseover", (e: L.LeafletMouseEvent) => {
         setHovered(location.slug);
+        // Au doigt, un simple tap déclenche aussi `mouseover` : l'aperçu s'ouvrait
+        // alors en même temps que la fiche, par-dessus elle. Il est réservé aux
+        // pointeurs fins, seuls capables d'un vrai survol.
+        if (!canHover()) return;
         const { clientX, clientY } = e.originalEvent;
         clearPreviewTimer();
         previewTimer.current = setTimeout(

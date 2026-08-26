@@ -6,6 +6,7 @@ import type { Category, Location } from "@/types";
 import { frameUrl, photoUrl } from "@/lib/media";
 import { pastel } from "@/lib/colors";
 import { useUIStore } from "@/store/useUIStore";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Camera, MapPin } from "@/components/ui/icons";
 
 interface MarkerPreviewProps {
@@ -34,11 +35,13 @@ const CARD_H = 250;
  */
 export function MarkerPreview({ locations, categoriesBySlug }: MarkerPreviewProps) {
   const preview = useUIStore((s) => s.hoverPreview);
+  // Seconde barrière, côté rendu : sur tactile la fiche suffit, l'aperçu ferait doublon.
+  const hoverable = useMediaQuery("(hover: hover) and (pointer: fine)", true);
 
   const bySlug = useMemo(() => new Map(locations.map((l) => [l.slug, l])), [locations]);
   const location = preview ? bySlug.get(preview.slug) : null;
 
-  if (!preview || !location) return null;
+  if (!preview || !location || !hoverable) return null;
 
   const category = categoriesBySlug.get(location.categorySlug);
   const accent = pastel(category?.color ?? location.color);
