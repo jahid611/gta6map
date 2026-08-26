@@ -90,20 +90,32 @@ function collectArtwork(): MediaEntry[] {
   const base = path.join(MEDIA, "artwork");
   if (!existsSync(base)) return [];
 
-  return readdirSync(base)
-    .filter((d) => statSync(path.join(base, d)).isDirectory())
-    .map((subject) => ({ subject, files: walk(path.join(base, subject)).filter((f) => IMAGE_EXT.test(f)) }))
+  // Un dossier d'artwork peut contenir des SOUS-dossiers (`Postcards/Vice_City`…) :
+  // chacun est un visuel distinct. Sans ce découpage, les six cartes postales des
+  // régions étaient repliées en une seule entrée « Postcards » et cinq d'entre
+  // elles disparaissaient de la galerie comme des illustrations de région.
+  function subjects(dir: string, trail: string[]): { trail: string[]; files: string[] }[] {
+    const entries = readdirSync(dir);
+    const dirs = entries.filter((e) => statSync(path.join(dir, e)).isDirectory());
+    if (dirs.length) return dirs.flatMap((d) => subjects(path.join(dir, d), [...trail, d]));
+    return [{ trail, files: entries.map((f) => path.join(dir, f)).filter((f) => IMAGE_EXT.test(f)) }];
+  }
+
+  return subjects(base, [])
     .filter(({ files }) => files.length > 0)
-    .map(({ subject, files }) => {
+    .map(({ trail, files }) => {
       const preferred =
         files.find((f) => /landscape/i.test(f)) ?? files.find((f) => /ultrawide/i.test(f)) ?? files[0];
-      const label = subject.replace(/[_-]+/g, " ");
+      const clean = (s: string) => s.replace(/[_-]+/g, " ");
+      // « Postcards/Vice_City » → groupe « Postcards », titre « Vice City ».
+      const group = clean(trail[0]);
+      const title = clean(trail[trail.length - 1]);
       return {
         id: publicPath(preferred),
         kind: "artwork" as const,
-        group: label,
-        section: null,
-        title: label,
+        group,
+        section: trail.length > 1 ? title : null,
+        title,
         src: publicPath(preferred),
         variants: files.filter((f) => f !== preferred).map(publicPath),
         poster: null,

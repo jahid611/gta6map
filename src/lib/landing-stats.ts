@@ -4,6 +4,9 @@ import { cache } from "react";
 import type { Category, Location, MapSection } from "@/types";
 import { getAreas, getCategories, getLocations, getSections } from "@/lib/data/locations";
 import { frameUrl, wikiImageUrl } from "@/lib/media";
+import { MEDIA_CATALOG } from "@/lib/media-catalog";
+import { normalizeText } from "@/lib/utils";
+import regionCovers from "@/data/generated/region-covers.json";
 
 /** Une région de la landing : section de carte + ses compteurs dérivés. */
 export interface LandingRegion {
@@ -157,7 +160,30 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
     camerasBySection.set(section.slug, [...(camerasBySection.get(section.slug) ?? []), c]);
   }
 
+  /**
+   * Illustration d'une région, par ordre de qualité :
+   *  1. la carte postale officielle du dossier `artwork/Postcards` (six régions) ;
+   *  2. à défaut un screenshot officiel « Places » de la région — de l'imagerie
+   *     in-game en pleine résolution ;
+   *  3. à défaut la vue aérienne composée depuis les tuiles (`npm run build:region-covers`) :
+   *     les deux régions concernées n'ont aucune imagerie officielle, et les rares
+   *     plans de trailers qui s'y trouvent montrent un intérieur de voiture ou une
+   *     autre région ;
+   *  4. à défaut un plan de trailer tourné sur place ;
+   *  5. la vignette wiki en dernier recours (souvent un simple panneau routier).
+   */
+  const key = (s: string) => normalizeText(s).replace(/[^a-z0-9]+/g, " ").trim();
+  const postcards = new Map(MEDIA_CATALOG.filter((e) => e.group === "Postcards").map((e) => [key(e.title), e.src]));
+  const placeShots = new Map<string, string>();
+  for (const e of MEDIA_CATALOG) {
+    if (e.kind !== "screenshot" || e.section !== "Places") continue;
+    if (!placeShots.has(key(e.group))) placeShots.set(key(e.group), e.src);
+  }
+
   function regionImage(section: MapSection): string | null {
+    const k = key(section.name);
+    const official = postcards.get(k) ?? placeShots.get(k) ?? (regionCovers as Record<string, string>)[section.slug];
+    if (official) return official;
     const shots = camerasBySection.get(section.slug) ?? [];
     // Un plan qui porte le nom de la région la représente mieux qu'un plan
     // quelconque qui s'y trouve (un intérieur de voiture, par exemple).

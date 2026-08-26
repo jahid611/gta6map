@@ -24,7 +24,8 @@
     "optimize:wiki": "tsx scripts/optimize-wiki-images.ts",
     "build:avatars": "tsx scripts/build-avatars.ts",
     "check:numbers": "node scripts/check-numbers.mjs",
-    "prebuild": "node scripts/check-numbers.mjs"
+    "prebuild": "node scripts/check-numbers.mjs",
+    "build:region-covers": "tsx scripts/build-region-covers.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

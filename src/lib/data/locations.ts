@@ -37,12 +37,30 @@ export const getCategories = cache(async (): Promise<Category[]> => {
   return (data as CategoryRow[]).map(mapCategoryRow);
 });
 
+/**
+ * PostgREST plafonne chaque réponse à 1 000 lignes (`max-rows`). Sans pagination,
+ * 540 lieux — dont TOUTES les caméras, dont le slug commence par `s`/`t` et qui
+ * tombaient donc après la 1000e ligne — n'arrivaient jamais : carte amputée et
+ * compteur « 0 plan géolocalisé » sur la page d'accueil.
+ */
+const PAGE_SIZE = 1000;
+
 export const getLocations = cache(async (): Promise<Location[]> => {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return STATIC_LOCATIONS;
-  const { data, error } = await supabase.from("locations_view").select("*").order("slug");
-  if (error || !data?.length) return STATIC_LOCATIONS;
-  return (data as LocationViewRow[]).map(mapLocationRow);
+  const rows: LocationViewRow[] = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("locations_view")
+      .select("*")
+      .order("slug")
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) return rows.length ? rows.map(mapLocationRow) : STATIC_LOCATIONS;
+    const page = (data ?? []) as LocationViewRow[];
+    rows.push(...page);
+    if (page.length < PAGE_SIZE) break;
+  }
+  return rows.length ? rows.map(mapLocationRow) : STATIC_LOCATIONS;
 });
 
 export const getSections = cache(async (): Promise<MapSection[]> => {

@@ -33,6 +33,7 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
   const maskRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -96,7 +97,10 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
           { maskSize: "26% 26%", webkitMaskSize: "26% 26%", ...step },
           0,
         )
-        // Puis tout s'efface et laisse place à la section suivante.
+        // Le crépuscule aux palmiers monte derrière la découpe : quand le masque
+        // s'efface, l'écran n'est plus noir mais tenu par cette image.
+        .fromTo(backdropRef.current, { opacity: 0, scale: 1.14 }, { opacity: 1, scale: 1, ...step }, 0.45)
+        // Puis la carte découpée s'efface et laisse place à la section suivante.
         .fromTo(maskRef.current, { opacity: 1 }, { opacity: 0, ...step }, 0.88);
     }, rootRef);
 
@@ -108,7 +112,14 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
       ref={rootRef}
       className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-5 pb-20 pt-24"
     >
-      <div ref={maskRef} aria-hidden className="vi-mask pointer-events-none absolute inset-0 z-0">
+      {/* Fond révélé en fin de plongée : sans lui, la fin de l'épinglage laissait
+          un grand aplat noir entre le hero et la bande de chiffres. */}
+      <div ref={backdropRef} aria-hidden className="pointer-events-none absolute inset-0 z-0 opacity-0">
+        <Image src="/brand/vice-sunset.webp" alt="" fill sizes="100vw" className="object-cover object-center" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-transparent to-background" />
+      </div>
+
+      <div ref={maskRef} aria-hidden className="vi-mask pointer-events-none absolute inset-0 z-[1]">
         {/* Le filtre est posé en style inline plutôt qu'en classes : GSAP anime
             `filter` sur ce même élément, et il lui faut une valeur de départ
             qu'il puisse interpoler. */}
@@ -122,7 +133,7 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
       <div
         ref={scrimRef}
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_52%_48%_at_50%_46%,rgba(17,17,23,0.78)_0%,rgba(17,17,23,0.5)_45%,rgba(17,17,23,0.16)_75%,rgba(17,17,23,0)_100%)]"
+        className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_52%_48%_at_50%_46%,rgba(17,17,23,0.78)_0%,rgba(17,17,23,0.5)_45%,rgba(17,17,23,0.16)_75%,rgba(17,17,23,0)_100%)]"
       />
       <div
         aria-hidden
