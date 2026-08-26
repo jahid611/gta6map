@@ -400,12 +400,15 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
         </div>
       )}
 
-      {/* Bandeau compact au doigt : sur un téléphone, la version d'origine
-          dépassait de l'écran. Le détail (« — 1 032 lieux ») est réservé aux
-          grands écrans, les pilules et le libellé du retour se raccourcissent. */}
-      <div className="rs-glass absolute left-1/2 top-3 z-[600] flex max-w-[calc(100vw-1rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-2xl px-2 py-1.5 text-xs sm:top-4 sm:flex-nowrap sm:gap-3 sm:rounded-full sm:py-2 sm:pl-4 sm:pr-2 sm:text-sm">
+      {/* Bandeau : une seule ligne, quelle que soit la largeur.
+          Les actions sont des mots, pas des capsules — au téléphone, entourer
+          chaque mot d'une pilule (padding + les 44 px de largeur minimale de la
+          règle tactile) faisait déborder la barre, qui repassait à la ligne et
+          finissait avec la croix seule sur la seconde. Les mots restent des
+          cibles confortables : la hauteur de 44 px, elle, est conservée. */}
+      <div className="rs-glass absolute left-1/2 top-3 z-[600] flex max-w-[calc(100vw-0.75rem)] -translate-x-1/2 items-center gap-2.5 whitespace-nowrap rounded-full px-3 py-1 text-xs sm:top-4 sm:gap-3 sm:px-4 sm:text-sm">
         <Compass className="h-4 w-4 shrink-0 text-accent-2" />
-        <span className="whitespace-nowrap">
+        <span className="shrink-0 font-medium">
           Monde réel
           {target?.kind === "game" ? (
             <span className="hidden text-muted sm:inline"> — position approchée</span>
@@ -416,38 +419,44 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
           )}
         </span>
 
-        <span className="flex items-center gap-1">
+        <span className="h-3.5 w-px shrink-0 bg-white/15" aria-hidden />
+
+        <span className="flex shrink-0 items-center gap-2.5">
           {BASEMAPS.map((b) => (
             <button
               key={b.id}
               onClick={() => setBasemap(b.id)}
               aria-pressed={basemap === b.id}
               className={cn(
-                "rs-pill px-2 py-0.5 text-[11px] sm:px-3 sm:py-1 sm:text-xs",
-                basemap === b.id && "rs-pill--accent font-semibold",
+                "rs-toolbar-btn transition-colors",
+                basemap === b.id ? "font-semibold text-accent" : "text-muted hover:text-foreground",
               )}
             >
               {b.label}
             </button>
           ))}
         </span>
+
         {selected && (
-          <button
-            onClick={() => back(selected)}
-            className="rs-pill rs-pill--accent inline-flex shrink-0 items-center gap-1.5 px-2 py-0.5 text-[11px] font-semibold sm:px-3 sm:py-1 sm:text-xs"
-          >
-            <MapPin className="h-3.5 w-3.5" />
-            <span className="sm:hidden">GTA VI</span>
-            <span className="hidden sm:inline">Voir dans GTA VI</span>
-          </button>
+          <>
+            <span className="h-3.5 w-px shrink-0 bg-white/15" aria-hidden />
+            <button
+              onClick={() => back(selected)}
+              className="rs-toolbar-btn inline-flex shrink-0 items-center gap-1.5 font-semibold text-accent transition-colors hover:text-accent-pale"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              <span className="sm:hidden">GTA VI</span>
+              <span className="hidden sm:inline">Voir dans GTA VI</span>
+            </button>
+          </>
         )}
 
         <button
           onClick={() => back()}
-          className="rs-pill grid h-8 w-8 shrink-0 place-items-center"
+          className="rs-toolbar-btn -mr-1 grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted transition-colors hover:text-foreground"
           aria-label="Revenir à la carte du jeu"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="h-4 w-4" />
         </button>
       </div>
     </div>

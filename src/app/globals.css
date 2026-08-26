@@ -892,6 +892,12 @@ button:disabled {
   [role="button"] {
     min-width: 44px;
   }
+  /* Barre d outils compacte (bandeau de la vue reelle) : la hauteur de cible
+     reste acquise, mais pas la largeur — imposer 44 px a un mot de quatre
+     lettres poussait la barre a passer sur deux lignes au telephone. */
+  .rs-toolbar-btn {
+    min-width: 0 !important;
+  }
   /* Exception : la barre d attribution de Leaflet est de la mention legale,
      volontairement discrete, et l agrandir couvrirait la carte. */
   .leaflet-control-attribution a {
