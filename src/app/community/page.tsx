@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCommunityBootstrap } from "@/lib/community/server";
 import { CommunityHub } from "@/components/community/CommunityHub";
+import { CommunityBackdrop } from "@/components/community/CommunityBackdrop";
 
 export const metadata: Metadata = {
   title: "Communauté",
@@ -15,9 +16,11 @@ export default async function CommunityPage({ searchParams }: PageProps<"/commun
 
   return (
     <div className="flex h-dvh flex-col pt-16">
+      <CommunityBackdrop />
       <h1 className="sr-only">Communauté — chat global, lieux partagés, sondages</h1>
 
-      <main className="min-h-0 flex-1">
+      {/* `relative z-10` : le fil passe devant le décor, qui est en z-0. */}
+      <main className="relative z-10 min-h-0 flex-1">
         {bootstrap ? (
           <CommunityHub bootstrap={bootstrap} initialShareSlug={share} />
         ) : (

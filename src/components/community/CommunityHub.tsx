@@ -660,7 +660,9 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
       )}
 
       {/* Composer */}
-      <div className="border-t border-white/10 bg-background/95 px-3 py-3 backdrop-blur sm:px-4">
+      {/* Assez opaque pour qu'on lise ce qu'on tape, assez transparent pour que
+          le décor continue derrière : un bandeau plein couperait l'image en deux. */}
+      <div className="border-t border-white/10 bg-background/80 px-3 py-3 backdrop-blur-xl sm:px-4">
         <div className="mx-auto max-w-3xl">
           {!auth.enabled ? (
             <p className="text-sm text-muted">Le chat nécessite la base de données (Supabase non configuré).</p>
