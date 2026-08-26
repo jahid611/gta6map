@@ -173,7 +173,15 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
    *  5. la vignette wiki en dernier recours (souvent un simple panneau routier).
    */
   const key = (s: string) => normalizeText(s).replace(/[^a-z0-9]+/g, " ").trim();
-  const postcards = new Map(MEDIA_CATALOG.filter((e) => e.group === "Postcards").map((e) => [key(e.title), e.src]));
+  // Les cartes de région sont presque carrées (384 × 416) : on prend la variante
+  // carrée de la carte postale plutôt que le paysage 16:9, qui perdait la moitié
+  // de l'image au recadrage.
+  const postcards = new Map(
+    MEDIA_CATALOG.filter((e) => e.group === "Postcards").map((e) => [
+      key(e.title),
+      e.variants.find((v) => /_square\.(jpe?g|png|webp)$/i.test(v)) ?? e.src,
+    ]),
+  );
   const placeShots = new Map<string, string>();
   for (const e of MEDIA_CATALOG) {
     if (e.kind !== "screenshot" || e.section !== "Places") continue;

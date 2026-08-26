@@ -37,8 +37,13 @@ export function RegionGrid({ regions }: { regions: LandingRegion[] }) {
                 src={region.image}
                 alt=""
                 fill
+                // La carte fait 384 × 416 : les visuels sont fournis au format
+                // carré (cf. `regionImage`), le recadrage reste donc marginal.
+                // `quality` explicite : le défaut de next/image (75) délavait
+                // les aplats de la carte et les dégradés des cartes postales.
+                quality={92}
                 sizes="(max-width: 640px) 80vw, 24rem"
-                className="absolute inset-0 z-0 object-cover transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 z-0 object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
             ) : (
               <span aria-hidden className="absolute inset-0 z-0 bg-surface-2" />

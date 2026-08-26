@@ -8,7 +8,7 @@
  * un panneau routier. On compose donc leur portrait à partir des tuiles de la
  * carte : c'est HD, c'est exactement la région, et ça reste dans la DA du site.
  *
- * Sortie : public/regions/<slug>.jpg (1600 × 900) + src/data/generated/region-covers.json
+ * Sortie : public/regions/<slug>.jpg (1600 × 1600) + src/data/generated/region-covers.json
  * Usage : npm run build:region-covers   (nécessite `npm run assets:mirror` — les tuiles locales)
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -25,8 +25,10 @@ const TILE = 256;
 const ZOOM = 5; // 1 px/m — assez fin pour lire le trait de côte
 const SCALE = (1024 / 32_768) * 2 ** ZOOM; // px par mètre
 const HALF = 16_384;
+// Cadre presque carré des cartes de région (384 × 416) : une sortie carrée évite
+// que `object-cover` ne rogne la moitié de la vue.
 const OUT_W = 1600;
-const OUT_H = 900;
+const OUT_H = 1600;
 
 /** Régions à couvrir : slug → largeur du cadrage en mètres. */
 const TARGETS: Record<string, number> = {
@@ -43,7 +45,7 @@ interface Section {
 const toPx = (x: number, y: number) => ({ px: (x + HALF) * SCALE, py: (HALF - y) * SCALE });
 
 async function cover(section: Section, spanMeters: number, center: { x: number; y: number }): Promise<string | null> {
-  // Cadrage 16:9 centré sur les LIEUX de la région, pas sur sa boîte : celle de
+  // Cadrage centré sur les LIEUX de la région, pas sur sa boîte : celle de
   // Leonard County déborde très au large, et une vue centrée dessus n'aurait
   // montré que de l'océan.
   const c = toPx(center.x, center.y);
