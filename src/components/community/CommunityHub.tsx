@@ -917,7 +917,7 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
                     }}
                     maxLength={1000}
                     rows={1}
-                    placeholder={mode === "location" ? "Un mot sur ce lieu ? (optionnel)" : "Écrire un message… (Entrée pour envoyer)"}
+                    placeholder={mode === "location" ? "Un mot sur ce lieu ? (optionnel)" : "Écrire un message…"}
                     className={cn(
                       "block w-full resize-none bg-transparent px-4 py-3.5 text-[15px] leading-[22px] outline-none",
                       expanded ? "placeholder:text-muted" : "placeholder:text-transparent",
