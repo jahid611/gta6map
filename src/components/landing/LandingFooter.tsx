@@ -61,7 +61,16 @@ export function LandingFooter() {
           >
             Flaticon
           </a>
-          .
+          , emojis par{" "}
+          <a
+            href="https://github.com/jdecked/twemoji"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="underline decoration-dotted underline-offset-2 hover:text-foreground"
+          >
+            Twemoji
+          </a>{" "}
+          (CC BY 4.0).
         </p>
       </div>
     </footer>

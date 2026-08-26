@@ -23,6 +23,7 @@ import { pastel } from "@/lib/colors";
 import { cn } from "@/lib/utils";
 import { Message, MessageAvatar, MessageContent, MessageFooter, MessageHeader } from "@/components/ui/message";
 import { Action } from "@/components/ui/actions";
+import { Emoji } from "@/components/ui/Emoji";
 import {
   POLL_DURATIONS,
   QUICK_EMOJIS,
@@ -420,9 +421,7 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
                   g.mine ? "opacity-100" : "opacity-70 hover:opacity-100",
                 )}
               >
-                <span className="emoji" aria-hidden>
-                  {emoji}
-                </span>
+                <Emoji char={emoji} />
                 <span className={cn("vi-num text-[11px]", g.mine ? "font-bold text-accent" : "text-muted")}>{g.count}</span>
               </button>
             ))}
@@ -478,10 +477,10 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
                 key={e}
                 type="button"
                 onClick={() => onReact(e)}
-                className="emoji text-lg leading-none opacity-80 transition-transform hover:scale-125 hover:opacity-100 cursor-pointer"
+                className="text-lg leading-none opacity-80 transition-transform hover:scale-125 hover:opacity-100 cursor-pointer"
                 aria-label={`Réagir ${e}`}
               >
-                {e}
+                <Emoji char={e} />
               </button>
             ))}
             <button
@@ -814,7 +813,7 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
             /* Un seul niveau de carte : la réponse en cours et le lieu à
                partager sont des rangées séparées par un filet, pas des cartes
                posées dans celle-ci. */
-            <div ref={composerRef} onBlur={handleComposerBlur} className="rs-card overflow-hidden rounded-[26px]">
+            <div ref={composerRef} onBlur={handleComposerBlur} className="rs-card rs-liquid overflow-hidden rounded-[26px]">
               {replyTo && (
                 <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2 text-xs animate-fade-in">
                   <CornerDownLeft className="h-3 w-3 shrink-0 text-accent" />

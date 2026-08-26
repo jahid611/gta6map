@@ -38,10 +38,25 @@
 
      Ces quatre variables sont le seul endroit ou regler la matiere : les changer
      ici change l'app entiere. */
-  --glass-bg: rgba(0, 0, 0, 0.2);
+  /* 45 % et non 20 % : a 20 %, la fiche de lieu posee sur la carte laissait
+     passer les libelles et les routes du plan en plein derriere son texte. */
+  --glass-bg: rgba(0, 0, 0, 0.45);
   --glass-blur: 24px;
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+
+  /* ARETES REFRACTEES — d'apres `designali-in/liquid-glass-button` (21st.dev).
+     Deux liserés opposes (un sombre en haut-gauche, un clair en bas-droite)
+     donnent l'epaisseur, et le halo interieur fait la lentille. C'est cette pile
+     d'ombres internes qui porte tout l'effet : elle marche partout, la
+     refraction en `backdrop-filter: url()` n'etant lue que par Chromium. */
+  --glass-edge:
+    inset 3px 3px 0.5px -3.5px rgba(255, 255, 255, 0.09),
+    inset -3px -3px 0.5px -3.5px rgba(255, 255, 255, 0.85),
+    inset 1px 1px 1px -0.5px rgba(255, 255, 255, 0.55),
+    inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.55),
+    inset 0 0 6px 6px rgba(255, 255, 255, 0.09),
+    inset 0 0 2px 2px rgba(255, 255, 255, 0.05);
   /* Survol : on eclaircit le liseré plutot que l'aplat, sinon la surface se
      charge et perd la transparence qui fait tout l'effet. */
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
@@ -163,7 +178,18 @@ button:disabled {
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+}
+
+/* Refraction : le fond est deforme par un bruit avant d'etre floute, ce qui
+   donne le glissement de matiere. Reservee aux surfaces posees sur une image —
+   la carte, la galerie, le decor de la communaute : sur un aplat sombre elle ne
+   se voit pas, et chaque element filtre coute une passe de composition.
+   Seul Chromium lit `backdrop-filter: url()` ; ailleurs il ne reste que le flou,
+   et les aretes ci-dessus portent l'effet. */
+.rs-liquid {
+  backdrop-filter: blur(var(--glass-blur)) url("#rs-liquid-glass");
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 /* EMOJIS — on demande d'abord la fonte d'Apple. Presente sur macOS et iOS, c'est
@@ -332,14 +358,18 @@ button:disabled {
 }
 
 /* Pilule teintée à la couleur d'accent, pour l'action principale d'un écran. */
-.rs-pill--accent {
-  background: color-mix(in srgb, var(--accent) 28%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+/* Teinte rose : même verre, même arêtes — seul l'aplat change. Les ombres
+   internes étant posées par `.rs-pill` / `.rs-surface`, il n'y a rien à répéter. */
+.rs-pill--accent,
+.rs-surface--accent {
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
   color: var(--accent-pale);
 }
-.rs-pill--accent:hover {
-  background: color-mix(in srgb, var(--accent) 40%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+.rs-pill--accent:hover,
+.rs-surface--accent:hover {
+  background: color-mix(in srgb, var(--accent) 46%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 68%, transparent);
 }
 
 /* Reduction de transparence (macOS/iOS) : on retombe sur des aplats opaques,
@@ -347,17 +377,19 @@ button:disabled {
 @media (prefers-reduced-transparency: reduce) {
   .rs-glass,
   .rs-card,
-  .rs-pill {
+  .rs-pill,
+  .rs-surface,
+  .rs-liquid {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    box-shadow: var(--glass-shadow);
   }
   .rs-glass {
     background: var(--surface);
   }
-  .rs-card {
-    background: var(--surface-2);
-  }
-  .rs-pill {
+  .rs-card,
+  .rs-pill,
+  .rs-surface {
     background: var(--surface-2);
   }
 }

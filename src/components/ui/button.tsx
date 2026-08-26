@@ -8,9 +8,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Seule variante restée pleine : c'est l'action principale d'un écran,
-        // et en verre elle ne se distinguerait plus de ce qui l'entoure.
-        default: "bg-accent text-white hover:bg-accent/90 shadow-[0_0_20px_rgba(255,45,122,0.25)]",
+        // Verre teinté de rose : l'action principale garde sa couleur, mais la
+        // même matière que tout le reste — plus un seul aplat plein dans l'app.
+        default: "rs-surface rs-surface--accent",
         // Les trois neutres s'adossent au verre commun (cf. `.rs-surface`).
         secondary: "rs-surface text-foreground",
         outline: "rs-surface text-foreground",
