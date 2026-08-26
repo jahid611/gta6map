@@ -34,7 +34,7 @@ const ITEMS: NavPillItem[] = [
  * ne se transitionne pas, et les deux états sont mesurés une fois pour toutes
  * (puis à chaque redimensionnement ou changement de rubrique).
  */
-export function NavPill({ className }: { className?: string }) {
+export function NavPill({ className, trailing }: { className?: string; trailing?: React.ReactNode }) {
   const pathname = usePathname();
   const [hovering, setHovering] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -156,6 +156,15 @@ export function NavPill({ className }: { className?: string }) {
             </li>
           );
         })}
+
+        {/* Le compte ferme le galet, détaché des rubriques par un simple filet :
+            ce n'est pas une page de plus, c'est qui l'on est. */}
+        {trailing && (
+          <li className="flex items-center gap-1 pl-1">
+            <span aria-hidden className="h-5 w-px shrink-0 bg-white/12" />
+            {trailing}
+          </li>
+        )}
       </ul>
     </nav>
   );
