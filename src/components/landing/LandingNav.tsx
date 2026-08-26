@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { NavPill } from "./NavPill";
 
 /**
  * Barre de navigation de la landing : transparente au-dessus du hero, elle prend
@@ -26,7 +27,7 @@ export function LandingNav() {
         scrolled ? "border-b border-border bg-background/85 backdrop-blur-xl" : "border-b border-transparent"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+      <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link href="/" aria-label="GTA VI Map — accueil" className="-my-2 flex items-center gap-3 py-2">
           <Image
             src="/brand/gta-vi-logo.svg"
@@ -39,30 +40,30 @@ export function LandingNav() {
             priority
             className="h-7 w-auto"
           />
-          <span className="vi-kicker hidden text-muted sm:block">Interactive Map</span>
+          {/* Repoussé à `lg` : le galet est centré sur la barre, ce libellé le
+              faisait mordre sur le logo entre 640 et 900 px. */}
+          <span className="vi-kicker hidden text-muted lg:block">Interactive Map</span>
         </Link>
 
-        <nav className="flex items-center gap-2">
-          <Link
-            href="/galerie"
-            className="hidden min-h-11 items-center px-3 text-sm font-medium text-muted transition-colors hover:text-foreground sm:flex"
-          >
-            Galerie
-          </Link>
-          <Link
-            href="/community"
-            className="hidden min-h-11 items-center px-3 text-sm font-medium text-muted transition-colors hover:text-foreground sm:flex"
-          >
-            Communauté
-          </Link>
+        {/* Centrage porté par ce conteneur et non par le galet : `.rs-nav3d` pose
+            `position: relative` (son glacis en ::before en dépend), ce qui écrase
+            l'`absolute` de Tailwind — le galet repartait alors dans le flux, calé
+            à droite par le `justify-between`. Il change de largeur en s'ouvrant et
+            doit grandir des deux côtés à la fois. */}
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center md:flex">
+          <NavPill className="pointer-events-auto" />
+        </div>
+
+        <div className="flex items-center gap-2">
           <NavAccountLink />
+          {/* Sous `md`, le galet est masqué : la carte garde son propre accès. */}
           <Link
             href="/map"
-            className="rs-pill flex min-h-11 items-center px-5 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="rs-pill flex min-h-11 items-center px-5 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
           >
-            Ouvrir la carte
+            La carte
           </Link>
-        </nav>
+        </div>
       </div>
     </header>
   );
