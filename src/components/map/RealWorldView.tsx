@@ -400,15 +400,19 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
         </div>
       )}
 
-      <div className="rs-glass absolute left-1/2 top-4 z-[600] flex -translate-x-1/2 items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm">
+      {/* Bandeau compact au doigt : sur un téléphone, la version d'origine
+          dépassait de l'écran. Le détail (« — 1 032 lieux ») est réservé aux
+          grands écrans, les pilules et le libellé du retour se raccourcissent. */}
+      <div className="rs-glass absolute left-1/2 top-3 z-[600] flex max-w-[calc(100vw-1rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-2xl px-2 py-1.5 text-xs sm:top-4 sm:flex-nowrap sm:gap-3 sm:rounded-full sm:py-2 sm:pl-4 sm:pr-2 sm:text-sm">
         <Compass className="h-4 w-4 shrink-0 text-accent-2" />
         <span className="whitespace-nowrap">
+          Monde réel
           {target?.kind === "game" ? (
-            <>Monde réel — <span className="text-muted">position approchée</span></>
+            <span className="hidden text-muted sm:inline"> — position approchée</span>
           ) : (
-            <>
-              Monde réel — <span className="vi-num font-semibold text-foreground">{plausible.length}</span> lieux
-            </>
+            <span className="hidden sm:inline">
+              {" "}— <span className="vi-num font-semibold text-foreground">{plausible.length}</span> lieux
+            </span>
           )}
         </span>
 
@@ -419,7 +423,7 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
               onClick={() => setBasemap(b.id)}
               aria-pressed={basemap === b.id}
               className={cn(
-                "rs-pill px-3 py-1 text-xs",
+                "rs-pill px-2 py-0.5 text-[11px] sm:px-3 sm:py-1 sm:text-xs",
                 basemap === b.id && "rs-pill--accent font-semibold",
               )}
             >
@@ -430,10 +434,11 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
         {selected && (
           <button
             onClick={() => back(selected)}
-            className="rs-pill rs-pill--accent inline-flex shrink-0 items-center gap-1.5 px-3 py-1 text-xs font-semibold"
+            className="rs-pill rs-pill--accent inline-flex shrink-0 items-center gap-1.5 px-2 py-0.5 text-[11px] font-semibold sm:px-3 sm:py-1 sm:text-xs"
           >
             <MapPin className="h-3.5 w-3.5" />
-            Voir dans GTA VI
+            <span className="sm:hidden">GTA VI</span>
+            <span className="hidden sm:inline">Voir dans GTA VI</span>
           </button>
         )}
 

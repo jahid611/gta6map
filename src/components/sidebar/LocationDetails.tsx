@@ -23,6 +23,8 @@ import { frameUrl, photoUrl, wikiImageUrl } from "@/lib/media";
 import { FLAG_LABELS } from "@/lib/data/categories";
 import { useProgressStore } from "@/store/useProgressStore";
 import { useMapStore } from "@/store/useMapStore";
+import { useUIStore } from "@/store/useUIStore";
+import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
@@ -66,6 +68,8 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
   const [irlOpen, setIrlOpen] = useState(false);
   const openRealWorldAt = useMapStore((s) => s.openRealWorldAt);
   const openRealWorldFromGame = useMapStore((s) => s.openRealWorldFromGame);
+  const selectLocation = useUIStore((s) => s.selectLocation);
+  const isDesktop = useIsDesktop();
   const realWorld = useMapStore((s) => s.realWorld);
   const toggleRealWorld = useMapStore((s) => s.toggleRealWorld);
   const hasRealCoords = location.realWorld.lat !== null && location.realWorld.lng !== null;
@@ -333,6 +337,9 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
             les lieux voisins, ce que le bandeau de la carte annonce. */}
         <button
           onClick={() => {
+            // Au doigt, la fiche occupe l'écran : la refermer laisse voir la
+            // carte vers laquelle on vient d'envoyer l'utilisateur.
+            if (!isDesktop) selectLocation(null);
             if (realWorld) {
               // Déjà dans le monde réel : le bouton fait le trajet inverse et
               // ramène à la position de jeu exacte du lieu.

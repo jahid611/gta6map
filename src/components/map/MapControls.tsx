@@ -67,6 +67,12 @@ export function MapControls() {
     };
   }, [map]);
 
+  // Ces contrôles vivent dans le pane Leaflet de la carte du jeu (z-index 1000),
+  // donc au-dessus de la vue réelle (superposition à 500) : ils recouvraient ses
+  // boutons + / − tout en pilotant une carte cachée derrière. On les retire tant
+  // que la vue réelle est ouverte — elle a les siens.
+  if (realWorld) return null;
+
   return (
     <>
       <div className="leaflet-top leaflet-left pointer-events-none">

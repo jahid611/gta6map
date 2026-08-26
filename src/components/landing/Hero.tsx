@@ -182,6 +182,19 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
             Voir les trailers
           </a>
         </div>
+
+        {/* Sur téléphone seulement : la carte reste utilisable, mais la
+            médiathèque, la mesure de distances et la vue côte à côte avec le
+            monde réel demandent de la place. Autant le dire d'emblée. */}
+        <p className="hero-stagger mt-6 flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-4 py-2 text-center text-[11px] leading-snug text-white/75 backdrop-blur sm:hidden">
+          {/* Pictogramme d'écran en SVG : le jeu d'icônes du site (généré) n'en
+              contient pas, et en ajouter un demanderait de regénérer tout le lot. */}
+          <svg viewBox="0 0 24 24" aria-hidden className="h-3.5 w-3.5 shrink-0 text-accent-2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="3" width="20" height="13" rx="2" />
+            <path d="M8 21h8M12 16v5" />
+          </svg>
+          Pour l&apos;expérience complète, ouvrez le site sur ordinateur.
+        </p>
       </div>
 
       <a
