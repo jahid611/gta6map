@@ -792,11 +792,17 @@ button:disabled {
   font-display: swap;
 }
 
-/* Signal du marqueur selectionne.
-   L animation se rejoue a chaque fois que l icone est recreee — c est-a-dire a
-   chaque selection — parce qu une animation CSS demarre au montage du noeud.
-   C est ce qui permet de repérer d un coup d oeil le point qu on vient
-   d atteindre, notamment apres une bascule entre les deux cartes. */
+/* ── Signal du marqueur selectionne ───────────────────────────────────────
+   Il tourne EN BOUCLE tant que la fiche est ouverte, et non trois fois : sur
+   une grappe de trente points voisins, un clignotement qui s arrete laisse
+   l utilisateur sans repere, et il ne rejouait pas apres une bascule entre la
+   carte du jeu et le monde reel (l animation ne redemarre qu au montage du
+   noeud, or l icone n est pas recreee dans ce cas).
+
+   Deux ondes concentriques decalees d une demi-periode partent du point : c est
+   ce qui se voit de loin, la seule pulsation du halo se perdait sur un fond
+   charge. Les memes regles servent aux deux cartes — l une comme l autre rend
+   ses marqueurs avec `markerHtml`. */
 @keyframes gta-flash {
   0%,
   100% {
@@ -805,16 +811,58 @@ button:disabled {
   50% {
     box-shadow:
       0 0 0 2px #fff,
-      0 0 0 10px color-mix(in srgb, var(--marker-color) 55%, transparent),
-      0 0 22px 6px color-mix(in srgb, var(--marker-color) 45%, transparent);
+      0 0 0 12px color-mix(in srgb, var(--marker-color) 55%, transparent),
+      0 0 26px 8px color-mix(in srgb, var(--marker-color) 55%, transparent);
+  }
+}
+@keyframes gta-ping {
+  0% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  70% {
+    opacity: 0.12;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3.4);
   }
 }
 .gta-marker.is-selected .gta-marker__pin {
-  animation: gta-flash 1.1s ease-in-out 3;
+  animation: gta-flash 1.3s ease-in-out infinite;
+}
+/* Les deux ondes. `pointer-events: none` : elles couvrent une large zone et ne
+   doivent jamais voler le clic d un marqueur voisin. */
+.gta-marker.is-selected::before,
+.gta-marker.is-selected::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  border: 2.5px solid var(--marker-color);
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--marker-color) 60%, transparent);
+  pointer-events: none;
+  animation: gta-ping 1.9s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.gta-marker.is-selected::after {
+  animation-delay: 0.95s;
 }
 @media (prefers-reduced-motion: reduce) {
   .gta-marker.is-selected .gta-marker__pin {
     animation: none;
+  }
+  /* Sans mouvement, un halo fixe tient le meme role de reperage. */
+  .gta-marker.is-selected::before {
+    animation: none;
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(2);
+  }
+  .gta-marker.is-selected::after {
+    display: none;
   }
 }
 

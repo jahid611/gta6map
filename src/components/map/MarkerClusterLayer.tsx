@@ -213,5 +213,25 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
     }
   }, [entries, selectedSlug, categoriesBySlug]);
 
+  // ── Le point sélectionné doit être VISIBLE, pas avalé par une grappe ──
+  // Sans cela, ouvrir une fiche depuis la recherche, la médiathèque ou en
+  // revenant du monde réel laissait le marqueur — et son clignotement — enfermé
+  // dans un cluster : impossible de savoir lequel des trente points voisins on
+  // regarde. On attend que le `flyTo` de la sélection se pose avant d'agir.
+  useEffect(() => {
+    const group = groupRef.current;
+    if (!group || !selectedSlug) return;
+    const timer = setTimeout(() => {
+      for (const [id, m] of markersRef.current) {
+        if (locationByIdRef.current.get(id)?.slug !== selectedSlug) continue;
+        const visible = group.getVisibleParent(m.marker);
+        // `getVisibleParent` renvoie le marqueur lui-même s'il est déjà à l'écran.
+        if (visible && visible !== m.marker) group.zoomToShowLayer(m.marker, () => {});
+        return;
+      }
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [selectedSlug]);
+
   return null;
 }
