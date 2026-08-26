@@ -5,7 +5,7 @@ import { CommunityBackdrop } from "@/components/community/CommunityBackdrop";
 
 export const metadata: Metadata = {
   title: "Communauté",
-  description: "Le chat global de GTA VI Map : partagez des lieux de la carte, répondez, réagissez, lancez des sondages.",
+  description: "Le chat global de GTA6MAP : partagez des lieux de la carte, répondez, réagissez, lancez des sondages.",
   alternates: { canonical: "/community" },
 };
 export const dynamic = "force-dynamic";

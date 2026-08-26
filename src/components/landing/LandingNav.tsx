@@ -29,7 +29,7 @@ export function LandingNav() {
       }`}
     >
       <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link href="/" aria-label="GTA VI Map — accueil" className="-my-2 flex items-center gap-3 py-2">
+        <Link href="/" aria-label="GTA6MAP — accueil" className="-my-2 flex items-center gap-3 py-2">
           <Image
             src="/brand/gta-vi-logo.svg"
             alt=""
@@ -43,7 +43,7 @@ export function LandingNav() {
           />
           {/* Repoussé à `lg` : le galet est centré sur la barre, ce libellé le
               faisait mordre sur le logo entre 640 et 900 px. */}
-          <span className="vi-kicker hidden text-muted lg:block">Interactive Map</span>
+          <span className="vi-kicker hidden text-muted lg:block">GTA6MAP</span>
         </Link>
 
         {/* Centrage porté par ce conteneur et non par le galet : `.rs-nav3d` pose

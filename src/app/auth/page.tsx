@@ -5,7 +5,7 @@ import { MediaMontage, type MontageItem } from "@/components/media/MediaMontage"
 
 export const metadata: Metadata = {
   title: "Connexion / Créer un compte",
-  description: "Créez un compte gratuit pour synchroniser votre progression GTA VI Map entre vos appareils.",
+  description: "Créez un compte gratuit pour synchroniser votre progression GTA6MAP entre vos appareils.",
   robots: { index: false },
 };
 

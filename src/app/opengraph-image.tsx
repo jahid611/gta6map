@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "GTA VI Interactive Map";
+export const alt = "GTA6MAP — Carte interactive GTA VI";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -37,7 +37,7 @@ export default function OpenGraphImage() {
           >
             VI
           </div>
-          <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: -2 }}>GTA VI Interactive Map</div>
+          <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: -2 }}>GTA6MAP</div>
         </div>
         <div style={{ marginTop: 32, fontSize: 32, color: "#8b98a9" }}>
           Leonida & Vice City — landmarks, collectibles, suivi de complétion

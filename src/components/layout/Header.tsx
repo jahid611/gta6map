@@ -29,11 +29,13 @@ export function Header({ locations, categoriesBySlug, global, auth }: HeaderProp
         <PanelLeft className="h-4 w-4" />
       </Button>
 
-      <Link href="/" className="rs-pill flex min-h-11 items-center gap-2.5 py-1 pl-1.5 pr-3 sm:min-h-0" aria-label="GTA VI Map — accueil">
+      {/* Sans cadre : le logo se suffit, l'encadrer n'ajoutait qu'un contour. La
+          cible tactile reste acquise par la hauteur. */}
+      <Link href="/" className="flex min-h-11 items-center gap-2.5 pr-1 sm:min-h-0" aria-label="GTA6MAP — accueil">
         <Image src="/brand/gta-vi-logo.svg" alt="GTA VI" width={980} height={744} unoptimized className="h-[25px] w-auto object-contain" priority />
         <span className="hidden flex-col leading-none sm:flex">
-          <span className="rs-title text-[13px]">Leonida</span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">Interactive map</span>
+          <span className="rs-title text-[13px]">GTA6MAP</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">Leonida &amp; Vice City</span>
         </span>
       </Link>
 

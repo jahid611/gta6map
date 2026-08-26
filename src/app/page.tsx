@@ -30,7 +30,7 @@ function characterShots(...files: [string, string, string]): readonly [string, s
 }
 
 export const metadata: Metadata = {
-  title: "GTA VI Map — Carte interactive de Leonida & Vice City",
+  title: "GTA6MAP — Carte interactive de Leonida & Vice City",
   description:
     "Explorez Leonida : lieux répertoriés, plans des trailers officiels géolocalisés, fiches wiki et suivi de complétion. Vice City, Leonida Keys, Port Gellhorn, Grassrivers, Ambrosia.",
   alternates: { canonical: "/" },

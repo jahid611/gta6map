@@ -11,7 +11,7 @@ export function LandingFooter() {
       <div className="mx-auto max-w-6xl px-5 py-14">
         <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="rs-title text-sm text-foreground">GTA VI Map</p>
+            <p className="rs-title text-sm text-foreground">GTA6MAP</p>
             <p className="mt-1 text-xs text-muted-2">Carte interactive de Leonida &amp; Vice City</p>
           </div>
 

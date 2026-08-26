@@ -3,7 +3,7 @@ import { CONTACT_LABEL, CONTACT_URL, LegalPage, Section } from "@/components/leg
 
 export const metadata: Metadata = {
   title: "Règles de confidentialité",
-  description: "Quelles données GTA VI Map collecte, pourquoi, où elles sont stockées et comment les supprimer.",
+  description: "Quelles données GTA6MAP collecte, pourquoi, où elles sont stockées et comment les supprimer.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage title="Règles de confidentialité" updated="25 août 2026">
       <p>
-        GTA VI Map (« le Site ») est une carte interactive non officielle créée par des fans. Cette page décrit les
+        GTA6MAP (« le Site ») est une carte interactive non officielle créée par des fans. Cette page décrit les
         données que nous traitons lorsque vous utilisez le Site, avec ou sans compte. Nous ne vendons aucune donnée,
         n&apos;affichons aucune publicité et ne suivons pas votre navigation à des fins commerciales.
       </p>

@@ -3,7 +3,7 @@ import { CONTACT_LABEL, CONTACT_URL, LegalPage, Section } from "@/components/leg
 
 export const metadata: Metadata = {
   title: "Conditions d'utilisation",
-  description: "Conditions d'utilisation de GTA VI Map, carte interactive non officielle de Leonida & Vice City.",
+  description: "Conditions d'utilisation de GTA6MAP, carte interactive non officielle de Leonida & Vice City.",
   alternates: { canonical: "/terms" },
 };
 
@@ -11,13 +11,13 @@ export default function TermsPage() {
   return (
     <LegalPage title="Conditions d'utilisation" updated="25 août 2026">
       <p>
-        En utilisant GTA VI Map (« le Site »), vous acceptez les présentes conditions. Le Site est gratuit, sans
+        En utilisant GTA6MAP (« le Site »), vous acceptez les présentes conditions. Le Site est gratuit, sans
         publicité, et proposé « en l&apos;état » par des fans, à des fins d&apos;information et de divertissement.
       </p>
 
       <Section title="1. Projet non officiel">
         <p>
-          GTA VI Map est un projet de fans <strong>indépendant</strong>. Il n&apos;est ni affilié, ni sponsorisé, ni
+          GTA6MAP est un projet de fans <strong>indépendant</strong>. Il n&apos;est ni affilié, ni sponsorisé, ni
           approuvé par Rockstar Games, Take-Two Interactive ou leurs filiales. « Grand Theft Auto », « GTA », « Vice
           City », le logo VI et les visuels du jeu sont des marques et œuvres appartenant à leurs détenteurs respectifs,
           utilisés ici à titre descriptif et non commercial.

@@ -37,13 +37,13 @@ const fontDisplay = Archivo({ variable: "--font-archivo-display", subsets: ["lat
 /** Domaine canonique : gta6map.pro (surchargé par NEXT_PUBLIC_SITE_URL ; localhost en dev). */
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || (process.env.NODE_ENV === "production" ? "https://gta6map.pro" : "http://localhost:3000");
-export const SITE_NAME = "GTA VI Map — Leonida";
+export const SITE_NAME = "GTA6MAP";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "GTA VI Map — Carte interactive de Leonida & Vice City",
-    template: "%s · GTA VI Map",
+    default: "GTA6MAP — Carte interactive de Leonida & Vice City",
+    template: "%s · GTA6MAP",
   },
   description:
     "Carte interactive GTA VI : 1 400+ lieux identifiés, plans des trailers et screenshots officiels géolocalisés, fiches GTA Wiki, suivi de complétion. Vice City, Leonida Keys, Port Gellhorn, Grassrivers, Ambrosia.",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: "GTA VI Map — Carte interactive de Leonida & Vice City",
+    title: "GTA6MAP — Carte interactive de Leonida & Vice City",
     description: "Explorez Leonida : lieux, plans des trailers géolocalisés, fiches wiki, suivi de complétion.",
     locale: "fr_FR",
     images: [{ url: "/opengraph-image", width: 1200, height: 630 }],

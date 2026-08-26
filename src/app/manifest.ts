@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "GTA VI Interactive Map",
-    short_name: "GTA VI Map",
+    name: "GTA6MAP — Carte interactive GTA VI",
+    short_name: "GTA6MAP",
     description: "Carte interactive GTA VI — landmarks, collectibles, suivi de complétion.",
     start_url: "/map",
     display: "standalone",
