@@ -179,7 +179,9 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
       attribution: BASEMAPS[0].attribution,
     }).addTo(map);
 
-    L.control.zoom({ position: "topleft" }).addTo(map);
+    // En bas à droite : le bandeau d'en-tête est centré et, sur un écran étroit,
+    // il occupe toute la largeur — en haut à gauche, il recouvrait ces boutons.
+    L.control.zoom({ position: "bottomright" }).addTo(map);
 
     // Chaque déplacement est mémorisé : c'est cette trace qui sera restituée au
     // retour, au pixel et au niveau de zoom près.

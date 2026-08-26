@@ -51,7 +51,7 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
       <LandingNav />
       <RevealProvider>
         <main>
-          <Hero locationCount={stats.total} regionCount={stats.regions.length} />
+          <Hero locationCount={stats.landmarks} regionCount={stats.regions.length} />
           <StatsBand stats={stats} />
           <FeatureSections stats={stats} />
           <TrailerGallery shots={stats.showcase} />
@@ -83,7 +83,7 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
 
           <TrailerSection />
           <RegionGrid regions={stats.regions} />
-          <ClosingCta total={stats.total} />
+          <ClosingCta total={stats.landmarks} />
         </main>
         <LandingFooter />
       </RevealProvider>

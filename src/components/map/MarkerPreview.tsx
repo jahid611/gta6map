@@ -37,11 +37,14 @@ export function MarkerPreview({ locations, categoriesBySlug }: MarkerPreviewProp
   const preview = useUIStore((s) => s.hoverPreview);
   // Seconde barrière, côté rendu : sur tactile la fiche suffit, l'aperçu ferait doublon.
   const hoverable = useMediaQuery("(hover: hover) and (pointer: fine)", true);
+  // Une fiche ouverte occupe déjà un panneau : l'aperçu se posait par-dessus et
+  // masquait son texte. Tant qu'on lit une fiche, on ne superpose rien.
+  const selectedSlug = useUIStore((s) => s.selectedSlug);
 
   const bySlug = useMemo(() => new Map(locations.map((l) => [l.slug, l])), [locations]);
   const location = preview ? bySlug.get(preview.slug) : null;
 
-  if (!preview || !location || !hoverable) return null;
+  if (!preview || !location || !hoverable || selectedSlug) return null;
 
   const category = categoriesBySlug.get(location.categorySlug);
   const accent = pastel(category?.color ?? location.color);

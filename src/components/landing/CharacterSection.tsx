@@ -39,12 +39,25 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+    // React ne sérialise pas l'attribut `muted` dans le HTML rendu côté serveur.
+    // Le navigateur recevait donc une vidéo considérée comme sonore, refusait la
+    // lecture automatique, et le `play()` rejeté était avalé par le `catch` : le
+    // clip restait indéfiniment sur son affiche (readyState 0). On rétablit
+    // l'état muet impérativement, avant toute tentative de lecture.
+    video.muted = true;
+    video.defaultMuted = true;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) void video.play().catch(() => {});
-        else video.pause();
+        if (!entry.isIntersecting) {
+          video.pause();
+          return;
+        }
+        // `preload="metadata"` ne télécharge que l'en-tête : la première image
+        // arrive vite, le corps du fichier n'est demandé qu'ici.
+        if (video.readyState === 0) video.load();
+        void video.play().catch(() => {});
       },
-      { threshold: 0.25 },
+      { threshold: 0.2 },
     );
     io.observe(video);
     return () => io.disconnect();
@@ -94,7 +107,7 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
                 muted
                 loop
                 playsInline
-                preload="none"
+                preload="metadata"
                 poster={images[2]}
                 className="aspect-video h-full w-full object-cover"
               />

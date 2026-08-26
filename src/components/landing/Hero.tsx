@@ -99,7 +99,11 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
         )
         // Le crépuscule aux palmiers monte derrière la découpe : quand le masque
         // s'efface, l'écran n'est plus noir mais tenu par cette image.
-        .fromTo(backdropRef.current, { opacity: 0, scale: 1.14 }, { opacity: 1, scale: 1, ...step }, 0.45)
+        // Monte dès le premier cran et se termine tôt : le masque commence à
+        // découper immédiatement, et tout ce qu'il laisse passer avant que ce
+        // fond ne soit en place se lit comme un grand aplat noir — un triangle
+        // sombre en haut à droite, puis un écran presque entièrement noir.
+        .fromTo(backdropRef.current, { opacity: 0, scale: 1.14 }, { opacity: 1, scale: 1, duration: 0.5, ...step }, 0)
         // Puis la carte découpée s'efface et laisse place à la section suivante.
         .fromTo(maskRef.current, { opacity: 1 }, { opacity: 0, ...step }, 0.88);
     }, rootRef);
@@ -116,7 +120,9 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
           un grand aplat noir entre le hero et la bande de chiffres. */}
       <div ref={backdropRef} aria-hidden className="pointer-events-none absolute inset-0 z-0 opacity-0">
         <Image src="/brand/vice-sunset.webp" alt="" fill sizes="100vw" className="object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-transparent to-background" />
+        {/* Voile haut seulement : la section porte déjà son propre dégradé de pied,
+            et les deux cumulés laissaient une bande noire au bas de l'image. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-transparent to-transparent" />
       </div>
 
       <div ref={maskRef} aria-hidden className="vi-mask pointer-events-none absolute inset-0 z-[1]">

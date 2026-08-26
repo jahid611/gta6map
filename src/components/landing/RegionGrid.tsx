@@ -56,7 +56,7 @@ export function RegionGrid({ regions }: { regions: LandingRegion[] }) {
 
             <span className="relative z-10">
               <span className="flex items-start justify-between gap-3">
-                <span className="rs-title text-xl text-white [text-shadow:0_2px_16px_rgba(0,0,0,0.8)]">
+                <span className="rs-title min-w-0 text-lg leading-tight text-white [text-shadow:0_2px_16px_rgba(0,0,0,0.8)] sm:text-xl">
                   {region.name}
                 </span>
                 <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-white/60 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />

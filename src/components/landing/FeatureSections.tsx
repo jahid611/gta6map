@@ -25,7 +25,7 @@ export function FeatureSections({ stats }: { stats: LandingStats }) {
     {
       icon: Search,
       title: "Trouver, pas chercher",
-      body: `Recherche instantanée sur les ${stats.total.toLocaleString("fr-FR")} lieux, accessible au clavier (Ctrl + K). Tapez trois lettres, la carte vole jusqu'au point.`,
+      body: `Recherche instantanée sur les ${stats.landmarks.toLocaleString("fr-FR")} lieux, accessible au clavier (Ctrl + K). Tapez trois lettres, la carte vole jusqu'au point.`,
       metric: "Ctrl + K",
     },
   ];

@@ -162,7 +162,7 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
     <>
       {/* `pr-12` sur mobile : la croix de fermeture de la feuille est posée en
           haut à droite et mordait sur l'onglet « Progression ». */}
-      <div className={cn("flex shrink-0 border-b border-border", !isDesktop && "pr-12")}>
+      <div className={cn("flex shrink-0 border-b border-border", !isDesktop && "pr-14")}>
         {PANEL_TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -207,7 +207,10 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
             </aside>
           )}
 
-          <main className="relative min-w-0 flex-1">
+          {/* `isolate` : Leaflet place ses contrôles à z-index 1000. Sans contexte
+              d'empilement propre, ils passaient au-dessus du menu de recherche du
+              header, qui s'affichait tronqué derrière la colonne de zoom. */}
+          <main className="relative isolate min-w-0 flex-1">
             {shareMode && (
               <div className="pointer-events-none absolute inset-x-0 top-3 z-[1060] flex justify-center px-3">
                 <div className="rs-card pointer-events-auto flex max-w-xl items-center gap-3 rounded-full py-2 pl-4 pr-2 text-sm animate-fade-in">

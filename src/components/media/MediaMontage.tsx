@@ -42,6 +42,12 @@ export function MediaMontage({ items, interval = 4500, className, fill = false }
     return () => clearTimeout(t);
   }, [index, paused, count, interval, go, items]);
 
+  // `muted` n'est pas sérialisé par React côté serveur : sans ce rappel, la
+  // lecture automatique est refusée sur une page rendue au serveur.
+  useEffect(() => {
+    for (const v of videoRefs.current) if (v) { v.muted = true; v.defaultMuted = true; }
+  }, [items]);
+
   // Lecture du clip courant uniquement (les autres restent en pause pour économiser CPU/réseau).
   useEffect(() => {
     videoRefs.current.forEach((v, i) => {

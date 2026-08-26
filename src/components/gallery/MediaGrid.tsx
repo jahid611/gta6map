@@ -113,7 +113,11 @@ function MediaTile({ entry, onOpen }: { entry: MediaEntry; onOpen: () => void })
           src={entry.src}
           alt={entry.title}
           fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          // Vignettes : on demande volontairement petit. Les originaux font 3 840 px
+          // et plusieurs mégaoctets ; à 94 tuiles, réclamer une largeur généreuse
+          // faisait attendre la grille plusieurs secondes.
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 320px"
+          quality={72}
           loading="lazy"
           onLoad={() => setLoaded(true)}
           onError={() => setLoaded(true)}

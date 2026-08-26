@@ -76,6 +76,26 @@ function sectionFor(x: number, y: number, sections: readonly MapSection[]): MapS
   return best;
 }
 
+/**
+ * Présentations des régions, en français.
+ *
+ * Les extraits de GTA Wiki sont en anglais et se limitent à « X is a county due
+ * to appear in Grand Theft Auto VI » — sur un site francophone, c'était à la
+ * fois une faute de langue et une phrase sans contenu. Ces textes reprennent les
+ * faits du wiki (rattachement administratif, nature du lieu) en les rendant
+ * lisibles.
+ */
+const REGION_BLURBS: Readonly<Record<string, string>> = {
+  "vice-city": "La grande ville de l'État, chef-lieu du comté de Vice-Dale : néons, tours de verre et front de mer. C'est là que se concentre l'essentiel des lieux relevés.",
+  "leonida-keys": "Un archipel au sud du comté de Mariana, égrené le long de la route qui saute d'un îlot à l'autre jusqu'au bout de l'État.",
+  grassrivers: "Une région naturelle de prairies inondées — les marais de Leonida, à l'ouest de Vice City.",
+  "mariana-county": "Le comté du sud de l'État : côtes basses, mangroves et petites villes, jusqu'aux Leonida Keys.",
+  "port-gellhorn": "Ville portuaire du comté de Kelly, sur la côte nord-ouest : docks, entrepôts et front de mer.",
+  ambrosia: "Ville du comté d'Ambrosia, au cœur des terres agricoles du centre de Leonida.",
+  "leonard-county": "Le comté du sud-est, entre champs, bourgs et routes rectilignes.",
+  "mount-kalaga-national-park": "Le parc national du comté de Lummox : reliefs boisés, lacs et pistes de terre.",
+};
+
 function truncate(text: string, max: number): string {
   if (text.length <= max) return text;
   const cut = text.slice(0, max);
@@ -133,8 +153,13 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
     return sectionByDistrict.get(parts[0]) ?? sectionFor(x, y, sections);
   }
 
+  // On ne compte que les LIEUX, pas les positions de caméras : sans cela, la
+  // somme des huit régions donnait 1 540 quand le bandeau de chiffres et la carte
+  // annoncent 1 439 lieux et 101 plans — deux mesures différentes présentées
+  // comme la même.
   const countBySection = new Map<string, number>();
   for (const l of locations) {
+    if (l.kind !== "landmark") continue;
     const section = sectionOf(l.area, l.x, l.y);
     if (section) countBySection.set(section.slug, (countBySection.get(section.slug) ?? 0) + 1);
   }
@@ -204,7 +229,7 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
     .map((section) => ({
       slug: section.slug,
       name: section.name,
-      blurb: section.wiki?.extract ? truncate(section.wiki.extract, 190) : null,
+      blurb: REGION_BLURBS[section.slug] ?? (section.wiki?.extract ? truncate(section.wiki.extract, 190) : null),
       count: countBySection.get(section.slug) ?? 0,
       districts: districtsBySection.get(section.slug) ?? [],
       image: regionImage(section),
@@ -241,7 +266,10 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
     showcase,
     landmarks: locations.length - cameras.length,
     cameras: cameras.length,
-    categories: categories.filter((c: Category) => c.trackable).length,
+    // Toutes les catégories réellement présentes sur la carte — c'est ce que
+    // compte le panneau de filtres. Ne retenir que les « suivables » affichait 21
+    // à l'accueil quand la carte en proposait 24.
+    categories: categories.length,
     photos: locations.filter((l) => l.photos?.ig || l.photos?.irl).length,
     regions,
     mediaSources: [...mediaCounts.entries()]

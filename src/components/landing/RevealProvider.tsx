@@ -41,6 +41,15 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
     const arm = (el: HTMLElement): boolean => {
       if (armed.has(el) || el.classList.contains("is-in")) return false;
       armed.add(el);
+      // Déjà à l'écran au moment où on l'arme (changement de filtre dans la
+      // galerie, liste re-rendue) : on l'affiche tout de suite. Un ScrollTrigger
+      // n'aurait plus de seuil à franchir, et la vignette serait restée à
+      // opacité zéro — une grille de 36 éléments paraissait vide.
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+        el.classList.add("is-in");
+        return true;
+      }
       triggers.push(
         ScrollTrigger.create({
           trigger: el,
