@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FocusEvent } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, ChevronDown, CornerDownLeft, ExternalLink, Loader2, MapPin, Plus, Trophy, X } from "@/components/ui/icons";
+import { ArrowRight, Check, ChevronDown, CornerDownLeft, ExternalLink, Loader2, MapPin, Plus, Trophy, X } from "@/components/ui/icons";
 import { useAuth } from "@/hooks/useAuth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
@@ -34,6 +34,9 @@ import {
   type PublicProfile,
   type SlimLocation,
 } from "@/types/community";
+
+/** Ressort de l ouverture du champ de saisie, repris de `easemize/ai-chat-input`. */
+const COMPOSER_SPRING = "max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
 
 /* ────────────────────────────── utilitaires ────────────────────────────── */
 
@@ -506,6 +509,9 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [atBottom, setAtBottom] = useState(true);
+  // Le champ démarre ouvert si l on arrive depuis la carte avec un lieu à partager.
+  const [expanded, setExpanded] = useState(!!initialShareSlug);
+  const composerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -564,6 +570,16 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
     observer.observe(content);
     return () => observer.disconnect();
   }, [atBottom, scrollToBottom]);
+
+  // Le champ grandit avec le texte jusqu'à 160 px, puis défile. On le remet à
+  // zéro avant de lire `scrollHeight` : sans ça, il ne peut que grandir, jamais
+  // se rétracter quand on efface des lignes.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "0px";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [text, expanded, mode]);
 
   // ── Temps réel ──
   useEffect(() => {
@@ -675,8 +691,21 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
 
   const canSubmit = mode === "poll" ? pollQuestion.trim().length > 1 && pollOptions.filter((o) => o.trim()).length >= 2 : mode === "location" ? !!pickedLocation : text.trim().length > 0;
 
+  // Le champ reste ouvert tant qu'il a quelque chose à montrer : une réponse en
+  // cours, un lieu à partager, un sondage en préparation. Et il l'est aussi
+  // quand il ne sert qu'à afficher un message (base absente, non connecté).
+  const composerWide = !auth.enabled || !userId || expanded || mode !== "text" || !!replyTo || !!pickedLocation;
+
+  const openComposer = () => setExpanded(true);
+
+  /** Refermé seulement si le focus quitte vraiment le bloc, et qu'il est vide. */
+  const handleComposerBlur = (e: FocusEvent<HTMLDivElement>) => {
+    if (composerRef.current?.contains(e.relatedTarget as Node | null)) return;
+    if (!text.trim() && !replyTo && !pickedLocation && mode === "text") setExpanded(false);
+  };
+
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="relative flex h-full min-h-0 flex-col">
       {/* Liste */}
       <div
         ref={listRef}
@@ -684,7 +713,9 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
           const el = e.currentTarget;
           setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
         }}
-        className="min-h-0 flex-1 overflow-y-auto px-2 py-4 sm:px-4"
+        // Le champ de saisie flotte au-dessus du fil : sans cette réserve en
+        // pied, le dernier message se cacherait derrière lui.
+        className="min-h-0 flex-1 overflow-y-auto px-2 pb-36 pt-4 sm:px-4"
       >
         {visible.length === 0 && <p className="py-20 text-center text-sm text-muted">Personne n&apos;a encore parlé. Lancez la conversation !</p>}
         <div ref={contentRef} className="mx-auto flex max-w-3xl flex-col gap-3">
@@ -713,38 +744,70 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
         </div>
       </div>
 
+
+      {/* Flotte juste au-dessus du champ de saisie. */}
       {!atBottom && (
-        <button type="button" onClick={() => { setAtBottom(true); scrollToBottom(); }} className="rs-pill mx-auto -mt-12 mb-2 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold cursor-pointer">
+        <button
+          type="button"
+          onClick={() => {
+            setAtBottom(true);
+            scrollToBottom();
+          }}
+          className="rs-pill absolute bottom-28 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1 px-3 py-1.5 text-xs font-semibold cursor-pointer"
+        >
           <ChevronDown className="h-3.5 w-3.5" /> Nouveaux messages
         </button>
       )}
 
-      {/* Composer */}
-      {/* Assez opaque pour qu'on lise ce qu'on tape, assez transparent pour que
-          le décor continue derrière : un bandeau plein couperait l'image en deux. */}
-      <div className="border-t border-white/10 bg-background/80 px-3 py-3 backdrop-blur-xl sm:px-4">
-        <div className="mx-auto max-w-3xl">
+      {/* ── Champ de saisie ──────────────────────────────────────────────────
+          D'après `easemize/ai-chat-input` (21st.dev) : une pilule compacte qui
+          s'ouvre en champ complet, et se referme quand on la quitte à vide.
+          Tout l'appareillage d'assistant — choix du modèle, niveau d'effort,
+          micro, pièces jointes — est écarté : ici on écrit à d'autres joueurs.
+
+          Il flotte au-dessus du fil au lieu de le fermer par un bandeau : le
+          décor continue derrière, et la conversation garde toute la hauteur. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 px-3 pb-5 sm:px-4">
+        <div
+          className="pointer-events-auto mx-auto w-full"
+          style={{ maxWidth: composerWide ? 768 : 380, transition: COMPOSER_SPRING }}
+        >
           {!auth.enabled ? (
-            <p className="text-sm text-muted">Le chat nécessite la base de données (Supabase non configuré).</p>
+            <p className="rs-card rounded-3xl px-4 py-3 text-sm text-muted">
+              Le chat nécessite la base de données (Supabase non configuré).
+            </p>
           ) : !userId ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            <div className="rs-card flex flex-wrap items-center justify-between gap-3 rounded-3xl px-4 py-3 text-sm">
               <span className="text-muted">Connectez-vous pour participer à la conversation.</span>
-              <Link href="/auth?next=%2Fcommunity" className="rs-pill rs-pill--accent px-4 py-2 font-semibold">Connexion</Link>
+              <Link href="/auth?next=%2Fcommunity" className="rs-pill rs-pill--accent px-4 py-2 font-semibold">
+                Connexion
+              </Link>
             </div>
           ) : (
-            <>
+            /* Un seul niveau de carte : la réponse en cours et le lieu à
+               partager sont des rangées séparées par un filet, pas des cartes
+               posées dans celle-ci. */
+            <div ref={composerRef} onBlur={handleComposerBlur} className="rs-card overflow-hidden rounded-[26px]">
               {replyTo && (
-                <div className="mb-2 flex items-center gap-2 rounded-xl border-l-2 border-accent/60 bg-white/[0.04] px-3 py-1.5 text-xs">
-                  <CornerDownLeft className="h-3 w-3 text-muted" />
+                <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2 text-xs animate-fade-in">
+                  <CornerDownLeft className="h-3 w-3 shrink-0 text-accent" />
                   <span className="min-w-0 flex-1 truncate">
-                    Réponse à <span className="font-semibold">{profiles[replyTo.userId]?.displayName ?? "Joueur"}</span> · {replyTo.kind === "poll" ? replyTo.content : replyTo.content || "lieu partagé"}
+                    Réponse à <span className="font-semibold">{profiles[replyTo.userId]?.displayName ?? "Joueur"}</span> ·{" "}
+                    {replyTo.kind === "poll" ? replyTo.content : replyTo.content || "lieu partagé"}
                   </span>
-                  <button type="button" onClick={() => setReplyTo(null)} className="text-muted hover:text-foreground cursor-pointer" aria-label="Annuler la réponse"><X className="h-3.5 w-3.5" /></button>
+                  <button
+                    type="button"
+                    onClick={() => setReplyTo(null)}
+                    className="text-muted hover:text-foreground cursor-pointer"
+                    aria-label="Annuler la réponse"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               )}
 
               {mode === "location" && pickedLocation && (
-                <div className="mb-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm">
+                <div className="flex items-center gap-3 border-b border-white/10 px-4 py-2 text-sm animate-fade-in">
                   {pickedLocation.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={pickedLocation.image} alt="" className="h-10 w-14 shrink-0 rounded-md object-cover" />
@@ -754,71 +817,168 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
                   <span className="min-w-0 flex-1 truncate">
                     <span className="text-[10px] font-semibold uppercase tracking-wide text-accent-pale">Lieu à partager</span>
                     <br />
-                    <span className="font-semibold">{pickedLocation.name}</span>{pickedLocation.area ? <span className="text-muted"> · {pickedLocation.area}</span> : null}
+                    <span className="font-semibold">{pickedLocation.name}</span>
+                    {pickedLocation.area ? <span className="text-muted"> · {pickedLocation.area}</span> : null}
                   </span>
-                  <button type="button" onClick={() => { setPickedLocation(null); setMode("text"); }} className="text-muted hover:text-foreground cursor-pointer" aria-label="Annuler le partage"><X className="h-3.5 w-3.5" /></button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPickedLocation(null);
+                      setMode("text");
+                    }}
+                    className="text-muted hover:text-foreground cursor-pointer"
+                    aria-label="Annuler le partage"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               )}
 
               {mode === "poll" ? (
-                <div className="mb-2 flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                  <input value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} maxLength={200} placeholder="Question du sondage" className="h-10 rounded-xl border border-white/10 bg-black/30 px-3 text-sm outline-none placeholder:text-muted focus:border-accent" />
+                <div className="flex flex-col gap-2 p-3">
+                  <input
+                    value={pollQuestion}
+                    onChange={(e) => setPollQuestion(e.target.value)}
+                    maxLength={200}
+                    placeholder="Question du sondage"
+                    className="h-10 rounded-xl border border-white/10 bg-black/30 px-3 text-sm outline-none placeholder:text-muted focus:border-accent"
+                  />
                   {pollOptions.map((o, i) => (
                     <div key={i} className="flex gap-2">
-                      <input value={o} onChange={(e) => setPollOptions((opts) => opts.map((x, j) => (j === i ? e.target.value : x)))} maxLength={80} placeholder={`Option ${i + 1}`} className="h-9 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 text-sm outline-none placeholder:text-muted focus:border-accent" />
+                      <input
+                        value={o}
+                        onChange={(e) => setPollOptions((opts) => opts.map((x, j) => (j === i ? e.target.value : x)))}
+                        maxLength={80}
+                        placeholder={`Option ${i + 1}`}
+                        className="h-9 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 text-sm outline-none placeholder:text-muted focus:border-accent"
+                      />
                       {pollOptions.length > 2 && (
-                        <button type="button" onClick={() => setPollOptions((opts) => opts.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-full text-muted hover:text-foreground cursor-pointer" aria-label="Retirer l'option"><X className="h-4 w-4" /></button>
+                        <button
+                          type="button"
+                          onClick={() => setPollOptions((opts) => opts.filter((_, j) => j !== i))}
+                          className="grid h-9 w-9 place-items-center rounded-full text-muted hover:text-foreground cursor-pointer"
+                          aria-label="Retirer l'option"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
                       )}
                     </div>
                   ))}
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     {pollOptions.length < 6 && (
-                      <button type="button" onClick={() => setPollOptions((o) => [...o, ""])} className="rs-pill inline-flex items-center gap-1 px-3 py-1.5 font-semibold cursor-pointer"><Plus className="h-3.5 w-3.5" /> Option</button>
+                      <button
+                        type="button"
+                        onClick={() => setPollOptions((o) => [...o, ""])}
+                        className="rs-pill inline-flex items-center gap-1 px-3 py-1.5 font-semibold cursor-pointer"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Option
+                      </button>
                     )}
                     <span className="ml-auto text-muted">Durée</span>
-                    <select value={pollMinutes} onChange={(e) => setPollMinutes(Number(e.target.value))} className="h-8 rounded-full border border-white/10 bg-black/30 px-3 text-xs outline-none">
-                      {POLL_DURATIONS.map((d) => <option key={d.minutes} value={d.minutes}>{d.label}</option>)}
+                    <select
+                      value={pollMinutes}
+                      onChange={(e) => setPollMinutes(Number(e.target.value))}
+                      className="h-8 rounded-full border border-white/10 bg-black/30 px-3 text-xs outline-none cursor-pointer"
+                    >
+                      {POLL_DURATIONS.map((d) => (
+                        <option key={d.minutes} value={d.minutes}>
+                          {d.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
               ) : (
-                <textarea
-                  ref={textareaRef}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void submit();
-                    }
-                  }}
-                  maxLength={1000}
-                  rows={2}
-                  placeholder={mode === "location" ? "Un mot sur ce lieu ? (optionnel)" : "Écrire un message… (Entrée pour envoyer)"}
-                  className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[15px] outline-none placeholder:text-muted focus:border-accent"
-                />
+                <div className="relative">
+                  {/* Replié, c'est ce bouton qu'on voit et qu'on clique. Le champ
+                      est bien là dessous, mais son texte d'invite est effacé —
+                      deux invites superposées pendant l'ouverture bavaient. */}
+                  <button
+                    type="button"
+                    onClick={openComposer}
+                    aria-label="Écrire un message"
+                    className={cn(
+                      "absolute inset-0 z-[1] flex items-center px-4 text-left text-sm font-medium text-muted transition-all duration-300 cursor-text",
+                      expanded ? "pointer-events-none translate-y-1 opacity-0" : "translate-y-0 opacity-100",
+                    )}
+                  >
+                    {mode === "location" ? "Un mot sur ce lieu ?" : "Écrire un message…"}
+                  </button>
+                  <textarea
+                    ref={textareaRef}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onFocus={openComposer}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        void submit();
+                      }
+                    }}
+                    maxLength={1000}
+                    rows={1}
+                    placeholder={mode === "location" ? "Un mot sur ce lieu ? (optionnel)" : "Écrire un message… (Entrée pour envoyer)"}
+                    className={cn(
+                      "block w-full resize-none bg-transparent px-4 py-3.5 text-[15px] leading-[22px] outline-none",
+                      expanded ? "placeholder:text-muted" : "placeholder:text-transparent",
+                    )}
+                  />
+                </div>
               )}
 
-              {error && <p role="alert" className="mt-2 text-xs text-accent-pale">{error}</p>}
+              {error && (
+                <p role="alert" className="px-4 pb-1 text-xs text-accent-pale">
+                  {error}
+                </p>
+              )}
 
-              <div className="mt-2 flex items-center gap-2">
+              {/* Les actions n'existent qu'une fois ouvert : repliée, la pilule
+                  ne montre que l'invite. `h-0` et non `hidden` — la hauteur doit
+                  se transitionner avec le reste. */}
+              <div
+                className={cn(
+                  "flex items-center gap-2 overflow-hidden px-3 transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]",
+                  composerWide ? "h-12 pb-3 opacity-100 blur-0" : "pointer-events-none h-0 pb-0 opacity-0 blur-sm",
+                )}
+              >
                 {/* Le choix du lieu se fait sur la carte (mode partage) : chaque fiche a « Partager dans le chat ». */}
                 <button
                   type="button"
                   onClick={() => router.push("/map?share=1")}
-                  className={cn("rs-pill inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer", mode === "location" && "rs-pill--accent")}
+                  className={cn(
+                    "rs-pill inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer",
+                    mode === "location" && "rs-pill--accent",
+                  )}
                 >
                   <MapPin className="h-3.5 w-3.5" /> {mode === "location" && pickedLocation ? "Changer de lieu" : "Partager un lieu"}
                 </button>
-                <button type="button" onClick={() => setMode(mode === "poll" ? "text" : "poll")} className={cn("rs-pill inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer", mode === "poll" && "rs-pill--accent")}>
+                <button
+                  type="button"
+                  onClick={() => setMode(mode === "poll" ? "text" : "poll")}
+                  className={cn(
+                    "rs-pill inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer",
+                    mode === "poll" && "rs-pill--accent",
+                  )}
+                >
                   <Trophy className="h-3.5 w-3.5" /> Sondage
                 </button>
                 <span className="ml-auto vi-num text-[11px] text-muted">{mode === "text" ? `${text.length}/1000` : ""}</span>
-                <button type="button" onClick={() => void submit()} disabled={busy || !canSubmit} className="inline-flex h-9 items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-white transition-opacity disabled:opacity-40 cursor-pointer">
-                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {mode === "poll" ? "Lancer le sondage" : "Envoyer"}
+                <button
+                  type="button"
+                  onClick={() => void submit()}
+                  disabled={busy || !canSubmit}
+                  aria-label={mode === "poll" ? "Lancer le sondage" : "Envoyer"}
+                  className={cn(
+                    "inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-accent text-sm font-bold text-white transition-all disabled:opacity-40 cursor-pointer",
+                    mode === "poll" ? "px-4" : "w-9 justify-center",
+                  )}
+                >
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "poll" ? "Lancer le sondage" : /* Le jeu d icônes n a pas de flèche vers le haut, et en ajouter une
+                       demanderait de regénérer tout le lot : celle de droite, pivotée. */
+                    <ArrowRight aria-hidden className="h-4 w-4 -rotate-90" />}
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
