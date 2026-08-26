@@ -49,7 +49,7 @@
      `prefers-reduced-transparency` desactive et que certains moteurs n'appliquent
      que partiellement. */
   --glass-bg: rgba(0, 0, 0, 0.26);
-  --glass-bg-card: rgba(0, 0, 0, 0.58);
+  --glass-bg-card: rgba(0, 0, 0, 0.74);
   /* Fond des menus flottants (cf. `.rs-menu`) — quasi opaque. */
   --menu-bg: rgba(21, 21, 28, 0.95);
   --glass-blur: 24px;
