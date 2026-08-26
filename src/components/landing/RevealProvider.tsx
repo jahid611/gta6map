@@ -12,9 +12,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
  * n'existe jamais et la page reste entièrement lisible — pas de contenu invisible.
  *
  * Chaque `.vi-reveal` reçoit `.is-in` quand il entre dans le viewport. Les
- * éléments ajoutés APRÈS le montage (changement de filtre dans la galerie,
- * liste re-rendue par React…) sont détectés par un MutationObserver et armés à
- * leur tour — sinon ils resteraient masqués à jamais.
+ * éléments ajoutés APRÈS le montage (changement de filtre dans la galerie…)
+ * sont détectés par un MutationObserver et armés à leur tour.
+ *
+ * ⚠ Piège : `ScrollTrigger.refresh()` insère lui-même des nœuds dans le DOM
+ * (les `pin-spacer` du hero épinglé). Rafraîchir dès qu'un nœud apparaît créait
+ * donc une boucle infinie — mutation → refresh → mutation → … — qui figeait la
+ * page. On ne rafraîchit que si un `.vi-reveal` INÉDIT a été armé, l'observateur
+ * est débranché pendant le refresh, et le tout est reporté d'une frame.
  */
 export function RevealProvider({ children }: { children: React.ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -31,9 +36,10 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
     gsap.registerPlugin(ScrollTrigger);
     const armed = new WeakSet<Element>();
     const triggers: ScrollTrigger[] = [];
+    let frame = 0;
 
-    const arm = (el: HTMLElement) => {
-      if (armed.has(el) || el.classList.contains("is-in")) return;
+    const arm = (el: HTMLElement): boolean => {
+      if (armed.has(el) || el.classList.contains("is-in")) return false;
       armed.add(el);
       triggers.push(
         ScrollTrigger.create({
@@ -46,32 +52,38 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
           },
         }),
       );
+      return true;
     };
 
-    const armAll = (scope: ParentNode) => {
-      for (const el of scope.querySelectorAll<HTMLElement>(".vi-reveal")) arm(el);
-      if (scope instanceof HTMLElement && scope.classList.contains("vi-reveal")) arm(scope);
+    /** Retourne le nombre d'éléments NOUVELLEMENT armés. */
+    const armAll = (scope: ParentNode): number => {
+      let n = 0;
+      for (const el of scope.querySelectorAll<HTMLElement>(".vi-reveal")) if (arm(el)) n += 1;
+      if (scope instanceof HTMLElement && scope.classList.contains("vi-reveal") && arm(scope)) n += 1;
+      return n;
     };
 
     armAll(root);
 
-    // Nouveaux `.vi-reveal` insérés plus tard (filtres, pagination…).
     const observer = new MutationObserver((mutations) => {
-      let added = false;
+      let fresh = 0;
       for (const m of mutations) {
-        for (const node of m.addedNodes) {
-          if (node instanceof HTMLElement) {
-            armAll(node);
-            added = true;
-          }
-        }
+        for (const node of m.addedNodes) if (node instanceof HTMLElement) fresh += armAll(node);
       }
-      // Les positions ont changé : ScrollTrigger doit recalculer ses bornes.
-      if (added) ScrollTrigger.refresh();
+      if (!fresh || frame) return;
+      // Débranché pendant le refresh : celui-ci réinsère les pin-spacers et
+      // relancerait sinon ce même callback en boucle.
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        observer.disconnect();
+        ScrollTrigger.refresh();
+        observer.observe(root, { childList: true, subtree: true });
+      });
     });
     observer.observe(root, { childList: true, subtree: true });
 
     return () => {
+      if (frame) cancelAnimationFrame(frame);
       observer.disconnect();
       for (const t of triggers) t.kill();
     };

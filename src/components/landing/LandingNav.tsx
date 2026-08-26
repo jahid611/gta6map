@@ -34,6 +34,9 @@ export function LandingNav() {
             width={980}
             height={744}
             unoptimized
+            // Toujours au-dessus de la ligne de flottaison : Next le détectait
+            // comme LCP et réclamait un chargement immédiat.
+            priority
             className="h-7 w-auto"
           />
           <span className="vi-kicker hidden text-muted sm:block">Interactive Map</span>
