@@ -5,7 +5,6 @@ import type { Category, Location, LocationWiki } from "@/types";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { useUIStore } from "@/store/useUIStore";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { LocationDetails } from "./LocationDetails";
 
 interface LocationDrawerProps {
@@ -39,9 +38,11 @@ export function LocationDrawer({ location, categoriesBySlug, areaWiki = null }: 
         >
           <X className="h-4 w-4" />
         </button>
-        <ScrollArea className="h-full">
+        {/* Défilement natif plutôt que `ScrollArea` : le conteneur Radix n'était
+            pas défilable au doigt, la fiche restait bloquée sur mobile. */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <LocationDetails key={location.id} location={location} category={category} areaWiki={areaWiki} />
-        </ScrollArea>
+        </div>
       </aside>
     );
   }
@@ -49,9 +50,9 @@ export function LocationDrawer({ location, categoriesBySlug, areaWiki = null }: 
   return (
     <Sheet open onOpenChange={(open) => !open && selectLocation(null)}>
       <SheetContent side="bottom" title={location.name} description={category?.name}>
-        <ScrollArea className="max-h-[calc(85dvh-1.5rem)]">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <LocationDetails key={location.id} location={location} category={category} areaWiki={areaWiki} />
-        </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );

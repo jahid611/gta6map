@@ -9,6 +9,7 @@ import type { ProgressEntry } from "@/types/progress";
 import { CAMERA_MARKER_SIZE, MARKER_SIZE, clusterHtml, markerHtml } from "@/lib/map/icons";
 import { DEFAULT_CATEGORY_SLUG } from "@/lib/data/categories";
 import { useUIStore } from "@/store/useUIStore";
+import { canHover } from "@/lib/utils";
 
 interface MarkerClusterLayerProps {
   locations: readonly Location[];
@@ -19,11 +20,6 @@ interface MarkerClusterLayerProps {
 
 interface ManagedMarker {
   marker: L.Marker;
-}
-
-/** `true` seulement pour une souris / un stylet : pas d'aperçu au survol sur écran tactile. */
-function canHover(): boolean {
-  return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
 
 function cameraLabel(location: Location): string {

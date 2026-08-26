@@ -29,7 +29,6 @@ import { MediaLibrary } from "@/components/media/MediaLibrary";
 import { ProgressOverview } from "@/components/progress/ProgressOverview";
 import { Header } from "./Header";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -174,7 +173,8 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
           </button>
         ))}
       </div>
-      <ScrollArea className="min-h-0 flex-1">
+      {/* Défilement natif : le conteneur Radix ne défilait pas au doigt. */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {activePanel === "progress" ? (
           <ProgressOverview categories={categoriesWithCounts} global={global} syncStatus={syncStatus} />
         ) : activePanel === "media" ? (
@@ -184,7 +184,7 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
         ) : (
           <CategoryFilters categories={categoriesWithCounts} />
         )}
-      </ScrollArea>
+      </div>
     </>
   );
 

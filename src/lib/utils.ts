@@ -32,3 +32,14 @@ export function formatPercent(value: number): string {
 export function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
+
+/**
+ * `true` seulement pour une souris ou un stylet.
+ *
+ * Au doigt, un simple tap déclenche aussi `mouseover` / `mouseenter` : sans ce
+ * garde-fou, les aperçus prévus pour le survol s'ouvraient par-dessus la fiche
+ * que le tap venait d'ouvrir.
+ */
+export function canHover(): boolean {
+  return isBrowser() && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}

@@ -8,7 +8,7 @@ import { frameUrl } from "@/lib/media";
 import { useMapStore } from "@/store/useMapStore";
 import { useUIStore } from "@/store/useUIStore";
 import { Search, X } from "@/components/ui/icons";
-import { cn } from "@/lib/utils";
+import { canHover, cn } from "@/lib/utils";
 
 interface MediaLibraryProps {
   locations: readonly Location[];
@@ -58,6 +58,9 @@ export function MediaLibrary({ locations }: MediaLibraryProps) {
   const armZoom = (entry: MediaEntry, el: HTMLElement) => {
     setHovered(entry.slug);
     if (zoomTimer.current) clearTimeout(zoomTimer.current);
+    // Au doigt, le tap déclenche aussi `mouseenter` : l'agrandissement s'ouvrait
+    // alors par-dessus la fiche, à une position calculée pour le panneau desktop.
+    if (!canHover()) return;
     if (!entry.thumb) return;
     // Calé sur la vignette, puis borné pour rester dans la fenêtre : l'aperçu
     // fait environ 270 px de haut une fois le rapport 16/9 appliqué.
