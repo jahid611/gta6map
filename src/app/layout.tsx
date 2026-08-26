@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SiteNav } from "@/components/layout/SiteNav";
 import { Archivo } from "next/font/google";
 import "./globals.css";
 
@@ -72,7 +73,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${fontText.variable} ${fontDisplay.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <SiteNav />
+        {children}
+      </body>
     </html>
   );
 }

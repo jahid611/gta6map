@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { MEDIA_CATALOG } from "@/lib/media-catalog";
 import { RevealProvider } from "@/components/landing/RevealProvider";
-import { LandingNav } from "@/components/landing/LandingNav";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { MediaGrid } from "@/components/gallery/MediaGrid";
 
@@ -20,7 +19,6 @@ export default function GaleriePage() {
 
   return (
     <>
-      <LandingNav />
       <RevealProvider>
         <main className="pt-28">
           <header className="mx-auto max-w-6xl px-5 text-center">

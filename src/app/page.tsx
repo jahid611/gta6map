@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { getLandingStats } from "@/lib/landing-stats";
 import { clipFor, shotByFile } from "@/lib/media-catalog";
 import { RevealProvider } from "@/components/landing/RevealProvider";
-import { LandingNav } from "@/components/landing/LandingNav";
 import { Hero } from "@/components/landing/Hero";
 import { StatsBand } from "@/components/landing/StatsBand";
 import { FeatureSections } from "@/components/landing/FeatureSections";
@@ -64,7 +63,6 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <LandingNav />
       <RevealProvider>
         <main>
           <Hero locationCount={stats.landmarks} regionCount={stats.regions.length} />

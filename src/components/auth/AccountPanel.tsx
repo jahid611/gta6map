@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, ChevronDown, Cloud, Loader2, LogOut, Trophy, X } from "@/components/ui/icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -207,16 +206,8 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
   // Structure strictement identique à /auth : même grille, mêmes marges, même panneau média.
   return (
     <main className="relative min-h-dvh lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-      <section className="relative flex flex-col px-6 py-8 sm:px-10 lg:px-16 lg:py-12">
-        <div className="mb-10 flex items-center justify-between gap-3">
-          <Link href="/" className="inline-flex w-fit items-center gap-3" aria-label="Accueil">
-            <Image src="/brand/gta-vi-logo.svg" alt="" width={980} height={744} unoptimized className="h-9 w-auto" />
-            <span className="vi-kicker text-muted">Interactive Map</span>
-          </Link>
-          <Link href="/map" className="rs-pill inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold">
-            <ArrowLeft className="h-4 w-4" /> Carte
-          </Link>
-        </div>
+      <section className="relative flex flex-col px-6 pb-8 pt-24 sm:px-10 lg:px-16 lg:pb-12">
+        {/* Le retour à la carte est dans la barre du site. */}
         <div className="my-auto w-full max-w-md">{content}</div>
       </section>
 

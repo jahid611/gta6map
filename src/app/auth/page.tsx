@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { MEDIA_CATALOG, clipFor } from "@/lib/media-catalog";
 import { MediaMontage, type MontageItem } from "@/components/media/MediaMontage";
@@ -44,11 +42,7 @@ export default async function AuthPage({ searchParams }: PageProps<"/auth">) {
   return (
     <main className="relative min-h-dvh lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
       {/* Formulaire */}
-      <section className="relative flex flex-col px-6 py-8 sm:px-10 lg:px-16 lg:py-12">
-        <Link href="/" className="mb-10 inline-flex w-fit items-center gap-3" aria-label="Accueil">
-          <Image src="/brand/gta-vi-logo.svg" alt="" width={980} height={744} unoptimized className="h-9 w-auto" />
-          <span className="vi-kicker text-muted">Interactive Map</span>
-        </Link>
+      <section className="relative flex flex-col px-6 pb-8 pt-24 sm:px-10 lg:px-16 lg:pb-12">
         <div className="my-auto w-full max-w-md">
           {authError && (
             <p role="alert" className="mb-4 rounded-xl border border-red/40 bg-red/10 px-3 py-2 text-sm">

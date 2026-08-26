@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Trophy } from "@/components/ui/icons";
 import { getPublicProfile } from "@/lib/community/server";
@@ -35,12 +34,10 @@ export default async function PublicProfilePage({ params }: PageProps<"/u/[id]">
   const initials = profile.displayName.slice(0, 2).toUpperCase();
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-8 sm:py-12">
-      <div className="mb-8 flex items-center justify-between gap-3">
-        <Link href="/" className="inline-flex items-center gap-3" aria-label="Accueil">
-          <Image src="/brand/gta-vi-logo.svg" alt="" width={980} height={744} unoptimized className="h-8 w-auto" />
-          <span className="vi-kicker text-muted">Interactive Map</span>
-        </Link>
+    <main className="mx-auto max-w-2xl px-5 pb-12 pt-28">
+      {/* Le logo et la navigation sont dans la barre du site ; il ne reste ici
+          que le retour au fil de discussion, qui lui est propre à la page. */}
+      <div className="mb-8 flex items-center gap-3">
         <Link href="/community" className="rs-pill inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold">
           <ArrowLeft className="h-4 w-4" /> Communauté
         </Link>

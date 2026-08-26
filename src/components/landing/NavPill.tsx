@@ -1,25 +1,11 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "@/components/ui/icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
-
-/** A-t-on défilé de plus de `threshold` pixels ? Abonnement plutôt qu'effet :
- *  poser l'état depuis un effet est refusé par `react-hooks/set-state-in-effect`,
- *  et l'abonnement donne en prime la bonne valeur dès le premier rendu client. */
-function useScrolled(threshold: number): boolean {
-  return useSyncExternalStore(
-    (cb) => {
-      window.addEventListener("scroll", cb, { passive: true });
-      return () => window.removeEventListener("scroll", cb);
-    },
-    () => window.scrollY > threshold,
-    () => false,
-  );
-}
 
 interface NavPillItem {
   href: string;
@@ -39,15 +25,10 @@ const ITEMS: NavPillItem[] = [
  * dans `.rs-nav3d` — le galet blanc laqué de l'original jurerait sur un site
  * sombre.
  *
- * Deux écarts assumés avec l'original :
- *
- *  1. Il démarre **ouvert** et ne se referme qu'une fois la page défilée. Réduit
- *     d'emblée au nom de la rubrique courante, il cacherait toute la navigation
- *     à qui arrive sur le site : la trouvaille est jolie sur une page unique à
- *     ancres, elle est hostile sur un site à plusieurs pages.
- *  2. Il ne se referme jamais au doigt. Sans survol, rien ne le rouvrirait —
- *     c'est déjà ce qui nous avait valu des aperçus ouverts au premier appui sur
- *     la carte.
+ * Il s'ouvre au survol et se referme dès que la souris le quitte. Un écart avec
+ * l'original : au doigt, il reste ouvert en permanence — sans survol, rien ne le
+ * rouvrirait, et c'est déjà ce qui nous avait valu des aperçus ouverts au
+ * premier appui sur la carte.
  *
  * La largeur est animée en pixels mesurés plutôt qu'en ressort : `width: auto`
  * ne se transitionne pas, et les deux états sont mesurés une fois pour toutes
@@ -56,17 +37,23 @@ const ITEMS: NavPillItem[] = [
 export function NavPill({ className }: { className?: string }) {
   const pathname = usePathname();
   const [hovering, setHovering] = useState(false);
-  const scrolled = useScrolled(24);
+  const [focused, setFocused] = useState(false);
   const coarse = useMediaQuery("(pointer: coarse)");
   const [widths, setWidths] = useState<{ open: number; shut: number } | null>(null);
 
   const listRef = useRef<HTMLUListElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
 
-  const active = ITEMS.find((i) => (i.href === "/" ? pathname === "/" : pathname.startsWith(i.href))) ?? ITEMS[0];
+  // Peut être introuvable : les pages légales, la fiche dun lieu ou un profil
+  // ne sont aucune des quatre rubriques. On affiche alors « Menu » plutôt que de
+  // désigner « Accueil » comme page courante, ce qui serait faux.
+  const active = ITEMS.find((i) => (i.href === "/" ? pathname === "/" : pathname.startsWith(i.href)));
 
-  // Ouvert tant qu'on n'a pas défilé, au survol, au clavier, et au doigt.
-  const open = coarse || !scrolled || hovering;
+  // Ouvert au survol et pendant la navigation au clavier — et il se referme dès
+  // que la souris le quitte, où qu'on en soit dans la page.
+  //
+  // Au doigt, il reste ouvert en permanence : sans survol, rien ne le rouvrirait.
+  const open = coarse || hovering || focused;
 
   // Mesure hors flux : les deux contenus sont toujours rendus (l'un masqué),
   // c'est ce qui permet de connaître les deux largeurs sans double rendu.
@@ -96,7 +83,7 @@ export function NavPill({ className }: { className?: string }) {
     observer.observe(list);
     if (labelRef.current) observer.observe(labelRef.current);
     return () => observer.disconnect();
-  }, [measure, active.label]);
+  }, [measure, active?.label]);
 
   return (
     <nav
@@ -111,6 +98,8 @@ export function NavPill({ className }: { className?: string }) {
       style={widths ? { width: open ? widths.open : widths.shut } : undefined}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
+      onFocusCapture={() => setFocused(true)}
+      onBlurCapture={() => setFocused(false)}
     >
       {/* Nom de la rubrique courante, montré une fois le galet refermé. */}
       <span
@@ -123,7 +112,7 @@ export function NavPill({ className }: { className?: string }) {
         {/* Le chevron est dans l'élément mesuré : la largeur repliée doit le
             comprendre, sinon il se fait rogner par `overflow-hidden`. */}
         <span ref={labelRef} className="flex items-center gap-1.5">
-          {active.label}
+          {active?.label ?? "Menu"}
           <ChevronRight aria-hidden className="rs-nav-hint h-3.5 w-3.5 text-muted" />
         </span>
       </span>
@@ -145,7 +134,10 @@ export function NavPill({ className }: { className?: string }) {
               <Link
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                tabIndex={open ? undefined : -1}
+                // Les liens restent atteignables au clavier même repliés : c'est
+                // la prise de focus qui ouvre le galet. Les rendre inatteignables
+                // le refermait sur lui-même — plus rien à focaliser, donc plus
+                // aucun moyen de l'ouvrir sans souris.
                 className={cn(
                   "flex h-9 items-center whitespace-nowrap rounded-full px-3.5 text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                   isActive
