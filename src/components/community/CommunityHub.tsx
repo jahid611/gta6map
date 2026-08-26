@@ -321,6 +321,30 @@ interface MessageItemProps {
 function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll, votes, location, category, userId, onReply, onReact, onVote, onDelete }: MessageItemProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Un clic dans le vide referme ce qui est ouvert sur ce message : le choix
+  // d'emoji comme la question de suppression. `pointerdown` et non `click` —
+  // sinon le relâchement d'un glissé commencé dans le panneau le refermerait.
+  useEffect(() => {
+    if (!pickerOpen && !confirming) return;
+    const onDown = (e: PointerEvent) => {
+      if (rootRef.current?.contains(e.target as Node)) return;
+      setPickerOpen(false);
+      setConfirming(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setPickerOpen(false);
+      setConfirming(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [pickerOpen, confirming]);
   const grouped = useMemo(() => {
     const m = new Map<string, { count: number; mine: boolean }>();
     for (const r of reactions) {
@@ -339,6 +363,7 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
 
   return (
     <Message
+      ref={rootRef}
       id={`m-${message.id}`}
       align={mine ? "end" : "start"}
       className="items-end gap-2.5 px-1 py-1.5"
@@ -378,8 +403,10 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
                 cn(
                   "rounded-2xl border px-3.5 py-2.5",
                   mine
-                    ? "rounded-br-md border-accent/35 bg-accent/15"
-                    : "rounded-bl-md border-white/10 bg-white/[0.055]",
+                    ? "rounded-br-md border-accent/35 bg-accent/15 backdrop-blur-md"
+                    // Translucide et non grise : le décor passe derrière la
+                    // bulle, seul le liseré en dessine la forme.
+                    : "rounded-bl-md border-white/10 bg-white/[0.03] backdrop-blur-md",
                 ),
             )}
           >
