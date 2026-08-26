@@ -166,6 +166,19 @@ button:disabled {
   box-shadow: var(--glass-shadow);
 }
 
+/* EMOJIS — on demande d'abord la fonte d'Apple. Presente sur macOS et iOS, c'est
+   la vraie, celle du systeme de l'utilisateur : rien a heberger, rien a
+   redistribuer. Ailleurs on prend ce que la plateforme propose de mieux.
+
+   L'artwork emoji d'Apple ne peut pas etre embarque : il est protege et sa
+   licence de fonte n'autorise ni la redistribution ni l'usage web. Pour un
+   rendu identique sur toutes les plateformes il faudrait un jeu libre
+   (Twemoji, Noto, OpenMoji) servi en SVG. */
+.emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+  font-variant-emoji: emoji;
+}
+
 /* Pilule : la forme par défaut de tout ce qui se clique. */
 .rs-pill {
   border-radius: 9999px;

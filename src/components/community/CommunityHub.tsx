@@ -404,18 +404,27 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
             survol — et toujours au doigt, faute de survol pour les révéler. */}
         {(grouped.length > 0 || !!userId) && (
           <MessageFooter className="mt-0.5 flex-wrap gap-1">
+            {/* Rien autour des emojis : ils flottent, séparés par de l'espace.
+                Ce qui distingue ma réaction n'est pas une capsule mais la
+                couleur du compte et l'opacité pleine de l'emoji. */}
             {grouped.map(([emoji, g]) => (
-              <Action
+              <button
                 key={emoji}
+                type="button"
                 onClick={() => onReact(emoji)}
                 disabled={!userId}
                 aria-pressed={g.mine}
-                tooltip={g.mine ? "Retirer ma réaction" : "Réagir"}
-                className={cn("w-auto gap-1 px-2 text-sm", g.mine && "bg-accent/15 text-foreground")}
+                aria-label={`${g.mine ? "Retirer" : "Ajouter"} la réaction ${emoji}`}
+                className={cn(
+                  "inline-flex items-center gap-1 py-0.5 pr-1.5 text-[15px] leading-none transition-transform cursor-pointer hover:scale-110 disabled:cursor-default disabled:hover:scale-100",
+                  g.mine ? "opacity-100" : "opacity-70 hover:opacity-100",
+                )}
               >
-                <span aria-hidden>{emoji}</span>
-                <span className="vi-num text-[11px] text-muted">{g.count}</span>
-              </Action>
+                <span className="emoji" aria-hidden>
+                  {emoji}
+                </span>
+                <span className={cn("vi-num text-[11px]", g.mine ? "font-bold text-accent" : "text-muted")}>{g.count}</span>
+              </button>
             ))}
 
             {userId && (
@@ -463,13 +472,13 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
             d'affilée sur un même message, ce que l'ancien panneau interdisait en
             se refermant au premier clic. */}
         {pickerOpen && (
-          <div className="mt-1 flex flex-wrap gap-1 rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur animate-fade-in">
+          <div className="mt-1 flex flex-wrap items-center gap-2.5 py-1 animate-fade-in">
             {QUICK_EMOJIS.map((e) => (
               <button
                 key={e}
                 type="button"
                 onClick={() => onReact(e)}
-                className="rounded-full px-1 text-base leading-none transition-transform hover:scale-125 cursor-pointer"
+                className="emoji text-lg leading-none opacity-80 transition-transform hover:scale-125 hover:opacity-100 cursor-pointer"
                 aria-label={`Réagir ${e}`}
               >
                 {e}
@@ -478,7 +487,7 @@ function MessageItem({ message, profile, quoted, quotedProfile, reactions, poll,
             <button
               type="button"
               onClick={() => setPickerOpen(false)}
-              className="ml-1 grid place-items-center rounded-full px-1 text-muted hover:text-foreground cursor-pointer"
+              className="text-muted hover:text-foreground cursor-pointer"
               aria-label="Fermer le choix d'emoji"
             >
               <X className="h-3.5 w-3.5" />
