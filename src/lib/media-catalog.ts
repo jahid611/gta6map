@@ -79,6 +79,17 @@ export function countByFilter(entries: readonly MediaEntry[]): Record<string, nu
   return Object.fromEntries(MEDIA_FILTERS.map((f) => [f.id, entries.filter(f.match).length]));
 }
 
+/**
+ * Screenshot officiel par nom de fichier, résolu vers le miroir configuré.
+ *
+ * `public/media` est ignoré par git : un chemin `/media/...` écrit en dur dans
+ * une page s'affiche en local et renvoie 404 une fois déployé. Tout ce qui vise
+ * un visuel du lot officiel doit donc passer par ici.
+ */
+export function shotByFile(file: string): string | null {
+  return MEDIA_CATALOG.find((e) => e.kind === "screenshot" && e.src.endsWith(`/${file}`))?.src ?? null;
+}
+
 /** Clip vidéo d'un personnage, par nom — `null` si aucun ne correspond. */
 export function clipFor(name: string): string | null {
   const target = name.toLowerCase();

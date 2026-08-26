@@ -112,13 +112,13 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
                 className="aspect-video h-full w-full object-cover"
               />
             ) : (
-              // Dimensions intrinsèques réelles (3560 × 2003) : c'est ce qui permet
+              // Dimensions intrinsèques réelles (3840 × 2160) : c'est ce qui permet
               // à next/image de générer les tailles utiles.
               <Image
                 src={images[2]}
                 alt=""
-                width={3560}
-                height={2003}
+                width={3840}
+                height={2160}
                 quality={92}
                 sizes="(max-width: 1024px) 100vw, 34rem"
                 className="aspect-video h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
@@ -133,8 +133,8 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
               <Image
                 src={src}
                 alt=""
-                width={3560}
-                height={2003}
+                width={3840}
+                height={2160}
                 quality={92}
                 sizes="(max-width: 1024px) 100vw, 40rem"
                 className={`h-full w-full object-cover transition-transform duration-700 hover:scale-[1.03] ${

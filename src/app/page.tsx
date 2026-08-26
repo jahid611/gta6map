@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getLandingStats } from "@/lib/landing-stats";
-import { clipFor } from "@/lib/media-catalog";
+import { clipFor, shotByFile } from "@/lib/media-catalog";
 import { RevealProvider } from "@/components/landing/RevealProvider";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { Hero } from "@/components/landing/Hero";
@@ -17,6 +17,19 @@ import { SITE_NAME, SITE_URL } from "./layout";
 
 export const revalidate = 3600; // ISR : suit le rythme des données de la carte
 
+/**
+ * Les trois visuels officiels d'un personnage, résolus vers le miroir de médias.
+ *
+ * Ils viennent du lot Rockstar en 3840 × 2160 plutôt que d'une copie réencodée :
+ * `next/image` recompresse de toute façon à la taille servie, autant qu'il parte
+ * du fichier d'origine. `null` si le lot n'est pas disponible — la section est
+ * alors omise, plutôt que d'afficher des cadres vides.
+ */
+function characterShots(...files: [string, string, string]): readonly [string, string, string] | null {
+  const found = files.map(shotByFile);
+  return found.every((s): s is string => !!s) ? (found as [string, string, string]) : null;
+}
+
 export const metadata: Metadata = {
   title: "GTA VI Map — Carte interactive de Leonida & Vice City",
   description:
@@ -30,6 +43,9 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
   // La carte vivait sur `/` avant d'être déplacée sur `/map` : les liens partagés
   // de la forme `/?l=slug` doivent continuer de tomber sur le bon lieu.
   if (typeof l === "string" && l) redirect(`/map?l=${encodeURIComponent(l)}`);
+
+  const jasonShots = characterShots("Jason_Duval_02.jpg", "Jason_Duval_06.jpg", "Jason_Duval_01.jpg");
+  const luciaShots = characterShots("Lucia_Caminos_02.jpg", "Lucia_Caminos_05.jpg", "Lucia_Caminos_01.jpg");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -56,30 +72,26 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
           <FeatureSections stats={stats} />
           <TrailerGallery shots={stats.showcase} />
 
-          <CharacterSection
-            name="Jason Duval"
-            tagline="Jason veut une vie tranquille. Elle ne cesse de se compliquer."
-            bio="Jason a grandi entre arnaqueurs et petites frappes. Après un passage à l'armée censé solder une adolescence agitée, il s'est retrouvé dans les Keys à faire ce qu'il sait faire : travailler pour les convoyeurs de drogue du coin. Il serait peut-être temps d'essayer autre chose."
-            images={[
-              "/brand/characters/jason-1.webp",
-              "/brand/characters/jason-3.webp",
-              "/brand/characters/jason-2.webp",
-            ]}
-            clip={clipFor("Jason Duval")}
-          />
+          {jasonShots && (
+            <CharacterSection
+              name="Jason Duval"
+              tagline="Jason veut une vie tranquille. Elle ne cesse de se compliquer."
+              bio="Jason a grandi entre arnaqueurs et petites frappes. Après un passage à l'armée censé solder une adolescence agitée, il s'est retrouvé dans les Keys à faire ce qu'il sait faire : travailler pour les convoyeurs de drogue du coin. Il serait peut-être temps d'essayer autre chose."
+              images={jasonShots}
+              clip={clipFor("Jason Duval")}
+            />
+          )}
 
-          <CharacterSection
-            name="Lucia Caminos"
-            tagline="Lucia a passé sa vie à se battre. La prison lui a appris pour quoi."
-            bio="Le père de Lucia lui a appris très tôt à encaisser. La vie à Leonida s'est chargée du reste, et la prison de Leonida Penitentiary a fini le travail. Elle n'a plus qu'une idée : basculer du bon côté de la chance, quel qu'en soit le prix."
-            images={[
-              "/brand/characters/lucia-2.webp",
-              "/brand/characters/lucia-3.webp",
-              "/brand/characters/lucia-1.webp",
-            ]}
-            clip={clipFor("Lucia Caminos")}
-            reverse
-          />
+          {luciaShots && (
+            <CharacterSection
+              name="Lucia Caminos"
+              tagline="Lucia a passé sa vie à se battre. La prison lui a appris pour quoi."
+              bio="Le père de Lucia lui a appris très tôt à encaisser. La vie à Leonida s'est chargée du reste, et la prison de Leonida Penitentiary a fini le travail. Elle n'a plus qu'une idée : basculer du bon côté de la chance, quel qu'en soit le prix."
+              images={luciaShots}
+              clip={clipFor("Lucia Caminos")}
+              reverse
+            />
+          )}
 
           <TrailerSection />
           <RegionCarousel regions={stats.regions} />
