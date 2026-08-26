@@ -38,10 +38,30 @@
 
      Ces quatre variables sont le seul endroit ou regler la matiere : les changer
      ici change l'app entiere. */
-  /* 45 % et non 20 % : a 20 %, la fiche de lieu posee sur la carte laissait
-     passer les libelles et les routes du plan en plein derriere son texte. */
-  --glass-bg: rgba(0, 0, 0, 0.45);
+  /* Deux densites, selon ce que la surface porte.
+
+     Les pilules et les boutons ne portent qu'un ou deux mots, cernes d'un
+     liseré : ils peuvent rester tres transparents.
+
+     Les cartes, elles, portent du texte long pose sur n'importe quoi — la carte
+     en plein soleil, une capture d'ecran, un decor anime. Leur aplat doit suffire
+     a lui seul : la lisibilite ne peut pas dependre du `backdrop-filter`, que
+     `prefers-reduced-transparency` desactive et que certains moteurs n'appliquent
+     que partiellement. */
+  --glass-bg: rgba(0, 0, 0, 0.26);
+  --glass-bg-card: rgba(0, 0, 0, 0.58);
   --glass-blur: 24px;
+  /* ASSOMBRISSEMENT PROPORTIONNEL — le point cle de la lisibilite.
+     Un voile noir a opacite fixe traite de la meme facon un fond deja sombre et
+     une carte en plein soleil : au reglage qui sauve le texte sur la carte, le
+     decor sombre disparait ; au reglage qui laisse voir le decor, la carte
+     traverse le texte. `brightness()` multiplie au lieu de recouvrir : il
+     divise par deux et demi ce qui est clair, et ne change presque rien a ce
+     qui est deja noir. La surface s'ajuste donc d'elle-meme a ce qu'elle
+     recouvre.
+     `saturate` compense le lavage des couleurs que l'assombrissement provoque. */
+  --glass-dim: 0.35;
+  --glass-sat: 1.2;
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
 
@@ -175,22 +195,24 @@ button:disabled {
 .rs-pill,
 .rs-surface {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) brightness(var(--glass-dim)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) brightness(var(--glass-dim)) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-edge), var(--glass-shadow);
 }
 
-/* Refraction : le fond est deforme par un bruit avant d'etre floute, ce qui
-   donne le glissement de matiere. Reservee aux surfaces posees sur une image —
-   la carte, la galerie, le decor de la communaute : sur un aplat sombre elle ne
-   se voit pas, et chaque element filtre coute une passe de composition.
-   Seul Chromium lit `backdrop-filter: url()` ; ailleurs il ne reste que le flou,
-   et les aretes ci-dessus portent l'effet. */
-.rs-liquid {
-  backdrop-filter: blur(var(--glass-blur)) url("#rs-liquid-glass");
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+/* Surfaces qui portent du texte long : aplat plus dense (cf. `--glass-bg-card`). */
+.rs-glass,
+.rs-card {
+  background: var(--glass-bg-card);
 }
+
+/* La refraction en `backdrop-filter: url(#filtre)` a ete retiree : Chromium
+   rejette toute la declaration des qu elle contient un filtre SVG, ce qui
+   supprimait du meme coup le flou ET l assombrissement. Les surfaces
+   concernees se retrouvaient sans aucun traitement, avec le seul aplat — on
+   lisait la carte au travers du texte. Les aretes internes suffisent a donner
+   la matiere, et elles, elles marchent partout. */
 
 /* EMOJIS — on demande d'abord la fonte d'Apple. Presente sur macOS et iOS, c'est
    la vraie, celle du systeme de l'utilisateur : rien a heberger, rien a
@@ -378,8 +400,7 @@ button:disabled {
   .rs-glass,
   .rs-card,
   .rs-pill,
-  .rs-surface,
-  .rs-liquid {
+  .rs-surface {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     box-shadow: var(--glass-shadow);

@@ -57,7 +57,7 @@ export function MarkerPreview({ locations, categoriesBySlug }: MarkerPreviewProp
     <div
       role="tooltip"
       aria-hidden
-      className="rs-card rs-liquid pointer-events-none fixed z-[1200] w-[300px] overflow-hidden rounded-2xl"
+      className="rs-card pointer-events-none fixed z-[1200] w-[300px] overflow-hidden rounded-2xl"
       style={{
         left: flipX ? preview.x - OFFSET - CARD_W : preview.x + OFFSET,
         top: flipY ? Math.max(EDGE, preview.y - OFFSET - CARD_H) : preview.y + OFFSET,

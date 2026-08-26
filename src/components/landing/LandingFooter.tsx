@@ -63,14 +63,14 @@ export function LandingFooter() {
           </a>
           , emojis par{" "}
           <a
-            href="https://github.com/microsoft/fluentui-emoji"
+            href="https://github.com/jdecked/twemoji"
             target="_blank"
             rel="noreferrer noopener"
             className="underline decoration-dotted underline-offset-2 hover:text-foreground"
           >
-            Fluent Emoji
+            Twemoji
           </a>{" "}
-          (MIT).
+          (CC BY 4.0).
         </p>
       </div>
     </footer>

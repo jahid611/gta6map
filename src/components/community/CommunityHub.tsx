@@ -840,7 +840,7 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
             /* Un seul niveau de carte : la réponse en cours et le lieu à
                partager sont des rangées séparées par un filet, pas des cartes
                posées dans celle-ci. */
-            <div ref={composerRef} onBlur={handleComposerBlur} className="rs-card rs-liquid overflow-hidden rounded-[26px]">
+            <div ref={composerRef} onBlur={handleComposerBlur} className="rs-card overflow-hidden rounded-[26px]">
               {replyTo && (
                 <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2 text-xs animate-fade-in">
                   <CornerDownLeft className="h-3 w-3 shrink-0 text-accent" />
