@@ -8,10 +8,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // Seule variante restée pleine : c'est l'action principale d'un écran,
+        // et en verre elle ne se distinguerait plus de ce qui l'entoure.
         default: "bg-accent text-white hover:bg-accent/90 shadow-[0_0_20px_rgba(255,45,122,0.25)]",
-        secondary: "bg-surface-2 text-foreground hover:bg-border",
-        outline: "border border-border bg-surface hover:bg-surface-2",
-        ghost: "hover:bg-surface-2 text-foreground",
+        // Les trois neutres s'adossent au verre commun (cf. `.rs-surface`).
+        secondary: "rs-surface text-foreground",
+        outline: "rs-surface text-foreground",
+        ghost: "text-foreground hover:bg-[var(--glass-bg-hover)]",
         link: "text-accent-2 underline-offset-4 hover:underline",
         success: "bg-success text-white hover:bg-success/90",
       },

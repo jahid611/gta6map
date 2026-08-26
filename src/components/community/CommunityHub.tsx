@@ -90,7 +90,7 @@ function ProfileHoverCard({ userId, profile }: { userId: string; profile: ChatPr
   const p = data ?? null;
   const groups = p ? Object.entries(p.byGroup).filter(([, n]) => n > 0) : [];
   return (
-    <div className="w-72 overflow-hidden rounded-2xl border border-white/12 bg-[#16161d] text-left shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
+    <div className="rs-card w-72 overflow-hidden rounded-2xl text-left">
       <div className="relative h-20">
         {(p?.bannerUrl ?? profile?.bannerUrl) ? (
           // eslint-disable-next-line @next/next/no-img-element

@@ -30,6 +30,22 @@
   --success: #34d399;
   --gold: #ffd166;
   --radius: 1rem;
+
+  /* VERRE — d'apres `ravikatiyar162/glass-calendar` (21st.dev) : un aplat noir
+     tres translucide, un flou epais, un liseré clair d'un pixel, une ombre
+     portee ample. Toutes les surfaces cliquables et toutes les cartes de l'app
+     s'y adossent.
+
+     Ces quatre variables sont le seul endroit ou regler la matiere : les changer
+     ici change l'app entiere. */
+  --glass-bg: rgba(0, 0, 0, 0.2);
+  --glass-blur: 24px;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+  /* Survol : on eclaircit le liseré plutot que l'aplat, sinon la surface se
+     charge et perd la transparence qui fait tout l'effet. */
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.22);
   --shadow-glow-pink: 0 0 24px rgba(249, 118, 176, 0.35);
   --gradient-vi: linear-gradient(180deg, #3b4cc0 0%, #a24dbd 35%, #f050a0 62%, #ff7a5c 82%, #ffb347 100%);
   --gradient-vi-h: linear-gradient(90deg, #3b4cc0 0%, #a24dbd 35%, #f050a0 62%, #ff7a5c 82%, #ffb347 100%);
@@ -139,38 +155,36 @@ button:disabled {
    de la galerie, volontairement opaque). */
 /* Surfaces : un aplat sombre translucide + un simple flou d'arrière-plan.
    Pas de dégradés « verre liquide », pas de liserés internes, pas de saturation. */
-.rs-glass {
-  background: rgba(17, 17, 23, 0.72);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
-}
-
-/* Plus dense : la fiche de lieu porte du texte long sur une carte chargée. */
-.rs-card {
-  background: rgba(19, 19, 26, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+.rs-glass,
+.rs-card,
+.rs-pill,
+.rs-surface {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* Pilule : la forme par défaut de tout ce qui se clique. */
 .rs-pill {
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
   transition:
     background 180ms ease,
     border-color 180ms ease,
     transform 140ms ease;
 }
-.rs-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
+.rs-pill:hover,
+.rs-surface:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+/* Portée par les variantes neutres de `Button` : même matière, la forme et le
+   rayon restant décidés par le bouton lui-même. */
+.rs-surface {
+  transition:
+    background 180ms ease,
+    border-color 180ms ease;
 }
 .rs-pill:active {
   transform: scale(0.97);
