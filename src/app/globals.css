@@ -828,7 +828,11 @@ button:disabled {
    d accessibilite (WCAG 2.5.5 / Apple HIG). Les liens en plein texte sont
    exclus : les agrandir casserait l interligne du paragraphe qui les porte. */
 @media (pointer: coarse) {
-  button,
+  /* Exclusion des controles composes (Radix rend une case a cocher, un bouton
+     radio ou un interrupteur comme un <button>) : la cible tactile y est portee
+     par le libelle qui les entoure, et forcer 44 px sur la case elle-meme
+     transformait la pastille de 16 px en gros carre. */
+  button:not([role="checkbox"]):not([role="radio"]):not([role="switch"]),
   [role="button"],
   [role="tab"],
   a.rs-pill,
@@ -836,7 +840,7 @@ button:disabled {
   input[type="radio"] {
     min-height: 44px;
   }
-  button:not(.leaflet-control-zoom a),
+  button:not(.leaflet-control-zoom a):not([role="checkbox"]):not([role="radio"]):not([role="switch"]),
   [role="button"] {
     min-width: 44px;
   }

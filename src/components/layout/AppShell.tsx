@@ -139,10 +139,13 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
     }
   }, [selectedSlug]);
 
-  // Mobile : panneau fermé au chargement (ouvert via le header)
+  // Mobile : le panneau ne s'ouvre que depuis le header. Il est refermé au
+  // chargement, et à chaque sélection ou fermeture de fiche — sinon, après avoir
+  // fermé la fiche d'un lieu, on retombait sur « Filtres / Médias / Progression »
+  // qu'il fallait fermer à son tour.
   useEffect(() => {
     if (!isDesktop) setSidebarOpen(false);
-  }, [isDesktop, setSidebarOpen]);
+  }, [isDesktop, selectedSlug, setSidebarOpen]);
 
   // Échap → désélection
   useEffect(() => {
@@ -157,7 +160,9 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
 
   const sidebarPanel = (
     <>
-      <div className="flex shrink-0 border-b border-border">
+      {/* `pr-12` sur mobile : la croix de fermeture de la feuille est posée en
+          haut à droite et mordait sur l'onglet « Progression ». */}
+      <div className={cn("flex shrink-0 border-b border-border", !isDesktop && "pr-12")}>
         {PANEL_TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}

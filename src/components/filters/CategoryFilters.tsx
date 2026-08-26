@@ -93,7 +93,9 @@ export function CategoryFilters({ categories }: CategoryFiltersProps) {
                   <li key={cat.slug}>
                     <label
                       className={cn(
-                        "group flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-surface-2",
+                        // La ligne entière est la cible tactile (44 px au doigt),
+                        // pas la case : celle-ci reste une petite pastille de couleur.
+                        "group flex min-h-11 cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-surface-2 sm:min-h-0",
                         !visible && "opacity-55",
                       )}
                       title={cat.description ?? undefined}
