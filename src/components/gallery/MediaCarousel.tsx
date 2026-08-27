@@ -114,9 +114,14 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
       className="relative isolate z-30 w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       style={{ paddingBottom: `calc(${CARD} / 2)` }}
     >
-      {/* La scène. Seul bloc rogné : l'image doit s'arrêter net à son bord bas,
-          c'est ce bord que la bande vient chevaucher. */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[21/9]">
+      {/* La scène est au format natif des visuels — 3 840 × 2 160, soit 16:9 —
+          et non en bandeau panoramique : au format 21:9, `object-cover` rognait
+          le haut et le bas de chaque plan. Ici l'image est montrée en entier,
+          et la scène y gagne en hauteur.
+
+          Seul bloc rogné de la section : l'image doit s'arrêter net à son bord
+          bas, c'est ce bord que la bande vient chevaucher. */}
+      <div className="relative aspect-video w-full overflow-hidden">
         <Image
           key={active.src}
           src={active.poster ?? active.src}

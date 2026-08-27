@@ -107,6 +107,16 @@ export interface LandingStats {
   stack: StackShot[];
   /** Visuel du bandeau de chiffres — la carte postale de Vice City. */
   statsImage: string | null;
+  /**
+   * Son rapport largeur/hauteur réel.
+   *
+   * Le bandeau lui donne exactement ce format, ce qui est la seule façon de
+   * l'afficher entier : dans un cadre au rapport différent, `object-cover`
+   * l'ampute forcément d'un côté. Les plans du jeu ne sont pas tous en 16:9 —
+   * cette carte postale fait 2 458 × 1 604 — donc le format ne peut pas être
+   * écrit en dur dans la mise en page.
+   */
+  statsImageRatio: number;
   /** Répartition des plans officiels par source (« Trailer 1 », « Screenshot officiel »…). */
   mediaSources: { label: string; count: number }[];
 }
@@ -354,11 +364,17 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
     return [{ slug, name: shot.name, area: shot.area ?? null, image, sourceLabel: shot.media?.sourceLabel ?? "", blurb }];
   });
 
+  const statsShot = cameras.find((c) => c.slug === STATS_SHOT);
+  const statsSize = statsShot?.media;
+
   return {
     total: locations.length,
     showcase,
     stack,
-    statsImage: frameUrl(cameras.find((c) => c.slug === STATS_SHOT)?.media?.frame),
+    statsImage: frameUrl(statsSize?.frame),
+    // 16:9 par défaut, faute de dimensions relevées : c'est le format du gros
+    // des plans officiels, donc le pari le moins risqué.
+    statsImageRatio: statsSize?.width && statsSize?.height ? statsSize.width / statsSize.height : 16 / 9,
     landmarks: locations.length - cameras.length,
     cameras: cameras.length,
     // Toutes les catégories réellement présentes sur la carte — c'est ce que

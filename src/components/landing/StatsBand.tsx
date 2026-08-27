@@ -34,7 +34,15 @@ export function StatsBand({ stats }: { stats: LandingStats }) {
         </div>
 
         {stats.statsImage && (
-          <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-2xl sm:h-52 md:w-96">
+          // Le cadre prend le format exact du visuel plutôt qu'une hauteur
+          // imposée : c'est la seule façon de le montrer entier, `object-cover`
+          // amputant forcément d'un côté dès que les deux rapports diffèrent.
+          // La carte postale de Vice City fait 2 458 × 1 604, pas du 16:9 —
+          // d'où un format porté par la donnée et non écrit ici.
+          <div
+            className="relative w-full shrink-0 overflow-hidden rounded-2xl md:w-[26rem]"
+            style={{ aspectRatio: stats.statsImageRatio }}
+          >
             <Image
               src={stats.statsImage}
               alt=""

@@ -872,7 +872,7 @@ button:disabled {
   /* Amplitude franche : a 28 px, l'apparition passait inapercue et la page
      donnait l'impression de ne rien animer du tout. Le leger retrait d'echelle
      ajoute une profondeur que la seule translation ne donne pas. */
-  transform: translateY(64px) scale(0.965);
+  transform: translateY(48px) scale(0.97);
   will-change: opacity, transform;
 }
 [data-reveal="on"] .vi-reveal.is-in {
@@ -885,9 +885,12 @@ button:disabled {
      encore etre compose — une video en lecture, par exemple. Le navigateur
      promeut de lui-meme pendant la transition, qui reste donc fluide. */
   will-change: auto;
+  /* Duree ramenee de 900/1100 ms : meme declenchee tot, une apparition d une
+     seconde pleine se termine bien apres que la vignette soit sous les yeux.
+     Elle reste assez longue pour se voir, assez courte pour etre finie. */
   transition:
-    opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 550ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 @media (prefers-reduced-motion: reduce) {
   [data-reveal="on"] .vi-reveal,

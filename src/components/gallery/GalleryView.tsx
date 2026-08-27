@@ -25,12 +25,18 @@ export function GalleryView({ entries }: { entries: MediaEntry[] }) {
   const active = MEDIA_FILTERS.find((f) => f.id === filter) ?? MEDIA_FILTERS[0];
   const shown = useMemo(() => entries.filter(active.match), [entries, active]);
 
-  // Un clip sans affiche n'a rien à montrer en image fixe — le carrousel
-  // n'affiche pas de vidéo, il montrerait un cadre vide.
-  const featured = useMemo(
-    () => shown.filter((e) => e.kind !== "clip" || e.poster).slice(0, FEATURED),
-    [shown],
-  );
+  // La scène est au format des visuels du jeu, 16:9, et les y montre entiers.
+  // Les affiches de clips en sont écartées : elles sont carrées (1 440 × 1 440,
+  // le recadrage social de Rockstar) et s'y feraient amputer de moitié — sans
+  // compter qu'une image fixe de vidéo perd ce qui en fait l'intérêt.
+  const stageWorthy = useMemo(() => entries.filter((e) => e.kind !== "clip"), [entries]);
+  const featured = useMemo(() => {
+    const picked = shown.filter((e) => e.kind !== "clip");
+    // Filtre « Vidéos » : plus rien à mettre en scène. On garde la sélection
+    // complète plutôt que de faire disparaître le carrousel — il porte le
+    // filtre, et l'escamoter enfermerait le visiteur dans sa catégorie.
+    return (picked.length ? picked : stageWorthy).slice(0, FEATURED);
+  }, [shown, stageWorthy]);
 
   return (
     <>

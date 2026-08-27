@@ -21,6 +21,18 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
  * page. On ne rafraîchit que si un `.vi-reveal` INÉDIT a été armé, l'observateur
  * est débranché pendant le refresh, et le tout est reporté d'une frame.
  */
+/**
+ * Seuil de déclenchement, en hauteurs de fenêtre depuis le haut.
+ *
+ * Au-delà de 1, l'élément est armé alors qu'il est encore SOUS la ligne de
+ * flottaison : il a fini d'apparaître au moment où on le découvre. Avec un
+ * seuil sous 1, il n'était armé qu'une fois déjà à l'écran, et comme
+ * l'apparition dure une demi-seconde de plus, la grille de la galerie donnait
+ * l'impression qu'il fallait défiler bien au-delà d'une vignette pour la voir
+ * arriver.
+ */
+const AHEAD = 1.15;
+
 export function RevealProvider({ children }: { children: React.ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -46,14 +58,16 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
       // n'aurait plus de seuil à franchir, et la vignette serait restée à
       // opacité zéro — une grille de 36 éléments paraissait vide.
       const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+      if (rect.top < window.innerHeight * AHEAD && rect.bottom > 0) {
         el.classList.add("is-in");
         return true;
       }
       triggers.push(
         ScrollTrigger.create({
           trigger: el,
-          start: "top 92%",
+          // `Math.round` : `1.15 * 100` vaut 114.999… en virgule flottante, et
+          // ScrollTrigger recevrait une chaîne à quinze décimales.
+          start: `top ${Math.round(AHEAD * 100)}%`,
           once: true,
           onEnter: () => {
             const delay = Number(el.dataset.revealDelay ?? 0);
