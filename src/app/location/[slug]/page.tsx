@@ -68,6 +68,11 @@ export default async function LocationPage({ params }: PageProps<"/location/[slu
         distance: d,
         color: cat?.color ?? l.color,
         icon: cat?.icon ?? "MapPin",
+        area: l.area ?? null,
+        // Premier visuel disponible, dans l'ordre où la fiche les présenterait :
+        // plan officiel, capture in-game, vignette wiki, photo du lieu réel.
+        // Sert l'aperçu au survol du lien (cf. `LinkPreview`).
+        image: frameUrl(l.media?.frame) ?? photoUrl(l.photos.ig) ?? wikiImageUrl(l.wiki) ?? photoUrl(l.photos.irl),
       };
     });
 

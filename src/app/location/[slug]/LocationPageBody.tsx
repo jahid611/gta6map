@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { Category, Location } from "@/types";
 import { pastel } from "@/lib/colors";
 import { CategoryIcon, Compass, Copy, Check, ExternalLink, LocateFixed, MapPin, Maximize2, Mountain, X } from "@/components/ui/icons";
+import { LinkPreview } from "@/components/ui/link-preview";
 
 export interface PageImage {
   src: string;
@@ -16,7 +17,16 @@ interface Props {
   location: Location;
   category: Category | undefined;
   images: PageImage[];
-  nearby: { slug: string; name: string; distance: number; color: string; icon: string }[];
+  nearby: {
+    slug: string;
+    name: string;
+    distance: number;
+    color: string;
+    icon: string;
+    area: string | null;
+    /** Premier visuel disponible du lieu, pour l'aperçu au survol du lien. */
+    image: string | null;
+  }[];
   /** Texte de présentation, rédigé côté serveur pour rester indexable. */
   summary: string;
   /** Illustration décorative quand le lieu n'a aucune image propre. */
@@ -200,14 +210,18 @@ export function LocationPageBody({ location, category, images, nearby, summary, 
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
               {nearby.map((n, i) => (
                 <li key={n.slug} className="vi-reveal" data-reveal-delay={(i % 2) * 0.06}>
-                  <Link
+                  <LinkPreview
                     href={`/location/${n.slug}`}
+                    internal
+                    image={n.image}
+                    title={n.name}
+                    description={n.area}
                     className="rs-card flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:border-accent/40"
                   >
                     <CategoryIcon name={n.icon} className="h-4 w-4 shrink-0" />
                     <span className="min-w-0 flex-1 truncate">{n.name}</span>
                     <span className="vi-num shrink-0 text-xs text-muted-2">{Math.round(n.distance)} m</span>
-                  </Link>
+                  </LinkPreview>
                 </li>
               ))}
             </ul>

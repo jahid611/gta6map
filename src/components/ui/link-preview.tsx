@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { canHover } from "@/lib/utils";
 
 interface LinkPreviewProps {
@@ -12,6 +13,8 @@ interface LinkPreviewProps {
   /** Deux lignes de contexte sous le titre. */
   description?: string | null;
   className?: string;
+  /** Lien interne : navigation côté client, et pas de nom d hôte affiché. */
+  internal?: boolean;
   children: React.ReactNode;
 }
 
@@ -36,7 +39,7 @@ const CARD_H = 232;
  * Réservé aux pointeurs fins : au doigt, un appui vaut un clic, et l'aperçu
  * s'ouvrirait par-dessus la page qu'on est en train de quitter.
  */
-export function LinkPreview({ href, image, title, description, className, children }: LinkPreviewProps) {
+export function LinkPreview({ href, image, title, description, className, internal = false, children }: LinkPreviewProps) {
   const [pos, setPos] = useState<{ top: number; left: number; origin: "top" | "bottom" } | null>(null);
   /** Décalage horizontal suivant le curseur — l'aperçu accompagne la souris. */
   const [shift, setShift] = useState(0);
@@ -87,9 +90,15 @@ export function LinkPreview({ href, image, title, description, className, childr
 
   return (
     <span ref={anchorRef} className="contents" onMouseEnter={show} onMouseLeave={hide} onMouseMove={follow}>
-      <a href={href} target="_blank" rel="noopener noreferrer" className={className} onFocus={show} onBlur={hide}>
-        {children}
-      </a>
+      {internal ? (
+        <Link href={href} className={className} onFocus={show} onBlur={hide}>
+          {children}
+        </Link>
+      ) : (
+        <a href={href} target="_blank" rel="noopener noreferrer" className={className} onFocus={show} onBlur={hide}>
+          {children}
+        </a>
+      )}
 
       {pos &&
         image &&
@@ -110,7 +119,7 @@ export function LinkPreview({ href, image, title, description, className, childr
             <div className="p-3">
               <p className="truncate text-sm font-semibold text-foreground">{title}</p>
               {description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">{description}</p>}
-              <p className="mt-1.5 truncate text-[10px] text-muted-2">{hostOf(href)}</p>
+              {!internal && <p className="mt-1.5 truncate text-[10px] text-muted-2">{hostOf(href)}</p>}
             </div>
           </div>,
           document.body,
