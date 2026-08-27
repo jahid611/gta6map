@@ -80,12 +80,16 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
     setIndex(0);
   }
 
+  // L'avance automatique s'arrête sur un clip : cinq secondes couperaient la
+  // vidéo en pleine lecture. C'est alors au visiteur d'avancer.
+  const onClip = entries[index]?.kind === "clip";
+
   useEffect(() => {
-    if (paused || count < 2) return;
+    if (paused || onClip || count < 2) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => go(1), DELAY);
     return () => window.clearInterval(id);
-  }, [paused, count, go]);
+  }, [paused, onClip, count, go]);
 
   // On ramène la carte active au centre de la piste. Calcul manuel plutôt que
   // `scrollIntoView` : celui-ci fait aussi défiler la page verticalement pour
@@ -105,7 +109,12 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
   // — le suivant parce que l'avance automatique y mène, le précédent parce
   // qu'une flèche y ramène. Sans cela, chaque changement rouvrait une requête
   // pleine largeur et l'on voyait la scène se peindre.
-  const neighbours = count > 1 ? [(index + 1) % count, (index - 1 + count) % count] : [];
+  // Les clips en sont exclus : précharger une vidéo pèse plusieurs mégaoctets
+  // pour un plan qu'on ne verra peut-être pas. Son affiche suffit à l'ouvrir.
+  const neighbours =
+    count > 1
+      ? [(index + 1) % count, (index - 1 + count) % count].filter((i) => entries[i].kind !== "clip")
+      : [];
 
   return (
     <section
@@ -148,17 +157,36 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
           Seul bloc rogné de la section : l'image doit s'arrêter net à son bord
           bas, c'est ce bord que la bande vient chevaucher. */}
       <div className="relative aspect-video w-full overflow-hidden">
-        <Image
-          key={active.src}
-          src={active.poster ?? active.src}
-          alt=""
-          aria-hidden
-          fill
-          priority
-          quality={100}
-          sizes="100vw"
-          className="object-cover object-center animate-fade-in"
-        />
+        {active.kind === "clip" ? (
+          // Un clip se joue, il ne se résume pas à son affiche. En `contain` et
+          // non en `cover` : six des neuf clips officiels sont carrés — le
+          // recadrage social de Rockstar — et les tailler au format du bandeau
+          // leur retirerait le quart de chaque côté. Ils occupent donc la
+          // hauteur de la scène, centrés, le fond de page tenant lieu de marge.
+          <video
+            key={active.src}
+            src={active.src}
+            poster={active.poster ?? undefined}
+            muted
+            loop
+            autoPlay
+            playsInline
+            preload="auto"
+            className="absolute inset-0 h-full w-full object-contain animate-fade-in"
+          />
+        ) : (
+          <Image
+            key={active.src}
+            src={active.src}
+            alt=""
+            aria-hidden
+            fill
+            priority
+            quality={100}
+            sizes="100vw"
+            className="object-cover object-center animate-fade-in"
+          />
+        )}
 
         {/* Préchargement des voisins. `invisible` et non `hidden` : un élément
             retiré de la mise en page ne charge pas son image, alors qu'un
@@ -275,6 +303,22 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
                     loading={Math.abs(i - index) <= STRIP_WINDOW ? "eager" : "lazy"}
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+
+                  {/* Une affiche de clip ne se distingue en rien d'une photo :
+                      sans ce repère, on ne saurait pas qu'il y a une vidéo
+                      derrière. Elle s'efface sur la carte active, qui joue
+                      déjà. */}
+                  {entry.kind === "clip" && !focused && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute left-1/2 top-1/2 grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/25 bg-black/45 backdrop-blur-sm"
+                    >
+                      {/* Triangle en bordures CSS : un glyphe « play » d'une
+                          fonte d'icônes serait optiquement décentré dans un
+                          rond de cette taille. */}
+                      <span className="ml-[2px] h-0 w-0 border-y-[5px] border-l-[8px] border-y-transparent border-l-white" />
+                    </span>
+                  )}
                 </button>
               </li>
             );
