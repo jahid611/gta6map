@@ -6,6 +6,7 @@ import type { Category, Location } from "@/types";
 import { clusterHtml, markerHtml, MARKER_SIZE } from "@/lib/map/icons";
 import { useMapStore } from "@/store/useMapStore";
 import { BASEMAPS } from "@/lib/map/basemaps";
+import { revealPoint } from "@/lib/map/reveal";
 import { useUIStore } from "@/store/useUIStore";
 import { Compass, MapPin, X } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
@@ -87,6 +88,8 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
   const nodeRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const baseRef = useRef<L.TileLayer | null>(null);
+  /** Groupe de regroupement, pour ouvrir le groupe d un point que l on vise. */
+  const groupRef = useRef<L.MarkerClusterGroup | null>(null);
   const [basemap, setBasemap] = useState<string>(BASEMAPS[0].id);
 
   const plausible = useMemo(() => locations.filter(isPlausible), [locations]);
@@ -241,6 +244,7 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
       group.addLayer(marker);
     }
     group.addTo(map);
+    groupRef.current = group;
 
     // Copie locale : la ref peut pointer ailleurs au moment où le nettoyage
     // s'exécute, on vide donc bien la table de cette instance de carte.
@@ -269,7 +273,17 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
     if (!active || !map || !target) return;
 
     if (target.kind === "real") {
-      map.flyTo([target.lat, target.lng], Math.max(map.getZoom(), target.zoom ?? 17), { duration: 0.8 });
+      // Même trajet que sur la carte du jeu : on vole serré sur le point, on
+      // ouvre son groupe s'il y est enfermé, puis on recule d'un cran pour
+      // rendre le quartier. Le zoom courant n'entre plus en compte — arriver
+      // depuis une vue déjà très rapprochée ne doit pas changer le cadrage
+      // d'atterrissage.
+      const slug = useUIStore.getState().selectedSlug;
+      revealPoint(map, [target.lat, target.lng], {
+        closeZoom: target.zoom ?? 18,
+        group: groupRef.current,
+        marker: slug ? markersRef.current.get(slug) : null,
+      });
       return;
     }
 

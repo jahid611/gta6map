@@ -8,6 +8,7 @@ import type { Category, Location } from "@/types";
 import type { ProgressEntry } from "@/types/progress";
 import { CAMERA_MARKER_SIZE, MARKER_SIZE, clusterHtml, markerHtml } from "@/lib/map/icons";
 import { DEFAULT_CATEGORY_SLUG } from "@/lib/data/categories";
+import { settleOnPoint } from "@/lib/map/reveal";
 import { useUIStore } from "@/store/useUIStore";
 import { canHover } from "@/lib/utils";
 
@@ -224,14 +225,14 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
     const timer = setTimeout(() => {
       for (const [id, m] of markersRef.current) {
         if (locationByIdRef.current.get(id)?.slug !== selectedSlug) continue;
-        const visible = group.getVisibleParent(m.marker);
-        // `getVisibleParent` renvoie le marqueur lui-même s'il est déjà à l'écran.
-        if (visible && visible !== m.marker) group.zoomToShowLayer(m.marker, () => {});
+        // Ouverture du groupe puis recul de contexte, exactement comme dans le
+        // monde réel : le comportement d'atterrissage est le même des deux côtés.
+        settleOnPoint(map, m.marker.getLatLng(), group, m.marker);
         return;
       }
     }, 900);
     return () => clearTimeout(timer);
-  }, [selectedSlug]);
+  }, [selectedSlug, map]);
 
   return null;
 }
