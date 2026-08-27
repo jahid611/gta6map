@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { Compass, ExternalLink, MapPin } from "@/components/ui/icons";
 import { BASEMAPS, type BasemapId } from "@/lib/map/basemaps";
+import { markerHtml, MARKER_SIZE } from "@/lib/map/icons";
 import { cn } from "@/lib/utils";
 
 interface RealWorldMapProps {
@@ -11,6 +12,10 @@ interface RealWorldMapProps {
   lng: number;
   /** Libellé du lieu réel, pour le titre accessible de la carte. */
   label: string;
+  /** Couleur du lieu, pour que le repère soit celui de la carte du jeu. */
+  color?: string;
+  /** Glyphe de la catégorie, idem. */
+  icon?: string;
 }
 
 /**
@@ -40,7 +45,7 @@ interface RealWorldMapProps {
  * laisse 24 km d'erreur médiane. Chaque correspondance prise isolément, elle,
  * est exacte : c'est à cette échelle que la vue réelle a du sens.
  */
-export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
+export function RealWorldMap({ lat, lng, label, color = "#8cdbf3", icon = "MapPin" }: RealWorldMapProps) {
   const [open, setOpen] = useState(false);
   const [basemap, setBasemap] = useState<BasemapId>("satellite");
   const cardRef = useRef<HTMLDivElement>(null);
@@ -82,7 +87,17 @@ export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
     });
     mapRef.current = map;
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    L.marker([lat, lng]).addTo(map);
+    // Notre marqueur, pas celui de Leaflet : son icône par défaut est un PNG
+    // chargé par un chemin relatif à sa feuille de style, que le bundler ne
+    // sert pas — on obtenait le carré d image manquante.
+    L.marker([lat, lng], {
+      icon: L.divIcon({
+        html: markerHtml({ color, icon }),
+        className: "gta-marker-wrapper",
+        iconSize: [MARKER_SIZE, MARKER_SIZE],
+        iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
+      }),
+    }).addTo(map);
 
     // Leaflet mesure son conteneur à la création. Ici il est encore en train de
     // se déplier, d'où une mesure trop courte et des tuiles manquantes en bas :
@@ -95,7 +110,7 @@ export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
       mapRef.current = null;
       baseRef.current = null;
     };
-  }, [open, lat, lng]);
+  }, [open, lat, lng, color, icon]);
 
   // Fond de carte : remplacé sur la carte existante, jamais en la reconstruisant
   // — on garde ainsi la position et le zoom en cours.

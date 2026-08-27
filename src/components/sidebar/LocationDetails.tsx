@@ -377,6 +377,10 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
                     lat={location.realWorld.lat}
                     lng={location.realWorld.lng}
                     label={location.realWorld.name ?? location.name}
+                    // Même pastille que le blip sur la carte du jeu : la couleur
+                    // sert de repère d'un bout à l'autre de l'app.
+                    color={accent}
+                    icon={category?.icon ?? (isCamera ? "Camera" : "MapPin")}
                   />
                 </div>
               </>
