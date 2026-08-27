@@ -11,37 +11,53 @@ const DELAY = 5000;
 const WHEEL_THRESHOLD = 60;
 const WHEEL_COOLDOWN = 420;
 
-/* Proportions de la composition d'origine, toutes rapportées à la scène. */
-/** Haut commun de la bande, en descendant depuis le sommet. */
-const STRIP_TOP = 0.5;
-/** Hauteur d'une carte au repos, rapportée à la scène. L'active fait le double. */
-const CARD_H = 0.264;
+/**
+ * Hauteur de la carte active. Les autres en font la moitié, et c'est ce
+ * contraste — non un cadre — qui désigne le plan courant.
+ *
+ * En unités absolues et non en pourcentage de la scène : la bande est à cheval
+ * sur le bord bas de l'image, donc à moitié en dehors d'elle. Elle ne peut plus
+ * se mesurer contre une hauteur dont elle sort.
+ */
+const CARD = "clamp(150px, 21vw, 300px)";
 
 /**
  * Carrousel d'ouverture de la galerie, d'après `crafterui/hero-carousel`
- * (21st.dev), dont la composition est reprise telle quelle :
+ * (21st.dev) :
  *
- *  - une scène pleine largeur, dont le fond est l'image active graduée — c'est
- *    lui qui fait basculer l'ambiance à chaque changement ;
- *  - le titre occupe la moitié haute, calé en bas de celle-ci, donc juste
- *    au-dessus de la bande ;
- *  - **une seule bande** qui démarre à mi-hauteur, toutes les cartes partageant
- *    ce même bord supérieur, la carte active faisant deux fois la hauteur des
- *    autres. C'est ce contraste de hauteur qui désigne le plan courant, sans
- *    cadre ni pastille.
+ *  - une scène pleine largeur dont le fond est l'image active, servie telle
+ *    quelle — ni voile, ni teinte, ni ombre : c'est la photo qu'on est venu
+ *    voir, et tout ce qu'on pose dessus la dégrade ;
+ *  - le titre calé juste au-dessus de la bande ;
+ *  - **une seule bande** de cartes partageant le même bord supérieur, la carte
+ *    active faisant deux fois la hauteur des autres, et la bande à cheval sur
+ *    le bord bas de l'image : moitié sur la photo, moitié dans le vide en
+ *    dessous.
  *
- * Les proportions sont celles de l'original, rapportées à la hauteur de scène.
+ * La bande défile horizontalement dès qu'elle déborde — c'est le cas courant,
+ * la sélection suivant un filtre qui peut ramener des dizaines d'entrées — et
+ * la carte active y est ramenée au centre à chaque changement.
  *
  * `framer-motion` est écarté comme partout ici : le glissement des cartes et la
  * montée du titre sont des transitions CSS.
  */
-export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
+export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; action?: React.ReactNode }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const wheelAt = useRef(0);
+  const stripRef = useRef<HTMLDivElement>(null);
   const count = entries.length;
 
   const go = useCallback((delta: number) => setIndex((i) => (i + delta + count) % count), [count]);
+
+  // La sélection a changé sous nos pieds (filtre) : le rang retenu ne désigne
+  // plus la même image, et peut même être hors liste. Ajustement en phase de
+  // rendu — un effet afficherait d'abord une image, puis sauterait.
+  const [seen, setSeen] = useState(entries);
+  if (seen !== entries) {
+    setSeen(entries);
+    setIndex(0);
+  }
 
   useEffect(() => {
     if (paused || count < 2) return;
@@ -49,6 +65,18 @@ export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
     const id = window.setInterval(() => go(1), DELAY);
     return () => window.clearInterval(id);
   }, [paused, count, go]);
+
+  // On ramène la carte active au centre de la piste. Calcul manuel plutôt que
+  // `scrollIntoView` : celui-ci fait aussi défiler la page verticalement pour
+  // amener la piste à l'écran, ce qui arracherait le lecteur à sa position.
+  useEffect(() => {
+    const strip = stripRef.current;
+    const card = strip?.firstElementChild?.children[index] as HTMLElement | undefined;
+    if (!strip || !card) return;
+    const left = card.offsetLeft - (strip.clientWidth - card.offsetWidth) / 2;
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    strip.scrollTo({ left, behavior: smooth ? "smooth" : "auto" });
+  }, [index]);
 
   if (!count) return null;
   const active = entries[index];
@@ -69,111 +97,66 @@ export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
         e.preventDefault();
       }}
       onWheel={(e) => {
-        // Molette horizontale seulement : la verticale appartient à la page.
+        // Au-dessus de la bande, la molette horizontale la fait défiler : c'est
+        // le geste attendu, et le navigateur s'en charge mieux que nous.
+        if (stripRef.current?.contains(e.target as Node)) return;
+        // Ailleurs, elle change de plan. La verticale appartient à la page.
         if (Math.abs(e.deltaX) < WHEEL_THRESHOLD) return;
         if (e.timeStamp - wheelAt.current < WHEEL_COOLDOWN) return;
         wheelAt.current = e.timeStamp;
         go(e.deltaX > 0 ? 1 : -1);
       }}
-      // Pleine largeur, sans arrondi ni marge : la scene occupe toute la fenetre,
-      // comme dans l original. Elle est donc rendue hors de la colonne de la page.
-      className="relative isolate aspect-[16/10] w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:aspect-[21/9]"
+      // Pas de rognage sur la section : la bande en déborde par le bas, et le
+      // menu de la barre de commandes en déborde par le haut.
+      // `z-30` : les vignettes de la grille sont positionnées, donc peintes
+      // après la section faute de rang explicite — le menu déroulant de la
+      // barre serait passé dessous.
+      className="relative isolate z-30 w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      style={{ paddingBottom: `calc(${CARD} / 2)` }}
     >
-      {/* Fond de scène : l'image active en pleine définition, telle quelle. Elle
-          n'est ni floutée ni réduite — c'est elle le décor, et l'original la
-          gradue sans lui retirer sa netteté. Seuls des voiles dégradés viennent
-          asseoir le titre en haut et la bande en bas. */}
-      <div aria-hidden className="absolute inset-0 -z-10">
+      {/* La scène. Seul bloc rogné : l'image doit s'arrêter net à son bord bas,
+          c'est ce bord que la bande vient chevaucher. */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[21/9]">
         <Image
           key={active.src}
           src={active.poster ?? active.src}
           alt=""
+          aria-hidden
           fill
           priority
-          quality={90}
+          quality={100}
           sizes="100vw"
           className="object-cover object-center animate-fade-in"
         />
-        {/* Teinte rose posée en `color` : la photo garde sa luminance et prend la
-            couleur de la charte, ce que l'original appelle sa gradation. */}
-        <div className="absolute inset-0 bg-accent/12 mix-blend-color" />
-        {/* La moitié basse est nettement assombrie : le fond étant la même image
-            que la carte active, celle-ci s'y dissolvait faute de contraste. Le
-            haut reste clair, c'est là que le décor se donne à voir. */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 via-45% to-background/92" />
-      </div>
 
-      {/* Moitié haute : le titre, calé en bas — donc juste au-dessus de la bande. */}
-      <div
-        className="absolute inset-x-0 top-0 flex flex-col justify-end px-5 pb-4 sm:px-8"
-        style={{ height: `${STRIP_TOP * 100}%` }}
-      >
-        <div className="flex w-full flex-wrap items-end gap-x-8 gap-y-1">
-          <div className="min-w-0">
-            <p className="vi-kicker text-accent">{active.group}</p>
-            {/* Le titre monte depuis son propre bord : chaque changement le
-                remonte, ce qui marque le passage d'un plan à l'autre. */}
-            <span className="mt-1 block overflow-hidden">
-              <h2 key={active.id} className="rs-title block text-2xl leading-[0.95] text-foreground animate-title-up sm:text-5xl">
-                {active.title}
-              </h2>
+        {/* Titre, calé juste au-dessus de la bande. L'ombre portée est sur le
+            texte, pas sur l'image : elle le rend lisible sur un ciel clair sans
+            avoir à assombrir la photo. */}
+        <div
+          className="absolute inset-x-0 bottom-0 px-5 [text-shadow:0_2px_24px_rgba(0,0,0,0.75)] sm:px-8"
+          style={{ paddingBottom: `calc(${CARD} / 2 + 1rem)` }}
+        >
+          <div className="flex w-full flex-wrap items-end gap-x-8 gap-y-1">
+            <div className="min-w-0">
+              <p className="vi-kicker text-accent">{active.group}</p>
+              {/* Le titre monte depuis son propre bord : chaque changement le
+                  remonte, ce qui marque le passage d'un plan à l'autre. */}
+              <span className="mt-1 block overflow-hidden">
+                <h2 key={active.id} className="rs-title block text-2xl leading-[0.95] text-white animate-title-up sm:text-5xl">
+                  {active.title}
+                </h2>
+              </span>
+            </div>
+            <span className="vi-num ml-auto shrink-0 text-xs text-white/70">
+              {index + 1} / {count}
             </span>
           </div>
-          <span className="vi-num ml-auto shrink-0 text-xs text-muted">
-            {index + 1} / {count}
-          </span>
         </div>
       </div>
 
-      {/* La bande : un seul rang, haut commun, carte active deux fois plus haute.
-          Le conteneur occupe la moitié basse, les hauteurs s'expriment donc en
-          pourcentage de cette moitié — d'où le doublement des ratios d'origine.
-          La largeur suit par le format 3:4, sans avoir à la calculer. */}
-      <div className="absolute inset-x-0 overflow-hidden px-5 sm:px-8" style={{ top: `${STRIP_TOP * 100}%`, height: `${(1 - STRIP_TOP) * 100}%` }}>
-        {/* `h-full` indispensable : les hauteurs des cartes sont en pourcentage,
-            et un pourcentage ne se résout que contre un parent de hauteur
-            connue. Sans lui la liste tombait à zéro et la bande disparaissait. */}
-        <ul className="flex h-full items-start gap-2 sm:gap-3">
-          {entries.map((entry, i) => {
-            const focused = i === index;
-            return (
-              <li
-                key={entry.id}
-                className="aspect-[3/4] shrink-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                style={{ height: `${((focused ? CARD_H * 2 : CARD_H) / (1 - STRIP_TOP)) * 100}%` }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setIndex(i)}
-                  aria-label={`Voir ${entry.title}`}
-                  aria-current={focused}
-                  className={cn(
-                    "group relative block h-full w-full overflow-hidden rounded-xl transition-opacity duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                    focused ? "opacity-100" : "opacity-55 hover:opacity-90",
-                  )}
-                >
-                  <Image
-                    src={entry.poster ?? entry.src}
-                    alt=""
-                    fill
-                    quality={focused ? 92 : 70}
-                    sizes="(max-width: 640px) 45vw, 420px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {/* Aucune légende sur les cartes : la carte active déborde
-                      volontairement du bas de la scène, et tout texte posé sur
-                      elle s'y ferait rogner. Le titre au-dessus la nomme déjà. */}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
-      {/* Commandes en tête de scène, comme la barre supérieure de l'original :
-          en pied, la carte active — qui déborde volontairement vers le bas — les
-          aurait recouvertes. */}
-      <div className="absolute inset-x-0 top-0 z-10 flex items-center gap-3 px-5 pt-4 sm:px-8">
+      {/* Barre de commandes, hors de la scène : à l'intérieur, son rognage
+          couperait le menu déroulant qu'elle accueille. */}
+      <div className="absolute inset-x-0 top-0 z-20 flex items-center gap-3 px-5 pt-4 sm:px-8">
         <button type="button" onClick={() => go(-1)} aria-label="Plan précédent" className="rs-pill grid h-9 w-9 shrink-0 place-items-center cursor-pointer">
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -182,12 +165,58 @@ export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
         </button>
         {/* Rail de progression : la barre dit où l'on en est dans la sélection,
             ce qu'un compteur seul ne montre pas. */}
-        <span aria-hidden className="h-0.5 w-1/5 overflow-hidden rounded-full bg-white/15">
+        <span aria-hidden className="hidden h-0.5 w-1/5 overflow-hidden rounded-full bg-white/25 sm:block">
           <span
             className="block h-full rounded-full bg-accent transition-[width] duration-500 ease-out"
             style={{ width: `${((index + 1) / count) * 100}%` }}
           />
         </span>
+        {action && <div className="ml-auto shrink-0">{action}</div>}
+      </div>
+
+      {/* La bande, à cheval sur le bord bas de la scène : `bottom-0` vise le bas
+          de la boîte de remplissage, soit une demi-carte plus bas que l'image.
+          La carte active occupe toute la hauteur, donc moitié sur la photo,
+          moitié dans le vide. */}
+      <div
+        ref={stripRef}
+        className="vi-scroller absolute inset-x-0 bottom-0 z-10 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth px-5 sm:px-8"
+        style={{ height: CARD }}
+      >
+        <ul className="flex h-full w-max items-start gap-2 sm:gap-3">
+          {entries.map((entry, i) => {
+            const focused = i === index;
+            return (
+              <li
+                key={entry.id}
+                className={cn(
+                  "aspect-[3/4] shrink-0 transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  focused ? "h-full" : "h-1/2",
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-label={`Voir ${entry.title}`}
+                  aria-current={focused}
+                  className={cn(
+                    "group relative block h-full w-full overflow-hidden rounded-xl transition-opacity duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    focused ? "opacity-100" : "opacity-70 hover:opacity-100",
+                  )}
+                >
+                  <Image
+                    src={entry.poster ?? entry.src}
+                    alt=""
+                    fill
+                    quality={focused ? 95 : 72}
+                    sizes="(max-width: 640px) 45vw, 320px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );

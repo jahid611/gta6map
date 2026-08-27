@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { MEDIA_CATALOG } from "@/lib/media-catalog";
 import { RevealProvider } from "@/components/landing/RevealProvider";
 import { LandingFooter } from "@/components/landing/LandingFooter";
-import { MediaGrid } from "@/components/gallery/MediaGrid";
-import { MediaCarousel } from "@/components/gallery/MediaCarousel";
+import { GalleryView } from "@/components/gallery/GalleryView";
 
 export const metadata: Metadata = {
   title: "Galerie — screenshots, artworks et clips officiels",
@@ -14,10 +13,6 @@ export const metadata: Metadata = {
 
 export default function GaleriePage() {
   const entries = MEDIA_CATALOG;
-  // Selection douverture : des screenshots de lieux, larges et lisibles en grand.
-  // Les clips sont ecartes — le carrousel montre une image fixe, une affiche de
-  // video y perdrait ce qui fait son interet.
-  const featured = entries.filter((e) => e.kind === "screenshot" && e.section === "Places").slice(0, 10);
   const screenshots = entries.filter((e) => e.kind === "screenshot").length;
   const artworks = entries.filter((e) => e.kind === "artwork").length;
   const clips = entries.filter((e) => e.kind === "clip").length;
@@ -41,16 +36,7 @@ export default function GaleriePage() {
             </p>
           </header>
 
-          {/* Le carrousel est hors de la colonne : il occupe toute la largeur de
-              la fenêtre, la grille reste dans la colonne de lecture. L'un donne
-              à voir, l'autre donne à chercher. */}
-          <div className="mt-14">
-            <MediaCarousel entries={featured} />
-          </div>
-
-          <section className="mx-auto max-w-6xl px-5 py-14">
-            <MediaGrid entries={entries} />
-          </section>
+          <GalleryView entries={entries} />
         </main>
         <LandingFooter />
       </RevealProvider>

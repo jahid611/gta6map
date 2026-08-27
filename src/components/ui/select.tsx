@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ChevronDown, Check } from "@/components/ui/icons";
+import { useAnchoredPlacement } from "@/hooks/useAnchoredPlacement";
 import { cn } from "@/lib/utils";
 
 export interface SelectOption {
@@ -43,8 +44,12 @@ export function Select({ label, value, options, onChange, className, align = "st
   const [active, setActive] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const listId = useId();
+  // Le menu se déploie du côté où il y a la place, et non systématiquement vers
+  // le bas — sans quoi un filtre en bas d'écran ouvre une liste tronquée.
+  const place = useAnchoredPlacement(open, buttonRef, panelRef, align);
 
   const selected = options.find((o) => o.value === value) ?? options[0];
   const selectable = useCallback((i: number) => !options[i]?.disabled, [options]);
@@ -151,10 +156,17 @@ export function Select({ label, value, options, onChange, className, align = "st
       {/* Le menu reste monté le temps de la sortie : démonté au clic, il
           disparaîtrait d'un coup au lieu de se replier. */}
       <div
+        ref={panelRef}
+        style={{ maxHeight: place.max }}
         className={cn(
-          "rs-menu absolute z-[1300] mt-2 max-h-72 w-max min-w-[var(--rs-select-min,11rem)] max-w-[min(20rem,80vw)] overflow-y-auto overscroll-contain rounded-2xl p-1.5 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          align === "end" ? "right-0" : "left-0",
-          open ? "visible translate-y-0 scale-100 opacity-100" : "invisible -translate-y-1 scale-[0.97] opacity-0",
+          "rs-menu absolute z-[1300] w-max min-w-[var(--rs-select-min,11rem)] max-w-[min(20rem,80vw)] overflow-y-auto overscroll-contain rounded-2xl p-1.5 transition-[opacity,transform,visibility] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          place.x === "end" ? "right-0" : "left-0",
+          place.y === "top" ? "bottom-full mb-2" : "top-full mt-2",
+          open
+            ? "visible translate-y-0 scale-100 opacity-100"
+            : // Fermé, le menu se replie vers son ancre : vers le bas s'il
+              // s'ouvrait au-dessus, vers le haut sinon.
+              cn("invisible scale-[0.97] opacity-0", place.y === "top" ? "translate-y-1" : "-translate-y-1"),
         )}
       >
         <p className="vi-kicker px-2.5 pb-1.5 pt-1 text-[10px] text-muted">{label}</p>

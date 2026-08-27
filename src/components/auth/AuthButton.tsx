@@ -7,6 +7,7 @@ import { ChevronDown, Cloud, CloudOff, LogIn, LogOut, Trophy } from "@/component
 import type { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAnchoredPlacement } from "@/hooks/useAnchoredPlacement";
 import { cn } from "@/lib/utils";
 import { SafeImage } from "@/components/ui/safe-image";
 
@@ -16,6 +17,12 @@ type AuthApi = ReturnType<typeof useAuth>;
 export function AuthButton({ auth }: { auth: AuthApi }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  // Même règle que les autres menus de l'app : on se déploie du côté où il y a
+  // la place. Le bouton compte vit en haut de page la plupart du temps, mais il
+  // suit la barre de navigation, qui passe en bas d'écran sur mobile.
+  const place = useAnchoredPlacement(open, buttonRef, panelRef, "end", 340);
   const pathname = usePathname();
   const search = useSearchParams();
   const next = `${pathname}${search.size ? `?${search.toString()}` : ""}`;
@@ -57,6 +64,7 @@ export function AuthButton({ auth }: { auth: AuthApi }) {
   return (
     <div ref={ref} className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setOpen((v) => !v)}
         className="rs-pill flex items-center gap-2 py-1 pl-1 pr-2.5 text-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-haspopup="menu"
@@ -74,7 +82,16 @@ export function AuthButton({ auth }: { auth: AuthApi }) {
         <ChevronDown className={cn("h-3.5 w-3.5 text-muted transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div role="menu" className="rs-menu absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl p-1.5 text-sm animate-fade-in">
+        <div
+          role="menu"
+          ref={panelRef}
+          style={{ maxHeight: place.max }}
+          className={cn(
+            "rs-menu absolute z-50 w-60 overflow-y-auto rounded-2xl p-1.5 text-sm animate-fade-in",
+            place.x === "end" ? "right-0" : "left-0",
+            place.y === "top" ? "bottom-full mb-2" : "top-full mt-2",
+          )}
+        >
           <div className="px-3 py-2">
             <p className="truncate font-semibold">{auth.displayName}</p>
             <p className="truncate text-xs text-muted">{auth.user.email}</p>

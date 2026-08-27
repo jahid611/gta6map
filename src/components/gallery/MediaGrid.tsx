@@ -1,24 +1,33 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { MEDIA_FILTERS, countByFilter, type MediaEntry } from "@/lib/media-catalog";
+import { type MediaEntry } from "@/lib/media-catalog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, X } from "@/components/ui/icons";
-import { Select } from "@/components/ui/select";
 
 /**
- * Grille de médias avec filtres, chargement paresseux et visionneuse.
+ * Grille de médias, chargement paresseux et visionneuse.
+ *
+ * La sélection lui arrive déjà filtrée : le choix de catégorie est remonté au
+ * carrousel, qu'il commande aussi (cf. `GalleryView`).
  *
  * Les vignettes se chargent en `loading="lazy"` et affichent un squelette
  * jusqu'à leur arrivée : sur 96 entrées dont certaines pèsent 2 Mo, tout
  * demander d'un coup bloquerait le rendu pour rien.
  */
 export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
-  const [filter, setFilter] = useState("all");
   // On mémorise un RANG et non une entrée : la visionneuse doit pouvoir passer
   // au média suivant sans repasser par la grille.
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  // La visionneuse retient un rang dans la sélection courante : changer de
+  // catégorie sans la fermer ouvrirait un autre média.
+  const [seen, setSeen] = useState(entries);
+  if (seen !== entries) {
+    setSeen(entries);
+    setOpenIndex(null);
+  }
 
   // Une vidéo ouverte en grand ne doit pas coexister avec neuf vignettes qui
   // décodent en arrière-plan : on les met toutes en pause à l'ouverture.
@@ -27,31 +36,10 @@ export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
     document.querySelectorAll<HTMLVideoElement>("video[data-gallery-video]").forEach((v) => v.pause());
   }, [openIndex]);
 
-  const counts = useMemo(() => countByFilter(entries), [entries]);
-  const active = MEDIA_FILTERS.find((f) => f.id === filter) ?? MEDIA_FILTERS[0];
-  const shown = useMemo(() => entries.filter(active.match), [entries, active]);
+  const shown = entries;
 
   return (
     <>
-      <div className="mb-8 flex justify-center">
-        <Select
-          label="Catégorie"
-          value={filter}
-          onChange={(id) => {
-            setFilter(id);
-            // La visionneuse retient un rang dans la sélection courante : changer
-            // de catégorie sans la fermer ouvrirait un autre média.
-            setOpenIndex(null);
-          }}
-          options={MEDIA_FILTERS.map((f) => ({
-            value: f.id,
-            label: f.label,
-            count: counts[f.id],
-            disabled: counts[f.id] === 0,
-          }))}
-        />
-      </div>
-
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {shown.map((entry, i) => (
           <li key={entry.id} className="vi-reveal" data-reveal-delay={(i % 4) * 0.05}>
