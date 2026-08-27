@@ -130,7 +130,7 @@ body {
   /* RÈGLE — Nombres : tous les chiffres de l'app sont tabulaires (pas de saut de
      largeur d'un chiffre à l'autre), et tout nombre mis en avant (compteurs,
      pourcentages, coordonnées, totaux) porte la classe `vi-num` : police display
-     + chiffres tabulaires + zéro barré. La classe monospace de Tailwind est
+     + chiffres tabulaires, et jamais de zéro barré. La classe monospace de Tailwind est
      interdite dans src/ — `scripts/check-numbers.mjs` (avant chaque build) le vérifie. */
   font-variant-numeric: tabular-nums;
 }
@@ -998,8 +998,14 @@ button:disabled {
    qui portent les deux classes. Le crenage releve du contexte, pas des chiffres. */
 .vi-num {
   font-family: var(--font-display);
-  font-variant-numeric: tabular-nums slashed-zero;
-  font-feature-settings: "tnum" 1, "zero" 1;
+  /* Chiffres tabulaires, et surtout PAS de zero barre. La variante etait
+     demandee ici des l origine ; Archivo ne la dessine pas, elle ne s est donc
+     jamais vue, et l arrivee d Helvetica Now — qui la dessine — a fait
+     apparaitre des barres obliques dans tous les nombres du site. La demande
+     est retiree, non desactivee au coup par coup : `zero 0` laisserait la
+     porte ouverte a la prochaine police qui la dessine. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 /* Apparition de l apercu au survol d un marqueur. */
