@@ -431,19 +431,19 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
           ))}
         </span>
 
-        {selected && (
-          <>
-            <span className="h-3.5 w-px shrink-0 bg-white/15" aria-hidden />
-            <button
-              onClick={() => back(selected)}
-              className="rs-toolbar-btn inline-flex shrink-0 items-center gap-1.5 font-semibold text-accent transition-colors hover:text-accent-pale"
-            >
-              <MapPin className="h-3.5 w-3.5" />
-              <span className="sm:hidden">GTA VI</span>
-              <span className="hidden sm:inline">Voir dans GTA VI</span>
-            </button>
-          </>
-        )}
+        {/* Toujours affiché, avec ou sans lieu sélectionné : en arrivant par la
+            barre latérale, il ne restait que la croix — qui se lit comme
+            « fermer », pas comme « revenir à la carte du jeu ». Le retour doit
+            tenir en un clic quel que soit le chemin d'entrée. */}
+        <span className="h-3.5 w-px shrink-0 bg-white/15" aria-hidden />
+        <button
+          onClick={() => back(selected ?? undefined)}
+          className="rs-toolbar-btn inline-flex shrink-0 items-center gap-1.5 font-semibold text-accent transition-colors hover:text-accent-pale"
+        >
+          <MapPin className="h-3.5 w-3.5" />
+          <span className="sm:hidden">GTA VI</span>
+          <span className="hidden sm:inline">{selected ? "Voir dans GTA VI" : "Retour à la carte GTA VI"}</span>
+        </button>
 
         <button
           onClick={() => back()}

@@ -37,20 +37,24 @@ export function MarkerPreview({ locations, categoriesBySlug }: MarkerPreviewProp
   const preview = useUIStore((s) => s.hoverPreview);
   // Seconde barrière, côté rendu : sur tactile la fiche suffit, l'aperçu ferait doublon.
   const hoverable = useMediaQuery("(hover: hover) and (pointer: fine)", true);
-  // Une fiche ouverte occupe déjà un panneau : l'aperçu se posait par-dessus et
-  // masquait son texte. Tant qu'on lit une fiche, on ne superpose rien.
-  const selectedSlug = useUIStore((s) => s.selectedSlug);
-
   const bySlug = useMemo(() => new Map(locations.map((l) => [l.slug, l])), [locations]);
   const location = preview ? bySlug.get(preview.slug) : null;
 
-  if (!preview || !location || !hoverable || selectedSlug) return null;
+  if (!preview || !location || !hoverable) return null;
 
   const category = categoriesBySlug.get(location.categorySlug);
   const accent = pastel(category?.color ?? location.color);
   const image = location.media ? frameUrl(location.media.thumb) : photoUrl(location.photos?.ig);
 
-  const flipX = preview.x + OFFSET + CARD_W > window.innerWidth - EDGE;
+  // Bord droit utile : la fiche ouverte occupe la droite de l'écran. L'aperçu
+  // s'arrête donc à son bord gauche plutôt qu'à celui de la fenêtre — il repasse
+  // à gauche du curseur au lieu de se poser sur le texte qu'on est en train de
+  // lire. Le supprimer dès qu'une fiche est ouverte, comme on le faisait, privait
+  // de l'aperçu tout le temps où l'on compare deux lieux.
+  const panel = document.querySelector<HTMLElement>("[data-location-panel]");
+  const rightLimit = panel ? panel.getBoundingClientRect().left : window.innerWidth;
+
+  const flipX = preview.x + OFFSET + CARD_W > rightLimit - EDGE;
   const flipY = preview.y + OFFSET + CARD_H > window.innerHeight - EDGE;
 
   return (
