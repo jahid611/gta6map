@@ -132,7 +132,12 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           { }
           <SafeImage src={hero.src} alt={hero.alt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/90 to-transparent" />
-          <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-black/50 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+          {/* En bas à gauche : le coin haut droit porte déjà la croix de
+              fermeture du panneau (cf. `LocationDrawer`), aux mêmes coordonnées
+              exactement — les deux se recouvraient. Le coin haut gauche est pris
+              par la provenance du plan, le bas gauche est le seul libre, et il
+              tombe sur le voile dégradé, donc lisible quelle que soit l'image. */}
+          <span className="absolute bottom-3 left-3 grid h-9 w-9 place-items-center rounded-full bg-black/50 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
             <Maximize2 className="h-4 w-4" />
           </span>
           {location.media && (
