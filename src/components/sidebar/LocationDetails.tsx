@@ -27,6 +27,7 @@ import { useUIStore } from "@/store/useUIStore";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LinkPreview } from "@/components/ui/link-preview";
 import dynamic from "next/dynamic";
 
 // Chargée à la demande : le cadre Google Maps n'est monté que si l'utilisateur
@@ -276,14 +277,15 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           </div>
         )}
         {location.wiki && (
-          <a
+          <LinkPreview
             href={location.wiki.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            image={wikiImageUrl(location.wiki)}
+            title={location.wiki.title}
+            description={location.wiki.extract}
             className="rs-pill flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold"
           >
             <BookOpen className="h-4 w-4 text-accent-2" /> GTA Wiki <ExternalLink className="h-3 w-3 text-muted" />
-          </a>
+          </LinkPreview>
         )}
         {isCamera && (
           <Button variant="secondary" onClick={() => flyTo([location.x, location.y], 6)}>
