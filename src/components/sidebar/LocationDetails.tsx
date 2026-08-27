@@ -41,6 +41,7 @@ const RealWorldMap = dynamic(() => import("./RealWorldMap").then((m) => m.RealWo
 import { Lightbox, type LightboxImage } from "@/components/ui/lightbox";
 import { cn } from "@/lib/utils";
 import { pastel } from "@/lib/colors";
+import { describeLocation } from "@/lib/describe";
 import { CategoryIcon } from "@/components/ui/icons";
 
 interface LocationDetailsProps {
@@ -107,6 +108,10 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
   // la couleur doit être exactement la même d'un bout à l'autre, sinon elle
   // cesse de servir de repère entre la carte et la fiche.
   const accent = pastel(category?.color ?? location.color);
+  // Phrase composée des champs renseignés, quand le lieu na pas de description
+  // propre. Memoisee : elle ne depend que du lieu, et la fiche se re-rend a
+  // chaque frappe dans la note personnelle.
+  const summary = useMemo(() => describeLocation(location), [location]);
 
 
   const copy = async (kind: "coords" | "link") => {
@@ -196,8 +201,25 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           </div>
         )}
 
-        {/* Description */}
-        {location.description && <p className="text-sm leading-relaxed text-foreground/85">{location.description}</p>}
+        {/* Description. À défaut de description propre — cent trois lieux sur
+            mille cinq cent quarante en ont une — on compose une phrase à partir
+            des champs renseignés (cf. `describeLocation`). Une réserve, elle,
+            est mise en retrait : constater qu'on ne sait pas n'est pas une
+            information, et ne doit pas se lire comme telle. */}
+        {location.description ? (
+          <p className="text-sm leading-relaxed text-foreground/85">{location.description}</p>
+        ) : (
+          summary && (
+            <p
+              className={cn(
+                "text-sm leading-relaxed",
+                summary.tone === "known" ? "text-foreground/85" : "text-muted",
+              )}
+            >
+              {summary.text}
+            </p>
+          )
+        )}
 
         {/* Infos façon liste iconée */}
         <ul className="flex flex-col gap-1.5 text-sm">
