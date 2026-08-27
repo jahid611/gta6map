@@ -242,6 +242,31 @@ button:disabled {
    lisait la carte au travers du texte. Les aretes internes suffisent a donner
    la matiere, et elles, elles marchent partout. */
 
+/* TRANSITION DE PAGE — l'avion traverse, le decor s'ouvre et se referme.
+   La traversee part hors champ a gauche et sort hors champ a droite ; la legere
+   remontee evite un deplacement strictement horizontal, qui se lit comme un
+   objet tire sur un rail plutot que comme un vol. */
+@keyframes vi-flyby {
+  from {
+    transform: translate3d(-20vw, 6vh, 0);
+  }
+  to {
+    transform: translate3d(115vw, -6vh, 0);
+  }
+}
+@keyframes vi-flyby-veil {
+  0% {
+    opacity: 0;
+  }
+  18%,
+  62% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 /* EMOJIS — on demande d'abord la fonte d'Apple. Presente sur macOS et iOS, c'est
    la vraie, celle du systeme de l'utilisateur : rien a heberger, rien a
    redistribuer. Ailleurs on prend ce que la plateforme propose de mieux.

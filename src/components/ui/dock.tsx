@@ -40,6 +40,11 @@ const MAX_SCALE = 1.55;
  *
  * Aucune dépendance dans l'original, aucune ici non plus.
  */
+/** Hauteur totale ajoutée par la magnification, tous rangs confondus. */
+function totalGrowth(scales: number[]): number {
+  return scales.reduce((sum, s) => sum + (s - 1) * SIZE, 0);
+}
+
 export function Dock({ items, className }: { items: DockItem[]; className?: string }) {
   const [pointer, setPointer] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -70,8 +75,16 @@ export function Dock({ items, className }: { items: DockItem[]; className?: stri
         if (r) setPointer(e.clientY - r.top);
       }}
       onPointerLeave={() => setPointer(null)}
-      className={cn("rs-glass flex flex-col rounded-[22px] p-1.5", className)}
-      style={{ gap: GAP }}
+      className={cn("rs-glass flex flex-col items-start rounded-[22px] p-1.5", className)}
+      // La pilule s'élargit avec l'icône la plus grosse, et sa hauteur suit ce
+      // que la magnification ajoute. Sans ça les icônes débordaient du fond :
+      // elles grossissaient hors du cadre au lieu de le faire respirer.
+      style={{
+        gap: GAP,
+        width: SIZE * Math.max(...scales) + 12,
+        height: items.length * SIZE + (items.length - 1) * GAP + 12 + totalGrowth(scales),
+        transition: pointer === null ? "width 220ms ease-out, height 220ms ease-out" : "none",
+      }}
     >
       {items.map((item, i) => (
         <Tooltip key={item.id}>

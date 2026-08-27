@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SiteNav } from "@/components/layout/SiteNav";
+import { PageTransition } from "@/components/layout/PageTransition";
 import { Archivo } from "next/font/google";
 import "./globals.css";
 
@@ -74,6 +75,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${fontText.variable} ${fontDisplay.variable} h-full antialiased`}>
       <body className="min-h-full">
+        <PageTransition />
         <SiteNav />
         {children}
       </body>
