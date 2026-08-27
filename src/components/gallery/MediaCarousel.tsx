@@ -21,6 +21,17 @@ const WHEEL_COOLDOWN = 420;
  */
 const CARD = "clamp(150px, 21vw, 300px)";
 
+/** Part de la carte active qui descend sous le bord bas de l'image. */
+const DROP = 0.56;
+/**
+ * Ce dont les petites cartes descendent en plus, en part de carte active.
+ *
+ * Elles partageaient exactement le bord haut de l'active et s'arrêtaient donc
+ * pile au bord de l'image ; il leur fallait un peu de retombée elles aussi,
+ * sans quoi la bande semblait tenir tout entière dans la photo.
+ */
+const SMALL_DROP = 0.1;
+
 /**
  * Carrousel d'ouverture de la galerie, d'après `crafterui/hero-carousel`
  * (21st.dev) :
@@ -112,7 +123,7 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
       // après la section faute de rang explicite — le menu déroulant de la
       // barre serait passé dessous.
       className="relative isolate z-30 w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      style={{ paddingBottom: `calc(${CARD} / 2)` }}
+      style={{ paddingBottom: `calc(${CARD} * ${DROP})` }}
     >
       {/* La scène est au format natif des visuels — 3 840 × 2 160, soit 16:9 —
           et non en bandeau panoramique : au format 21:9, `object-cover` rognait
@@ -139,7 +150,7 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
             avoir à assombrir la photo. */}
         <div
           className="absolute inset-x-0 bottom-0 px-5 [text-shadow:0_2px_24px_rgba(0,0,0,0.75)] sm:px-8"
-          style={{ paddingBottom: `calc(${CARD} / 2 + 1rem)` }}
+          style={{ paddingBottom: `calc(${CARD} * ${1 - DROP} + 1rem)` }}
         >
           <div className="flex w-full flex-wrap items-end gap-x-8 gap-y-1">
             <div className="min-w-0">
@@ -195,9 +206,10 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
               <li
                 key={entry.id}
                 className={cn(
-                  "aspect-[3/4] shrink-0 transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  "aspect-[3/4] shrink-0 transition-[height,margin] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
                   focused ? "h-full" : "h-1/2",
                 )}
+                style={{ marginTop: focused ? 0 : `calc(${CARD} * ${SMALL_DROP})` }}
               >
                 <button
                   type="button"
