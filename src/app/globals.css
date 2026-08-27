@@ -259,12 +259,15 @@ button:disabled {
    La traversee part hors champ a gauche et sort hors champ a droite ; la legere
    remontee evite un deplacement strictement horizontal, qui se lit comme un
    objet tire sur un rail plutot que comme un vol. */
+/* L'avion fait 70 vw de large : il doit partir a -85 vw pour etre entierement
+   hors champ au depart, et depasser 100 vw pour l'etre a l'arrivee. Un depart a
+   -20 vw le montrait deja a moitie sur l'ecran des la premiere image. */
 @keyframes vi-flyby {
   from {
-    transform: translate3d(-20vw, 6vh, 0);
+    transform: translate3d(-85vw, 5vh, 0);
   }
   to {
-    transform: translate3d(115vw, -6vh, 0);
+    transform: translate3d(115vw, -5vh, 0);
   }
 }
 @keyframes vi-flyby-veil {

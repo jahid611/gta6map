@@ -70,16 +70,7 @@ export function LandingFooter() {
           >
             Twemoji
           </a>{" "}
-          (CC BY 4.0), avion 3D par{" "}
-          <a
-            href="https://github.com/microsoft/fluentui-emoji"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="underline decoration-dotted underline-offset-2 hover:text-foreground"
-          >
-            Fluent Emoji
-          </a>{" "}
-          (MIT).
+          (CC BY 4.0).
         </p>
       </div>
     </footer>
