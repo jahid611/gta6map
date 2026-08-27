@@ -164,7 +164,7 @@ export function Hero({ locationCount, regionCount }: HeroProps) {
         </div>
 
         <h1 className="hero-stagger vi-display mt-6 text-center text-[clamp(2rem,6vw,4.25rem)]">
-          <span className="text-gradient-vi">Leonida</span>
+          <span className="text-accent">Leonida</span>
         </h1>
 
         <p className="hero-stagger mt-4 max-w-xl text-center text-sm leading-relaxed text-white/80 [text-shadow:0_1px_12px_rgba(0,0,0,0.75)] sm:text-base">

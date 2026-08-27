@@ -91,7 +91,7 @@ export function CharacterSection({ name, tagline, bio, images, reverse = false, 
         }`}
       >
         <div className="vi-reveal max-w-xl lg:w-[46%] lg:shrink-0">
-          <h2 className="vi-display text-[clamp(2.25rem,6vw,4.5rem)] text-gradient-vi">{name}</h2>
+          <h2 className="vi-display text-[clamp(2.25rem,6vw,4.5rem)] text-accent">{name}</h2>
           <p className="mt-6 text-xl font-semibold leading-snug text-accent-pale sm:text-2xl">{tagline}</p>
           <p className="mt-5 text-base leading-relaxed text-muted">{bio}</p>
 

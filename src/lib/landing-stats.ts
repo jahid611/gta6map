@@ -72,6 +72,15 @@ export interface StackShot extends ShowcaseShot {
   blurb: string;
 }
 
+/**
+ * Visuel du bandeau de chiffres : la carte postale officielle de Vice City.
+ *
+ * Choisie pour ce qu'elle dit — une vue large de la ville, qui illustre ce que
+ * les chiffres comptent. Un gros plan de personnage ou un intérieur n'aurait
+ * rien à voir avec « 1 439 lieux identifiés ».
+ */
+const STATS_SHOT = "s2-71-vice-city-postcard";
+
 /** Un plan officiel géolocalisé, tel qu'affiché dans la galerie de la landing. */
 export interface ShowcaseShot {
   slug: string;
@@ -96,6 +105,8 @@ export interface LandingStats {
   showcase: ShowcaseShot[];
   /** Les cinq plans mis en avant dans la pile de l'accueil (cf. `STACK_SHOTS`). */
   stack: StackShot[];
+  /** Visuel du bandeau de chiffres — la carte postale de Vice City. */
+  statsImage: string | null;
   /** Répartition des plans officiels par source (« Trailer 1 », « Screenshot officiel »…). */
   mediaSources: { label: string; count: number }[];
 }
@@ -347,6 +358,7 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
     total: locations.length,
     showcase,
     stack,
+    statsImage: frameUrl(cameras.find((c) => c.slug === STATS_SHOT)?.media?.frame),
     landmarks: locations.length - cameras.length,
     cameras: cameras.length,
     // Toutes les catégories réellement présentes sur la carte — c'est ce que

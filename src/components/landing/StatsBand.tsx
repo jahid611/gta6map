@@ -1,9 +1,19 @@
+import Image from "next/image";
 import type { LandingStats } from "@/lib/landing-stats";
 
-/** Bandeau de chiffres — tous dérivés du jeu de données réel, aucun en dur. */
+/**
+ * Bandeau de chiffres, d'après `uilayout.contact/stats-bold` (21st.dev) : un
+ * chiffre dominant accompagné d'un visuel, puis une rangée de trois secondaires.
+ *
+ * Aucune dépendance dans l'original, aucune ici non plus — la mise en page fait
+ * tout. Les valeurs restent dérivées du jeu de données réel, aucune en dur.
+ *
+ * Les nombres sont en rose Vice City et non en dégradé : un dégradé sur un
+ * chiffre le rend plus difficile à lire qu'il ne l'embellit, la teinte variant
+ * d'un chiffre à l'autre du même nombre.
+ */
 export function StatsBand({ stats }: { stats: LandingStats }) {
-  const items = [
-    { value: stats.landmarks, label: "Lieux identifiés", hint: "bâtiments, commerces, points d'intérêt" },
+  const secondary = [
     { value: stats.cameras, label: "Plans géolocalisés", hint: "trailers & screenshots officiels" },
     { value: stats.categories, label: "Catégories", hint: "filtrables une par une" },
     { value: stats.photos, label: "Photos", hint: "captures in-game et lieux réels" },
@@ -11,13 +21,39 @@ export function StatsBand({ stats }: { stats: LandingStats }) {
 
   return (
     <section id="chiffres" className="relative mx-auto max-w-6xl px-5 py-20 sm:py-28">
-      <div className="vi-rule mb-14" />
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
-        {items.map((item, i) => (
+      {/* Chiffre dominant + visuel */}
+      <div className="vi-reveal flex flex-col gap-8 border-b border-border pb-10 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col items-baseline gap-x-6 gap-y-2 sm:flex-row">
+          <span className="vi-display vi-num shrink-0 text-[clamp(3.5rem,11vw,7.5rem)] leading-none text-accent">
+            {stats.landmarks.toLocaleString("fr-FR")}
+          </span>
+          <div className="max-w-xs">
+            <h2 className="rs-title text-xl text-foreground">Lieux identifiés</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted">bâtiments, commerces, points d&apos;intérêt</p>
+          </div>
+        </div>
+
+        {stats.statsImage && (
+          <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-2xl sm:h-52 md:w-96">
+            <Image
+              src={stats.statsImage}
+              alt=""
+              fill
+              quality={92}
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="object-cover"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Les trois autres, à plat */}
+      <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">
+        {secondary.map((item, i) => (
           <div key={item.label} className="vi-reveal" data-reveal-delay={i * 0.08}>
             <dt className="sr-only">{item.label}</dt>
             <dd>
-              <span className="vi-display block text-[clamp(2.75rem,7vw,4.5rem)] text-gradient-vi vi-num">
+              <span className="vi-display vi-num block text-[clamp(2.25rem,5vw,3.25rem)] leading-none text-accent">
                 {item.value.toLocaleString("fr-FR")}
               </span>
               <span className="mt-3 block text-sm font-semibold text-foreground">{item.label}</span>
