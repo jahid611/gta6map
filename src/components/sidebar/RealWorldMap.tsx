@@ -1,42 +1,37 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import L from "leaflet";
 import { Compass, ExternalLink, MapPin } from "@/components/ui/icons";
+import { BASEMAPS, type BasemapId } from "@/lib/map/basemaps";
 import { cn } from "@/lib/utils";
 
 interface RealWorldMapProps {
   lat: number;
   lng: number;
-  /** Libellé du lieu réel, pour le titre accessible du cadre. */
+  /** Libellé du lieu réel, pour le titre accessible de la carte. */
   label: string;
 }
 
 /**
- * Vue aérienne, sans clé d'API. `t=k` sélectionne l'imagerie satellite du cadre
- * hérité de Google Maps — le terrain photographié, et non le plan dessiné.
- */
-const satSrc = (lat: number, lng: number) => `https://www.google.com/maps?q=${lat},${lng}&z=18&t=k&output=embed`;
-
-/** Repli en plan : les rues nommées, quand il s'agit de se repérer. */
-const planSrc = (lat: number, lng: number) => `https://www.google.com/maps?q=${lat},${lng}&z=17&output=embed`;
-
-/**
- * Vue du monde réel pour un lieu du jeu, en carte qui se déplie.
+ * Vue aérienne du lieu réel, en carte qui se déplie.
  *
  * Composition et gestes repris de `jatin-yadav05/expand-map` (21st.dev) : une
  * vignette compacte qui s'incline en suivant la souris et s'ouvre au clic. Deux
  * écarts avec l'original :
  *
  *  - il dessinait une fausse carte en SVG (rues, pâtés d'immeubles, repère
- *    animé). Nous en avons une vraie : c'est l'imagerie aérienne qui prend la
- *    place ;
+ *    animé). Nous en avons une vraie ;
  *  - `framer-motion` est remplacé par deux variables CSS pilotées au
  *    `mousemove`. Une dépendance d'animation entière pour deux rotations ne se
  *    justifiait pas.
  *
- * Le satellite passe avant le plan : on vient comparer le terrain réel à celui
- * du jeu, et un plan dessiné ne montre justement pas le terrain. La bascule vers
- * le plan reste là pour les rues nommées, quand il s'agit de se repérer.
+ * Leaflet et non un cadre Google Maps, pour la raison déjà consignée dans
+ * `RealWorldView` : un `<iframe>` impose « Ctrl + molette » pour zoomer, et rien
+ * ne permet de le désactiver depuis la page — le cadre est d'une autre origine.
+ * Ici la molette zoome directement. Les tuiles sont celles de la vue réelle
+ * plein écran, satellite d'abord : on vient comparer le terrain, et un plan
+ * dessiné ne montre justement pas le terrain.
  *
  * Pourquoi une vue par lieu et non une superposition sur toute la carte : la
  * géographie de Leonida est un collage. Port Gellhorn correspond à Panama City,
@@ -47,27 +42,70 @@ const planSrc = (lat: number, lng: number) => `https://www.google.com/maps?q=${l
  */
 export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"sat" | "plan">("sat");
+  const [basemap, setBasemap] = useState<BasemapId>("satellite");
   const cardRef = useRef<HTMLDivElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const baseRef = useRef<L.TileLayer | null>(null);
 
   // Inclinaison : deux variables CSS plutôt qu'un état React — le pointeur émet
   // des dizaines d'événements par seconde, un rendu React à chacun serait du
   // gâchis pour une transformation que le compositeur sait faire seul.
+  //
+  // Suspendue une fois la carte ouverte : incliner le plan sous le curseur
+  // pendant qu'on essaie de le déplacer rendrait la manipulation pénible.
   const tilt = (e: React.PointerEvent) => {
     const el = cardRef.current;
-    if (!el || e.pointerType !== "mouse") return;
+    if (!el || open || e.pointerType !== "mouse") return;
     const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty("--rx", `${-y * 9}deg`);
-    el.style.setProperty("--ry", `${x * 9}deg`);
+    el.style.setProperty("--rx", `${-((e.clientY - r.top) / r.height - 0.5) * 9}deg`);
+    el.style.setProperty("--ry", `${((e.clientX - r.left) / r.width - 0.5) * 9}deg`);
   };
   const untilt = () => {
-    const el = cardRef.current;
-    if (!el) return;
-    el.style.setProperty("--rx", "0deg");
-    el.style.setProperty("--ry", "0deg");
+    cardRef.current?.style.setProperty("--rx", "0deg");
+    cardRef.current?.style.setProperty("--ry", "0deg");
   };
+
+  // La carte n'est montée qu'une fois dépliée : Leaflet crée des couches, des
+  // écouteurs et une requête de tuiles, inutiles tant que la vignette est fermée.
+  useEffect(() => {
+    const node = nodeRef.current;
+    if (!open || !node) return;
+
+    const map = L.map(node, {
+      center: [lat, lng],
+      zoom: 17,
+      // La molette zoome directement, sans touche de modification.
+      scrollWheelZoom: true,
+      zoomControl: false,
+      attributionControl: true,
+    });
+    mapRef.current = map;
+    L.control.zoom({ position: "bottomright" }).addTo(map);
+    L.marker([lat, lng]).addTo(map);
+
+    // Leaflet mesure son conteneur à la création. Ici il est encore en train de
+    // se déplier, d'où une mesure trop courte et des tuiles manquantes en bas :
+    // on remesure une fois la transition de hauteur terminée.
+    const settle = window.setTimeout(() => map.invalidateSize(), 550);
+
+    return () => {
+      window.clearTimeout(settle);
+      map.remove();
+      mapRef.current = null;
+      baseRef.current = null;
+    };
+  }, [open, lat, lng]);
+
+  // Fond de carte : remplacé sur la carte existante, jamais en la reconstruisant
+  // — on garde ainsi la position et le zoom en cours.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const set = BASEMAPS.find((b) => b.id === basemap) ?? BASEMAPS[0];
+    baseRef.current?.remove();
+    baseRef.current = L.tileLayer(set.url, { maxZoom: set.maxZoom, attribution: set.attribution }).addTo(map);
+  }, [basemap, open]);
 
   return (
     <div style={{ perspective: "1000px" }}>
@@ -79,7 +117,7 @@ export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
           "rs-card relative overflow-hidden rounded-2xl transition-[height,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
           open ? "h-64" : "h-24",
         )}
-        style={{ transform: "rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))", transformStyle: "preserve-3d" }}
+        style={{ transform: "rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))" }}
       >
         {/* Repliée, la carte entière est le bouton d'ouverture. */}
         {!open && (
@@ -104,57 +142,47 @@ export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
           </button>
         )}
 
+        <div
+          ref={nodeRef}
+          aria-label={`${label} — vue aérienne`}
+          className={cn("h-full w-full", !open && "hidden")}
+        />
+
         {open && (
-          <>
-            {/* `key` sur le mode : changer l'adresse d'un cadre déjà chargé laisse
-                parfois l'ancienne vue en place, le remonter garantit le passage. */}
-            <iframe
-              key={mode}
-              src={mode === "sat" ? satSrc(lat, lng) : planSrc(lat, lng)}
-              title={`${label} — ${mode === "sat" ? "vue satellite" : "plan"}`}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="h-full w-full animate-fade-in border-0"
-            />
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-[500] flex items-center gap-2 bg-gradient-to-b from-black/80 to-transparent px-3 pb-8 pt-2.5">
+            {/* Texte simple, pas de pastilles : deux mots à choisir, le
+                soulignement de l'actif suffit à dire lequel. */}
+            {BASEMAPS.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => setBasemap(b.id)}
+                aria-pressed={basemap === b.id}
+                className={cn(
+                  "pointer-events-auto text-xs cursor-pointer",
+                  basemap === b.id ? "font-bold text-white underline underline-offset-4" : "text-white/60 hover:text-white",
+                )}
+              >
+                {b.label}
+              </button>
+            ))}
 
-            <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 bg-gradient-to-t from-black/85 to-transparent px-3 pb-2.5 pt-8">
-              {/* Texte simple, pas de pastilles : deux mots à choisir, le
-                  soulignement de l'actif suffit à dire lequel. */}
-              <button
-                type="button"
-                onClick={() => setMode("sat")}
-                aria-pressed={mode === "sat"}
-                className={cn("text-xs cursor-pointer", mode === "sat" ? "font-bold text-white underline underline-offset-4" : "text-white/60 hover:text-white")}
-              >
-                Satellite
-              </button>
-              <span aria-hidden className="h-3 w-px bg-white/25" />
-              <button
-                type="button"
-                onClick={() => setMode("plan")}
-                aria-pressed={mode === "plan"}
-                className={cn("text-xs cursor-pointer", mode === "plan" ? "font-bold text-white underline underline-offset-4" : "text-white/60 hover:text-white")}
-              >
-                Plan
-              </button>
-
-              <a
-                href={`https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lng}&zoom=18&basemap=satellite`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-accent-2 hover:underline"
-              >
-                Ouvrir <ExternalLink className="h-3 w-3" />
-              </a>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="text-xs text-white/60 hover:text-white cursor-pointer"
-              >
-                Replier
-              </button>
-            </div>
-          </>
+            <a
+              href={`https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lng}&zoom=18&basemap=satellite`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto ml-auto inline-flex items-center gap-1 text-xs font-semibold text-accent-2 hover:underline"
+            >
+              Google Maps <ExternalLink className="h-3 w-3" />
+            </a>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="pointer-events-auto text-xs text-white/60 hover:text-white cursor-pointer"
+            >
+              Replier
+            </button>
+          </div>
         )}
       </div>
     </div>

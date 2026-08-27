@@ -5,6 +5,7 @@ import L from "leaflet";
 import type { Category, Location } from "@/types";
 import { clusterHtml, markerHtml, MARKER_SIZE } from "@/lib/map/icons";
 import { useMapStore } from "@/store/useMapStore";
+import { BASEMAPS } from "@/lib/map/basemaps";
 import { useUIStore } from "@/store/useUIStore";
 import { Compass, MapPin, X } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
@@ -36,32 +37,8 @@ function isPlausible(l: Location): boolean {
   );
 }
 
-/**
- * Fonds de la vue réelle.
- *
- * « Satellite » par défaut : on vient chercher à quoi ressemble vraiment
- * l'endroit, pas son plan de rues. Le fond « Plan » reste utile pour lire les
- * noms de voies et se repérer.
- *
- * Esri World Imagery et OpenStreetMap sont tous deux libres d'usage sous
- * réserve d'attribution — celle-ci est portée par la carte.
- */
-const BASEMAPS = [
-  {
-    id: "satellite",
-    label: "Satellite",
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    maxZoom: 19,
-    attribution: "Imagerie &copy; Esri, Maxar, Earthstar Geographics",
-  },
-  {
-    id: "plan",
-    label: "Plan",
-    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  },
-] as const;
+/* Les fonds vivent dans `@/lib/map/basemaps` : l'aperçu d'une fiche de lieu les
+   emploie aussi, et deux listes d'URL de tuiles finiraient par diverger. */
 
 /** Médiane — plus robuste qu'une moyenne face à une fiche mal renseignée. */
 function median(values: number[]): number {
