@@ -8,7 +8,8 @@ import type { Category, Location } from "@/types";
 import type { ProgressEntry } from "@/types/progress";
 import { CAMERA_MARKER_SIZE, MARKER_SIZE, clusterHtml, markerHtml } from "@/lib/map/icons";
 import { DEFAULT_CATEGORY_SLUG } from "@/lib/data/categories";
-import { settleOnPoint } from "@/lib/map/reveal";
+import { revealPoint } from "@/lib/map/reveal";
+import { MAX_ZOOM } from "@/lib/map/config";
 import { useUIStore } from "@/store/useUIStore";
 import { canHover } from "@/lib/utils";
 
@@ -22,6 +23,9 @@ interface MarkerClusterLayerProps {
 interface ManagedMarker {
   marker: L.Marker;
 }
+
+/** Au-delà de ce zoom, chaque point est individuel (cf. `revealPoint`). */
+const DECLUSTER_ZOOM = 7;
 
 function cameraLabel(location: Location): string {
   const num = location.legacyId.split("/")[1] ?? "";
@@ -81,7 +85,10 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
       chunkInterval: 120,
       chunkDelay: 10,
       maxClusterRadius: (zoom: number) => (zoom >= 6 ? 36 : zoom >= 4 ? 50 : 64),
-      disableClusteringAtZoom: 8,
+      // 7 et non 8, le zoom maximal : il faut une bande de zooms où les points
+      // sont individuels pour que le recul de contexte ait où se poser sans les
+      // rendre à leur groupe (cf. `revealPoint`).
+      disableClusteringAtZoom: DECLUSTER_ZOOM,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
@@ -225,9 +232,9 @@ export function MarkerClusterLayer({ locations, categoriesBySlug, entries, selec
     const timer = setTimeout(() => {
       for (const [id, m] of markersRef.current) {
         if (locationByIdRef.current.get(id)?.slug !== selectedSlug) continue;
-        // Ouverture du groupe puis recul de contexte, exactement comme dans le
-        // monde réel : le comportement d'atterrissage est le même des deux côtés.
-        settleOnPoint(map, m.marker.getLatLng(), group, m.marker);
+        // Palier serré centré sur le point, puis recul de contexte — exactement
+        // le même atterrissage que dans le monde réel.
+        revealPoint(map, m.marker.getLatLng(), { tightZoom: MAX_ZOOM, floorZoom: DECLUSTER_ZOOM });
         return;
       }
     }, 900);

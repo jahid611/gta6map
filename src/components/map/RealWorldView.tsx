@@ -19,6 +19,11 @@ interface RealWorldViewProps {
 /** Nombre de lieux voisins retenus pour transposer une vue d'une carte à l'autre. */
 const SAMPLE = 12;
 
+/** Au-delà de ce zoom, chaque point est individuel (cf. `revealPoint`). */
+const DECLUSTER_ZOOM = 17;
+/** Palier serré de l'atterrissage — l'imagerie Esri s'arrête à 19. */
+const TIGHT_ZOOM = 19;
+
 /**
  * Bornes plausibles de la Floride. Onze fiches portent des coordonnées
  * manifestement erronées (Californie) qui, sans ce filtre, déplaceraient la vue
@@ -88,8 +93,6 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
   const nodeRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const baseRef = useRef<L.TileLayer | null>(null);
-  /** Groupe de regroupement, pour ouvrir le groupe d un point que l on vise. */
-  const groupRef = useRef<L.MarkerClusterGroup | null>(null);
   const [basemap, setBasemap] = useState<string>(BASEMAPS[0].id);
 
   const plausible = useMemo(() => locations.filter(isPlausible), [locations]);
@@ -179,6 +182,10 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
     const group = L.markerClusterGroup({
       chunkedLoading: true,
       maxClusterRadius: 48,
+      // Seuil explicite, comme sur la carte du jeu : il faut une bande de zooms
+      // où les points sont individuels pour que le recul de contexte ait où se
+      // poser sans les rendre à leur groupe (cf. `revealPoint`).
+      disableClusteringAtZoom: DECLUSTER_ZOOM,
       showCoverageOnHover: false,
       animate: false,
       // Indispensable : sans `iconCreateFunction`, la bibliothèque pose ses
@@ -244,7 +251,6 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
       group.addLayer(marker);
     }
     group.addTo(map);
-    groupRef.current = group;
 
     // Copie locale : la ref peut pointer ailleurs au moment où le nettoyage
     // s'exécute, on vide donc bien la table de cette instance de carte.
@@ -278,12 +284,7 @@ export function RealWorldView({ locations, categoriesBySlug }: RealWorldViewProp
       // rendre le quartier. Le zoom courant n'entre plus en compte — arriver
       // depuis une vue déjà très rapprochée ne doit pas changer le cadrage
       // d'atterrissage.
-      const slug = useUIStore.getState().selectedSlug;
-      revealPoint(map, [target.lat, target.lng], {
-        closeZoom: target.zoom ?? 18,
-        group: groupRef.current,
-        marker: slug ? markersRef.current.get(slug) : null,
-      });
+      revealPoint(map, [target.lat, target.lng], { tightZoom: TIGHT_ZOOM, floorZoom: DECLUSTER_ZOOM });
       return;
     }
 
