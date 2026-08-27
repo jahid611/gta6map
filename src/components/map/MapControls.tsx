@@ -6,18 +6,12 @@ import { useMap } from "react-leaflet";
 import { ArrowRight, Compass, Crosshair, Grid3x3, Layers, LocateFixed, Minus, Plus, RotateCcw, Ruler, Type } from "@/components/ui/icons";
 import { MAP_FILTERS } from "@/lib/map/filters";
 import { Select } from "@/components/ui/select";
+import { Dock, type DockItem } from "@/components/ui/dock";
 import { worldToLatLng } from "@/lib/map/coords";
 import { useMapStore } from "@/store/useMapStore";
 import { LANDMASS_BOUNDS, TILE_SETS, TILE_SET_IDS } from "@/lib/map/config";
 import { latLngToWorld } from "@/lib/map/coords";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
-// 44 px au doigt, 40 px à la souris : sur mobile la colonne est la seule façon
-// d'atteindre ces réglages, elle ne peut pas être plus petite que le seuil
-// tactile confortable.
-const btn =
-  "grid h-11 w-11 sm:h-10 sm:w-10 place-items-center text-foreground hover:bg-surface-3 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-2 first:rounded-t-2xl last:rounded-b-2xl border-b border-border last:border-b-0";
 
 /** Contrôles custom (zoom, reset, fond de carte, étiquettes) + coordonnées sous le curseur. */
 export function MapControls() {
@@ -94,122 +88,34 @@ export function MapControls() {
   // que la vue réelle est ouverte — elle a les siens.
   if (realWorld) return null;
 
+  // Un tableau plutot que neuf blocs de JSX : le dock a besoin du rang de chaque
+  // icone pour calculer sa magnification, et l'ordre se lit d'un coup d'oeil.
+  const tools: DockItem[] = [
+    { id: "in", icon: <Plus className="h-4 w-4" />, label: "Zoom avant", onClick: () => map.zoomIn() },
+    { id: "out", icon: <Minus className="h-4 w-4" />, label: "Zoom arriere", onClick: () => map.zoomOut() },
+    {
+      id: "reset",
+      icon: <RotateCcw className="h-4 w-4" />,
+      label: "Vue par defaut",
+      onClick: () => {
+        // Meme cadrage qu'a l'ouverture : les terres centrees dans le
+        // conteneur, plutot qu'un centre/zoom fixe.
+        const [[xMin, yMin], [xMax, yMax]] = LANDMASS_BOUNDS;
+        map.flyToBounds(L.latLngBounds([yMin, xMin], [yMax, xMax]), { padding: [24, 24] });
+      },
+    },
+    { id: "labels", icon: <Type className="h-4 w-4" />, label: "Noms des zones", onClick: toggleAreaLabels, active: showAreaLabels },
+    { id: "grid", icon: <Grid3x3 className="h-4 w-4" />, label: "Quadrillage (A1, E3...)", onClick: toggleGrid, active: showGrid },
+    { id: "real", icon: <Compass className="h-4 w-4" />, label: "Voir la zone dans le monde reel", onClick: toggleRealWorld, active: realWorld },
+    { id: "measure", icon: <Ruler className="h-4 w-4" />, label: "Mesurer une distance", onClick: toggleMeasuring, active: measuring },
+    { id: "goto", icon: <LocateFixed className="h-4 w-4" />, label: "Aller a des coordonnees", onClick: () => setGotoOpen((v) => !v), active: gotoOpen },
+    { id: "layers", icon: <Layers className="h-4 w-4" />, label: "Fond de carte", onClick: () => setLayersOpen((v) => !v), active: layersOpen },
+  ];
+
   return (
     <>
       <div className="leaflet-top leaflet-left pointer-events-none">
-        <div className="leaflet-control rs-glass pointer-events-auto mt-3 ml-3 flex flex-col rounded-2xl">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className={btn} onClick={() => map.zoomIn()} aria-label="Zoom avant">
-                <Plus className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Zoom avant</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className={btn} onClick={() => map.zoomOut()} aria-label="Zoom arrière">
-                <Minus className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Zoom arrière</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={btn}
-                onClick={() => {
-                  // Même cadrage qu'à l'ouverture : les terres centrées dans le
-                  // conteneur, plutôt qu'un centre/zoom fixe.
-                  const [[xMin, yMin], [xMax, yMax]] = LANDMASS_BOUNDS;
-                  map.flyToBounds(L.latLngBounds([yMin, xMin], [yMax, xMax]), { padding: [24, 24] });
-                }}
-                aria-label="Réinitialiser la vue"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Vue par défaut</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={cn(btn, showAreaLabels && "text-accent-2")}
-                onClick={toggleAreaLabels}
-                aria-label="Étiquettes de zones"
-                aria-pressed={showAreaLabels}
-              >
-                <Type className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Noms des zones</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={cn(btn, showGrid && "text-accent-2")}
-                onClick={toggleGrid}
-                aria-label="Quadrillage de repérage"
-                aria-pressed={showGrid}
-              >
-                <Grid3x3 className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Quadrillage (A1, E3…)</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={cn(btn, realWorld && "text-accent-2")}
-                onClick={toggleRealWorld}
-                aria-label="Basculer sur le monde réel"
-                aria-pressed={realWorld}
-              >
-                <Compass className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Voir la zone dans le monde réel</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={cn(btn, measuring && "text-accent-2")}
-                onClick={toggleMeasuring}
-                aria-label="Mesurer une distance"
-                aria-pressed={measuring}
-              >
-                <Ruler className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Mesurer — clic pour poser, clic droit pour annuler</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={cn(btn, gotoOpen && "bg-surface-3 text-accent")}
-                onClick={() => setGotoOpen((v) => !v)}
-                aria-label="Aller à des coordonnées"
-                aria-expanded={gotoOpen}
-              >
-                <LocateFixed className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Aller à des coordonnées</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className={cn(btn, layersOpen && "bg-surface-3 text-accent")}
-                onClick={() => setLayersOpen((v) => !v)}
-                aria-label="Fonds de carte"
-                aria-expanded={layersOpen}
-              >
-                <Layers className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Fond de carte</TooltipContent>
-          </Tooltip>
-        </div>
+        <Dock className="leaflet-control pointer-events-auto mt-3 ml-3" items={tools} />
 
         {gotoOpen && (
           <form
