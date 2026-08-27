@@ -112,8 +112,12 @@ interface PagesResponse {
 
 async function pageDetails(titles: string[]): Promise<PagesResponse["query"]["pages"]> {
   const out: PagesResponse["query"]["pages"] = [];
-  for (let i = 0; i < titles.length; i += 50) {
-    const batch = titles.slice(i, i + 50);
+  // Lots de 20 et non de 50 : `TextExtracts` plafonne `exlimit` à 20 et se
+  // contente d'un avertissement quand on demande plus — les pages au-delà du
+  // vingtième titre revenaient sans extrait, silencieusement. C'est ce qui
+  // laissait six zones sur dix-sept avec une fiche réduite à son titre.
+  for (let i = 0; i < titles.length; i += 20) {
+    const batch = titles.slice(i, i + 20);
     const res = await api<PagesResponse>({
       action: "query",
       titles: batch.join("|"),
@@ -121,7 +125,7 @@ async function pageDetails(titles: string[]): Promise<PagesResponse["query"]["pa
       inprop: "url",
       exintro: "1",
       explaintext: "1",
-      exlimit: "50",
+      exlimit: "20",
       piprop: "thumbnail|original",
       pithumbsize: "1024",
       redirects: "1",
