@@ -11,11 +11,13 @@ interface RealWorldMapProps {
   label: string;
 }
 
-/** Panorama Street View, sans clé d'API (`output=svembed`). */
-const panoSrc = (lat: number, lng: number) =>
-  `https://maps.google.com/maps?q=&layer=c&cbll=${lat},${lng}&cbp=11,0,0,0,0&output=svembed`;
+/**
+ * Vue aérienne, sans clé d'API. `t=k` sélectionne l'imagerie satellite du cadre
+ * hérité de Google Maps — le terrain photographié, et non le plan dessiné.
+ */
+const satSrc = (lat: number, lng: number) => `https://www.google.com/maps?q=${lat},${lng}&z=18&t=k&output=embed`;
 
-/** Repli en vue plan, pour les points sans panorama disponible. */
+/** Repli en plan : les rues nommées, quand il s'agit de se repérer. */
 const planSrc = (lat: number, lng: number) => `https://www.google.com/maps?q=${lat},${lng}&z=17&output=embed`;
 
 /**
@@ -26,14 +28,15 @@ const planSrc = (lat: number, lng: number) => `https://www.google.com/maps?q=${l
  * écarts avec l'original :
  *
  *  - il dessinait une fausse carte en SVG (rues, pâtés d'immeubles, repère
- *    animé). Nous en avons une vraie : c'est le panorama qui prend la place ;
+ *    animé). Nous en avons une vraie : c'est l'imagerie aérienne qui prend la
+ *    place ;
  *  - `framer-motion` est remplacé par deux variables CSS pilotées au
  *    `mousemove`. Une dépendance d'animation entière pour deux rotations ne se
  *    justifiait pas.
  *
- * Le panorama passe avant le plan : on vient voir à quoi l'endroit ressemble,
- * pas où il se situe — la carte du jeu répond déjà à ça. Street View ne couvre
- * cependant pas tout (large, propriété privée), d'où la bascule vers le plan.
+ * Le satellite passe avant le plan : on vient comparer le terrain réel à celui
+ * du jeu, et un plan dessiné ne montre justement pas le terrain. La bascule vers
+ * le plan reste là pour les rues nommées, quand il s'agit de se repérer.
  *
  * Pourquoi une vue par lieu et non une superposition sur toute la carte : la
  * géographie de Leonida est un collage. Port Gellhorn correspond à Panama City,
@@ -44,7 +47,7 @@ const planSrc = (lat: number, lng: number) => `https://www.google.com/maps?q=${l
  */
 export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"pano" | "plan">("pano");
+  const [mode, setMode] = useState<"sat" | "plan">("sat");
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Inclinaison : deux variables CSS plutôt qu'un état React — le pointeur émet
@@ -107,8 +110,8 @@ export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
                 parfois l'ancienne vue en place, le remonter garantit le passage. */}
             <iframe
               key={mode}
-              src={mode === "pano" ? panoSrc(lat, lng) : planSrc(lat, lng)}
-              title={`${label} — ${mode === "pano" ? "Street View" : "plan"}`}
+              src={mode === "sat" ? satSrc(lat, lng) : planSrc(lat, lng)}
+              title={`${label} — ${mode === "sat" ? "vue satellite" : "plan"}`}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               className="h-full w-full animate-fade-in border-0"
@@ -119,11 +122,11 @@ export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
                   soulignement de l'actif suffit à dire lequel. */}
               <button
                 type="button"
-                onClick={() => setMode("pano")}
-                aria-pressed={mode === "pano"}
-                className={cn("text-xs cursor-pointer", mode === "pano" ? "font-bold text-white underline underline-offset-4" : "text-white/60 hover:text-white")}
+                onClick={() => setMode("sat")}
+                aria-pressed={mode === "sat"}
+                className={cn("text-xs cursor-pointer", mode === "sat" ? "font-bold text-white underline underline-offset-4" : "text-white/60 hover:text-white")}
               >
-                Street View
+                Satellite
               </button>
               <span aria-hidden className="h-3 w-px bg-white/25" />
               <button
@@ -136,7 +139,7 @@ export function RealWorldMap({ lat, lng, label }: RealWorldMapProps) {
               </button>
 
               <a
-                href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`}
+                href={`https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lng}&zoom=18&basemap=satellite`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-accent-2 hover:underline"
