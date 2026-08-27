@@ -6,7 +6,7 @@ import { RevealProvider } from "@/components/landing/RevealProvider";
 import { Hero } from "@/components/landing/Hero";
 import { StatsBand } from "@/components/landing/StatsBand";
 import { FeatureSections } from "@/components/landing/FeatureSections";
-import { TrailerGallery } from "@/components/landing/TrailerGallery";
+import { ShotStack } from "@/components/landing/ShotStack";
 import { TrailerSection } from "@/components/landing/TrailerSection";
 import { CharacterSection } from "@/components/landing/CharacterSection";
 import { RegionCarousel } from "@/components/landing/RegionCarousel";
@@ -68,7 +68,7 @@ export default async function LandingPage({ searchParams }: PageProps<"/">) {
           <Hero locationCount={stats.landmarks} regionCount={stats.regions.length} />
           <StatsBand stats={stats} />
           <FeatureSections stats={stats} />
-          <TrailerGallery shots={stats.showcase} />
+          <ShotStack shots={stats.stack} />
 
           {jasonShots && (
             <CharacterSection

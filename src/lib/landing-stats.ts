@@ -26,6 +26,52 @@ export interface LandingRegion {
   href: string;
 }
 
+/**
+ * Les cinq plans mis en avant dans la pile de l'accueil, et ce qu'on en dit.
+ *
+ * Le texte est écrit ici plutôt que tiré du wiki : ces entrées sont des
+ * *positions de caméra*, pas des lieux, et n'ont donc aucune fiche à elles. Les
+ * faits qui les entourent — Vice Beach est une station balnéaire du comté de
+ * Vice-Dale, dont Vice City est le chef-lieu ; les Leonida Keys relèvent du
+ * comté de Mariana — viennent des fiches de zone, mais la formulation est la
+ * nôtre.
+ *
+ * Ordre volontaire : on part de l'entrée de ville et on s'éloigne vers les
+ * Keys, en terminant sur la prison — c'est le fil de la bande-annonce.
+ */
+const STACK_SHOTS: { slug: string; blurb: string }[] = [
+  {
+    slug: "t1-21-vice-city-sign",
+    blurb:
+      "Le panneau d'entrée de Vice City, plan d'ouverture de la première bande-annonce. Il donne le ton avant même qu'on ait vu la ville : néon, palmiers, et la promesse d'un retour en Floride vingt ans après.",
+  },
+  {
+    slug: "t1-17-ocean-drive-nw",
+    blurb:
+      "Le front de mer de Vice Beach, station balnéaire du comté de Vice-Dale. C'est la façade que le jeu montre le plus volontiers — hôtels alignés, circulation lente, et la plage juste derrière la caméra.",
+  },
+  {
+    slug: "t1-16-venetian-islands",
+    blurb:
+      "Les îles artificielles de la baie, reliées par une chaussée au reste de Vice City. Un plan aérien qui sert surtout à dire l'échelle de la carte : on y voit trois quartiers d'un seul regard.",
+  },
+  {
+    slug: "t1-19-keys",
+    blurb:
+      "Les Leonida Keys, chapelet d'îles au sud de l'État, rattachées au comté de Mariana. Le contraste est net avec la ville : de l'eau turquoise, une seule route, et des dizaines de kilomètres avant le prochain feu rouge.",
+  },
+  {
+    slug: "t1-1-prison",
+    blurb:
+      "Le pénitencier où s'ouvre l'histoire de Lucia. Le plan est court dans la bande-annonce, mais il situe le point de départ du récit — et il est ici replacé au mètre près sur la carte.",
+  },
+];
+
+/** Un plan de la pile : le visuel, son texte, et où il se trouve. */
+export interface StackShot extends ShowcaseShot {
+  blurb: string;
+}
+
 /** Un plan officiel géolocalisé, tel qu'affiché dans la galerie de la landing. */
 export interface ShowcaseShot {
   slug: string;
@@ -48,6 +94,8 @@ export interface LandingStats {
   regions: LandingRegion[];
   /** Sélection de plans pour la galerie — vide si les frames ne sont pas servies. */
   showcase: ShowcaseShot[];
+  /** Les cinq plans mis en avant dans la pile de l'accueil (cf. `STACK_SHOTS`). */
+  stack: StackShot[];
   /** Répartition des plans officiels par source (« Trailer 1 », « Screenshot officiel »…). */
   mediaSources: { label: string; count: number }[];
 }
@@ -285,9 +333,20 @@ export const getLandingStats = cache(async (): Promise<LandingStats> => {
     if (showcase.length === before) break; // toutes les listes épuisées
   }
 
+  // Pile de l'accueil : les cinq plans choisis, dans l'ordre voulu. Un plan dont
+  // l'image manque est écarté — un miroir de frames non configuré ne doit pas
+  // laisser une carte vide au milieu de la pile.
+  const stack: StackShot[] = STACK_SHOTS.flatMap(({ slug, blurb }) => {
+    const shot = cameras.find((c) => c.slug === slug);
+    const image = frameUrl(shot?.media?.frame);
+    if (!shot || !image) return [];
+    return [{ slug, name: shot.name, area: shot.area ?? null, image, sourceLabel: shot.media?.sourceLabel ?? "", blurb }];
+  });
+
   return {
     total: locations.length,
     showcase,
+    stack,
     landmarks: locations.length - cameras.length,
     cameras: cameras.length,
     // Toutes les catégories réellement présentes sur la carte — c'est ce que
