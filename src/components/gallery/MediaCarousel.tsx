@@ -8,26 +8,32 @@ import { cn } from "@/lib/utils";
 
 /** Cadence de l'avance automatique, en millisecondes. */
 const DELAY = 5000;
-/** Amplitude de molette au-delà de laquelle on change de plan. */
 const WHEEL_THRESHOLD = 60;
 const WHEEL_COOLDOWN = 420;
 
+/* Proportions de la composition d'origine, toutes rapportées à la scène. */
+/** Haut commun de la bande, en descendant depuis le sommet. */
+const STRIP_TOP = 0.5;
+/** Hauteur d'une carte au repos, rapportée à la scène. L'active fait le double. */
+const CARD_H = 0.264;
+
 /**
  * Carrousel d'ouverture de la galerie, d'après `crafterui/hero-carousel`
- * (21st.dev) : un plan en grand, la suite en bande sous lui, et le fond de scène
- * qui reprend l'image active en très flou — c'est ce fond qui fait basculer
- * l'ambiance à chaque changement.
+ * (21st.dev), dont la composition est reprise telle quelle :
  *
- * Trois choses reprises de l'original, parce qu'elles font l'essentiel :
+ *  - une scène pleine largeur, dont le fond est l'image active graduée — c'est
+ *    lui qui fait basculer l'ambiance à chaque changement ;
+ *  - le titre occupe la moitié haute, calé en bas de celle-ci, donc juste
+ *    au-dessus de la bande ;
+ *  - **une seule bande** qui démarre à mi-hauteur, toutes les cartes partageant
+ *    ce même bord supérieur, la carte active faisant deux fois la hauteur des
+ *    autres. C'est ce contraste de hauteur qui désigne le plan courant, sans
+ *    cadre ni pastille.
  *
- *  - le fond dérivé de l'image active, non un aplat ;
- *  - la bande des plans suivants, qui annonce ce qui vient au lieu de laisser
- *    l'utilisateur découvrir à l'aveugle ;
- *  - la molette comme moyen de navigation, avec un seuil et un temps mort —
- *    sans quoi un seul geste de trackpad ferait défiler dix plans.
+ * Les proportions sont celles de l'original, rapportées à la hauteur de scène.
  *
- * `framer-motion` est écarté, comme partout ailleurs ici : les transitions sont
- * des changements d'opacité et de position, ce que le CSS fait seul.
+ * `framer-motion` est écarté comme partout ici : le glissement des cartes et la
+ * montée du titre sont des transitions CSS.
  */
 export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
   const [index, setIndex] = useState(0);
@@ -46,13 +52,12 @@ export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
 
   if (!count) return null;
   const active = entries[index];
-  /** Les trois plans suivants, en boucle : la bande annonce la suite. */
-  const strip = Array.from({ length: Math.min(4, count) }, (_, k) => entries[(index + k) % count]);
 
   return (
     <section
       aria-roledescription="carrousel"
       aria-label="Plans à la une"
+      tabIndex={0}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -64,112 +69,113 @@ export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
         e.preventDefault();
       }}
       onWheel={(e) => {
+        // Molette horizontale seulement : la verticale appartient à la page.
         if (Math.abs(e.deltaX) < WHEEL_THRESHOLD) return;
-        const now = e.timeStamp;
-        if (now - wheelAt.current < WHEEL_COOLDOWN) return;
-        wheelAt.current = now;
+        if (e.timeStamp - wheelAt.current < WHEEL_COOLDOWN) return;
+        wheelAt.current = e.timeStamp;
         go(e.deltaX > 0 ? 1 : -1);
       }}
-      tabIndex={0}
-      className="relative isolate mb-14 overflow-hidden rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      className="relative isolate mb-14 aspect-[16/10] w-full overflow-hidden rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:aspect-[16/8]"
     >
-      {/* Fond de scène : l'image active, agrandie et très floutée. Elle change en
-          même temps que le plan, ce qui fait basculer la couleur de toute la
-          section — l'effet que porte l'original. */}
+      {/* Fond de scène : l'image active, agrandie et graduée. */}
       <div aria-hidden className="absolute inset-0 -z-10">
         <Image
           key={active.src}
           src={active.poster ?? active.src}
           alt=""
           fill
-          quality={35}
+          quality={40}
           sizes="100vw"
-          className="scale-110 object-cover opacity-45 blur-2xl animate-fade-in"
+          className="scale-110 object-cover opacity-50 blur-2xl animate-fade-in"
         />
         <div className="absolute inset-0 bg-background/55" />
       </div>
 
-      <div className="flex flex-col gap-6 p-5 sm:p-8 lg:flex-row lg:items-end lg:gap-10">
-        {/* Plan actif */}
-        <div className="min-w-0 lg:w-[58%]">
-          <p className="vi-kicker text-accent">{active.group}</p>
-          <h2 className="rs-title mt-2 text-2xl leading-tight text-foreground sm:text-4xl">{active.title}</h2>
-
-          <div className="relative mt-5 aspect-video overflow-hidden rounded-2xl">
-            <Image
-              key={active.id}
-              src={active.poster ?? active.src}
-              alt={active.title}
-              fill
-              priority
-              quality={90}
-              sizes="(max-width: 1024px) 100vw, 1100px"
-              className="object-cover animate-fade-in"
-            />
-          </div>
-
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              aria-label="Plan précédent"
-              className="rs-pill grid h-10 w-10 place-items-center cursor-pointer"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              aria-label="Plan suivant"
-              className="rs-pill grid h-10 w-10 place-items-center cursor-pointer"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-
-            {/* Rail de progression, comme dans l'original : la barre dit où l'on
-                en est dans la sélection, ce qu'un compteur seul ne montre pas. */}
-            <span aria-hidden className="ml-2 h-0.5 flex-1 overflow-hidden rounded-full bg-white/12">
-              <span
-                className="block h-full rounded-full bg-accent transition-[width] duration-500 ease-out"
-                style={{ width: `${((index + 1) / count) * 100}%` }}
-              />
-            </span>
-            <span className="vi-num shrink-0 text-xs text-muted">
-              {index + 1} / {count}
+      {/* Moitié haute : le titre, calé en bas — donc juste au-dessus de la bande. */}
+      <div
+        className="absolute inset-x-0 top-0 flex flex-col justify-end px-5 pb-4 sm:px-8"
+        style={{ height: `${STRIP_TOP * 100}%` }}
+      >
+        <div className="flex w-full flex-wrap items-end gap-x-8 gap-y-1">
+          <div className="min-w-0">
+            <p className="vi-kicker text-accent">{active.group}</p>
+            {/* Le titre monte depuis son propre bord : chaque changement le
+                remonte, ce qui marque le passage d'un plan à l'autre. */}
+            <span className="mt-1 block overflow-hidden">
+              <h2 key={active.id} className="rs-title block text-2xl leading-[0.95] text-foreground animate-title-up sm:text-5xl">
+                {active.title}
+              </h2>
             </span>
           </div>
+          <span className="vi-num ml-auto shrink-0 text-xs text-muted">
+            {index + 1} / {count}
+          </span>
         </div>
+      </div>
 
-        {/* La bande : ce qui vient ensuite. Masquée sous `lg`, où elle prendrait
-            la place du plan lui-même. */}
-        <ul className="hidden gap-3 lg:flex lg:w-[42%]">
-          {strip.map((entry, k) => (
-            <li key={`${entry.id}-${k}`} className="min-w-0 flex-1">
-              <button
-                type="button"
-                onClick={() => go(k)}
-                aria-label={`Voir ${entry.title}`}
-                aria-current={k === 0}
-                className={cn(
-                  "group relative block aspect-[3/4] w-full overflow-hidden rounded-xl transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                  k === 0 ? "opacity-100 ring-1 ring-accent/50" : "opacity-55 hover:opacity-90",
-                )}
+      {/* La bande : un seul rang, haut commun, carte active deux fois plus haute.
+          Le conteneur occupe la moitié basse, les hauteurs s'expriment donc en
+          pourcentage de cette moitié — d'où le doublement des ratios d'origine.
+          La largeur suit par le format 3:4, sans avoir à la calculer. */}
+      <div className="absolute inset-x-0 overflow-hidden px-5 sm:px-8" style={{ top: `${STRIP_TOP * 100}%`, height: `${(1 - STRIP_TOP) * 100}%` }}>
+        {/* `h-full` indispensable : les hauteurs des cartes sont en pourcentage,
+            et un pourcentage ne se résout que contre un parent de hauteur
+            connue. Sans lui la liste tombait à zéro et la bande disparaissait. */}
+        <ul className="flex h-full items-start gap-2 sm:gap-3">
+          {entries.map((entry, i) => {
+            const focused = i === index;
+            return (
+              <li
+                key={entry.id}
+                className="aspect-[3/4] shrink-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                style={{ height: `${((focused ? CARD_H * 2 : CARD_H) / (1 - STRIP_TOP)) * 100}%` }}
               >
-                <Image
-                  src={entry.poster ?? entry.src}
-                  alt=""
-                  fill
-                  quality={70}
-                  sizes="200px"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-2 pt-6 text-left">
-                  <span className="block truncate text-[11px] font-medium text-white">{entry.title}</span>
-                </span>
-              </button>
-            </li>
-          ))}
+                <button
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-label={`Voir ${entry.title}`}
+                  aria-current={focused}
+                  className={cn(
+                    "group relative block h-full w-full overflow-hidden rounded-xl transition-opacity duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    focused ? "opacity-100" : "opacity-55 hover:opacity-90",
+                  )}
+                >
+                  <Image
+                    src={entry.poster ?? entry.src}
+                    alt=""
+                    fill
+                    quality={focused ? 88 : 60}
+                    sizes="(max-width: 640px) 40vw, 320px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {/* Aucune légende sur les cartes : la carte active déborde
+                      volontairement du bas de la scène, et tout texte posé sur
+                      elle s'y ferait rogner. Le titre au-dessus la nomme déjà. */}
+                </button>
+              </li>
+            );
+          })}
         </ul>
+      </div>
+
+      {/* Commandes en tête de scène, comme la barre supérieure de l'original :
+          en pied, la carte active — qui déborde volontairement vers le bas — les
+          aurait recouvertes. */}
+      <div className="absolute inset-x-0 top-0 z-10 flex items-center gap-3 px-5 pt-4 sm:px-8">
+        <button type="button" onClick={() => go(-1)} aria-label="Plan précédent" className="rs-pill grid h-9 w-9 shrink-0 place-items-center cursor-pointer">
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <button type="button" onClick={() => go(1)} aria-label="Plan suivant" className="rs-pill grid h-9 w-9 shrink-0 place-items-center cursor-pointer">
+          <ChevronRight className="h-4 w-4" />
+        </button>
+        {/* Rail de progression : la barre dit où l'on en est dans la sélection,
+            ce qu'un compteur seul ne montre pas. */}
+        <span aria-hidden className="h-0.5 w-1/5 overflow-hidden rounded-full bg-white/15">
+          <span
+            className="block h-full rounded-full bg-accent transition-[width] duration-500 ease-out"
+            style={{ width: `${((index + 1) / count) * 100}%` }}
+          />
+        </span>
       </div>
     </section>
   );

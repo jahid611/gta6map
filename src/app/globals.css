@@ -242,6 +242,26 @@ button:disabled {
    lisait la carte au travers du texte. Les aretes internes suffisent a donner
    la matiere, et elles, elles marchent partout. */
 
+/* Titre du carrousel de galerie : il monte depuis son propre bord, la ligne
+   etant masquee par un parent en `overflow: hidden`. C'est ce qui marque le
+   passage d'un plan a l'autre (cf. `MediaCarousel`). */
+@keyframes vi-title-up {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-title-up {
+  animation: vi-title-up 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-title-up {
+    animation: none;
+  }
+}
+
 /* Entree des icones du rail lateral, en cascade : elles glissent depuis la
    gauche au lieu de surgir toutes au meme instant (cf. `AppShell`). */
 @keyframes vi-rail-in {
