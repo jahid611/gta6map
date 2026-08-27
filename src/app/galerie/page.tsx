@@ -3,6 +3,7 @@ import { MEDIA_CATALOG } from "@/lib/media-catalog";
 import { RevealProvider } from "@/components/landing/RevealProvider";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { MediaGrid } from "@/components/gallery/MediaGrid";
+import { MediaCarousel } from "@/components/gallery/MediaCarousel";
 
 export const metadata: Metadata = {
   title: "Galerie — screenshots, artworks et clips officiels",
@@ -13,6 +14,10 @@ export const metadata: Metadata = {
 
 export default function GaleriePage() {
   const entries = MEDIA_CATALOG;
+  // Selection douverture : des screenshots de lieux, larges et lisibles en grand.
+  // Les clips sont ecartes — le carrousel montre une image fixe, une affiche de
+  // video y perdrait ce qui fait son interet.
+  const featured = entries.filter((e) => e.kind === "screenshot" && e.section === "Places").slice(0, 10);
   const screenshots = entries.filter((e) => e.kind === "screenshot").length;
   const artworks = entries.filter((e) => e.kind === "artwork").length;
   const clips = entries.filter((e) => e.kind === "clip").length;
@@ -37,6 +42,9 @@ export default function GaleriePage() {
           </header>
 
           <section className="mx-auto max-w-6xl px-5 py-14">
+            {/* Une sélection en ouverture, la médiathèque complète en dessous :
+                le carrousel donne à voir, la grille donne à chercher. */}
+            <MediaCarousel entries={featured} />
             <MediaGrid entries={entries} />
           </section>
         </main>
