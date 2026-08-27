@@ -29,13 +29,18 @@ const MARGIN = "1200px 0px";
  */
 export function useNearViewport<T extends Element>(margin: string = MARGIN) {
   const ref = useRef<T>(null);
-  // Sans IntersectionObserver (navigateur ancien, environnement de test), on
-  // considère tout comme proche : mieux vaut charger que ne jamais afficher.
-  const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
+  // Toujours `false` au départ, sans exception : cette valeur sert aussi au
+  // rendu serveur, et la moindre divergence avec le premier rendu client casse
+  // l'hydratation. Tout ce qui dépend du navigateur est décidé dans l'effet.
+  const [near, setNear] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el || near) return;
+    // Sans IntersectionObserver (navigateur ancien), on s'abstient : l'image
+    // reste en `lazy` et se charge à l'ancienne. Elle perd son avance, rien de
+    // plus — il n'y a pas d'image manquante au bout de ce chemin.
+    if (typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;

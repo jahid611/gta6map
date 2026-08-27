@@ -62,8 +62,13 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     // Next 16 n'accepte que les qualités listées ici ; toute autre valeur passée
     // à `next/image` retombe silencieusement sur 75. Les visuels de personnages
-    // et les plans de trailers sont servis en 92.
-    qualities: [75, 88, 90, 92],
+    // et les plans de trailers sont servis en 92, la scène de la galerie en 100
+    // — plein cadre et sans voile, c'est le seul endroit où le grain se voit.
+    //
+    // La liste reste courte à dessein : chaque qualité distincte est une
+    // variante de plus à générer et à garder en cache, pour un écart souvent
+    // invisible.
+    qualities: [75, 88, 90, 92, 100],
     remotePatterns: remoteHosts.map((hostname) => ({ protocol: "https", hostname })),
   },
   async headers() {

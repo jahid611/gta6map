@@ -263,7 +263,14 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
                     src={entry.poster ?? entry.src}
                     alt=""
                     fill
-                    quality={focused ? 95 : 72}
+                    // Qualité unique, et non relevée sur la carte active : la
+                    // largeur demandée ne dépend pas du rang, si bien que
+                    // changer de qualité au focus réclamait au serveur une
+                    // seconde variante de la même image — un nouveau
+                    // chargement, donc un clignotement, à chaque changement de
+                    // plan. Une seule variante par carte, et le passage au
+                    // premier plan ne coûte plus rien.
+                    quality={90}
                     sizes="(max-width: 640px) 45vw, 320px"
                     loading={Math.abs(i - index) <= STRIP_WINDOW ? "eager" : "lazy"}
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
