@@ -33,7 +33,8 @@ import dynamic from "next/dynamic";
 // déplie la vue réelle, et n'apparaît donc dans aucun autre parcours.
 const RealWorldMap = dynamic(() => import("./RealWorldMap").then((m) => m.RealWorldMap), {
   ssr: false,
-  loading: () => <div className="h-48 w-full animate-pulse rounded-xl border border-border bg-surface-3" />,
+  // Même hauteur que la carte repliée : sinon la fiche sursaute au montage.
+  loading: () => <div className="h-24 w-full animate-pulse rounded-2xl border border-border bg-surface-3" />,
 });
 import { Lightbox, type LightboxImage } from "@/components/ui/lightbox";
 import { cn } from "@/lib/utils";
@@ -65,7 +66,6 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
   const [lightbox, setLightbox] = useState<number | null>(null);
   // `/map?share=1` : l'utilisateur vient du chat pour choisir un lieu à partager.
   const shareMode = useSearchParams().get("share") === "1";
-  const [irlOpen, setIrlOpen] = useState(false);
   const openRealWorldAt = useMapStore((s) => s.openRealWorldAt);
   const openRealWorldFromGame = useMapStore((s) => s.openRealWorldFromGame);
   const selectLocation = useUIStore((s) => s.selectLocation);
@@ -369,37 +369,16 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
             {location.realWorld.address && <p className="text-xs text-muted">{location.realWorld.address}</p>}
             {location.realWorld.lat !== null && location.realWorld.lng !== null && (
               <>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={() => setIrlOpen((v) => !v)}
-                    aria-expanded={irlOpen}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-foreground transition-colors hover:border-accent-2/60 hover:text-accent-2"
-                  >
-                    <Compass className="h-3 w-3" />
-                    {irlOpen ? "Masquer l'aperçu" : "Aperçu"}
-                  </button>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${location.realWorld.lat},${location.realWorld.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-accent-2 hover:underline"
-                  >
-                    Google Maps <ExternalLink className="h-3 w-3" />
-                  </a>
+                {/* La carte porte désormais tout : l'aperçu, les coordonnées et
+                    le lien vers Google Maps. Le bouton et le lien qui la
+                    précédaient faisaient trois commandes pour une seule action. */}
+                <div className="mt-2">
+                  <RealWorldMap
+                    lat={location.realWorld.lat}
+                    lng={location.realWorld.lng}
+                    label={location.realWorld.name ?? location.name}
+                  />
                 </div>
-
-                {irlOpen && (
-                  <div className="mt-2">
-                    <RealWorldMap
-                      lat={location.realWorld.lat}
-                      lng={location.realWorld.lng}
-                      label={location.realWorld.name ?? location.name}
-                    />
-                    <p className="mt-1.5 vi-num text-[10px] text-muted-2">
-                      {location.realWorld.lat.toFixed(5)}, {location.realWorld.lng.toFixed(5)}
-                    </p>
-                  </div>
-                )}
               </>
             )}
           </section>
