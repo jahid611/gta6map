@@ -1079,6 +1079,25 @@ button:disabled {
   font-style: normal;
   font-display: swap;
 }
+/* Graisses lourdes du TEXTE, declarees sur la meme famille. La pile display
+   vise d abord Helvetica Now Display, absente ici ; sans ces deux faces, un
+   titre en 800/900 ne trouvait rien au-dela de Bold et retombait sur Archivo,
+   ou bien le navigateur epaississait la Bold lui-meme — un faux gras, plus
+   lourd et moins net que la vraie coupe. */
+@font-face {
+  font-family: "Helvetica Now Text";
+  src: local("Helvetica Now Text ExtraBold"), url("/fonts/HelveticaNowText-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Helvetica Now Text";
+  src: local("Helvetica Now Text Black"), url("/fonts/HelveticaNowText-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: "Helvetica Now Display";
   src: local("Helvetica Now Display Bold"), url("/fonts/HelveticaNowDisplay-Bold.woff2") format("woff2");
