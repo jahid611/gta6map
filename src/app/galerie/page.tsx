@@ -41,10 +41,14 @@ export default function GaleriePage() {
             </p>
           </header>
 
-          <section className="mx-auto max-w-6xl px-5 py-14">
-            {/* Une sélection en ouverture, la médiathèque complète en dessous :
-                le carrousel donne à voir, la grille donne à chercher. */}
+          {/* Le carrousel est hors de la colonne : il occupe toute la largeur de
+              la fenêtre, la grille reste dans la colonne de lecture. L'un donne
+              à voir, l'autre donne à chercher. */}
+          <div className="mt-14">
             <MediaCarousel entries={featured} />
+          </div>
+
+          <section className="mx-auto max-w-6xl px-5 py-14">
             <MediaGrid entries={entries} />
           </section>
         </main>

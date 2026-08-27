@@ -75,20 +75,32 @@ export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
         wheelAt.current = e.timeStamp;
         go(e.deltaX > 0 ? 1 : -1);
       }}
-      className="relative isolate mb-14 aspect-[16/10] w-full overflow-hidden rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:aspect-[16/8]"
+      // Pleine largeur, sans arrondi ni marge : la scene occupe toute la fenetre,
+      // comme dans l original. Elle est donc rendue hors de la colonne de la page.
+      className="relative isolate aspect-[16/10] w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:aspect-[21/9]"
     >
-      {/* Fond de scène : l'image active, agrandie et graduée. */}
+      {/* Fond de scène : l'image active en pleine définition, telle quelle. Elle
+          n'est ni floutée ni réduite — c'est elle le décor, et l'original la
+          gradue sans lui retirer sa netteté. Seuls des voiles dégradés viennent
+          asseoir le titre en haut et la bande en bas. */}
       <div aria-hidden className="absolute inset-0 -z-10">
         <Image
           key={active.src}
           src={active.poster ?? active.src}
           alt=""
           fill
-          quality={40}
+          priority
+          quality={90}
           sizes="100vw"
-          className="scale-110 object-cover opacity-50 blur-2xl animate-fade-in"
+          className="object-cover object-center animate-fade-in"
         />
-        <div className="absolute inset-0 bg-background/55" />
+        {/* Teinte rose posée en `color` : la photo garde sa luminance et prend la
+            couleur de la charte, ce que l'original appelle sa gradation. */}
+        <div className="absolute inset-0 bg-accent/12 mix-blend-color" />
+        {/* La moitié basse est nettement assombrie : le fond étant la même image
+            que la carte active, celle-ci s'y dissolvait faute de contraste. Le
+            haut reste clair, c'est là que le décor se donne à voir. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 via-45% to-background/92" />
       </div>
 
       {/* Moitié haute : le titre, calé en bas — donc juste au-dessus de la bande. */}
@@ -144,8 +156,8 @@ export function MediaCarousel({ entries }: { entries: MediaEntry[] }) {
                     src={entry.poster ?? entry.src}
                     alt=""
                     fill
-                    quality={focused ? 88 : 60}
-                    sizes="(max-width: 640px) 40vw, 320px"
+                    quality={focused ? 92 : 70}
+                    sizes="(max-width: 640px) 45vw, 420px"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   {/* Aucune légende sur les cartes : la carte active déborde
