@@ -144,7 +144,10 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           )}
         </button>
       ) : (
-        <div className="h-2 w-full" style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }} />
+        // Aplat et non dégradé : la barre remplace l'image d'en-tête quand il
+        // n'y en a pas, et sa seule fonction est de porter la couleur de la
+        // catégorie — un fondu vers le transparent la diluait pour rien.
+        <div className="h-2 w-full" style={{ background: accent }} />
       )}
 
       <div className="flex flex-col gap-4 p-4">

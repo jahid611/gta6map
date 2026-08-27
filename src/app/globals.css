@@ -793,10 +793,12 @@ button:disabled {
 }
 
 /* Filet degrade 1px facon separateur Rockstar */
+/* Filet de separation : un gris franc, discret, de la meme famille que les
+   bordures de l app. Il etait en degrade arc-en-ciel, ce qui en faisait un
+   element decoratif la ou on ne demande qu une respiration entre deux blocs. */
 .vi-rule {
   height: 1px;
-  background: var(--gradient-vi-h);
-  opacity: 0.55;
+  background: var(--border);
 }
 
 /* Etat initial des blocs animes au scroll : masque UNIQUEMENT sous
