@@ -138,20 +138,20 @@ export function NavPill({ className, trailing }: { className?: string; trailing?
                 // la prise de focus qui ouvre le galet. Les rendre inatteignables
                 // le refermait sur lui-même — plus rien à focaliser, donc plus
                 // aucun moyen de l'ouvrir sans souris.
+                // C'est le libellé lui-même qui passe en rose : la page
+                // courante se lit alors sur le mot qu'on cherchait, sans rien
+                // ajouter à côté. Ni fond de pastille — un galet déjà en relief
+                // ferait une carte dans une carte — ni point d'accent, qui
+                // demandait de faire le lien entre un mot et une marque posée
+                // après lui.
                 className={cn(
                   "flex h-9 items-center whitespace-nowrap rounded-full px-3.5 text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                   isActive
-                    ? "font-semibold text-foreground [text-shadow:0_1px_0_rgba(0,0,0,0.6)]"
+                    ? "font-semibold text-accent [text-shadow:0_1px_0_rgba(0,0,0,0.6)]"
                     : "font-medium text-muted hover:text-foreground",
                 )}
               >
                 {item.label}
-                {/* Le point d'accent porte l'état courant à lui seul : un fond
-                    de pastille sur un galet déjà en relief ferait une carte
-                    dans une carte. */}
-                {isActive && (
-                  <span aria-hidden className="ml-2 h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--accent)]" />
-                )}
               </Link>
             </li>
           );
