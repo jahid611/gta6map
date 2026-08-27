@@ -10,6 +10,7 @@ import { useProgressSync } from "@/hooks/useProgressSync";
 import { MediaMontage, type MontageItem } from "@/components/media/MediaMontage";
 import { cn, formatPercent } from "@/lib/utils";
 import { Select } from "@/components/ui/select";
+import { SafeImage } from "@/components/ui/safe-image";
 import { pastel } from "@/lib/colors";
 import type { CategoryGroup } from "@/types";
 import { CATEGORY_GROUP_LABELS } from "@/lib/data/categories";
@@ -112,8 +113,7 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
         <section className="relative overflow-hidden rounded-3xl">
           <div className="relative h-56 sm:h-64">
             {bannerSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={bannerSrc} alt="" className="h-full w-full object-cover object-[50%_30%]" />
+              <SafeImage src={bannerSrc} className="h-full w-full object-cover object-[50%_30%]" />
             ) : (
               <div className="h-full w-full bg-[image:var(--gradient-vi)]" />
             )}
@@ -134,8 +134,12 @@ export function AccountPanel({ totals, total, avatars, banners, montage }: Accou
               aria-label="Changer la photo de profil"
             >
               {auth.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={auth.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                <SafeImage
+                  src={auth.avatarUrl}
+                  className="h-full w-full object-cover"
+                  referrerPolicy="no-referrer"
+                  fallback={<span className="grid h-full w-full place-items-center font-display text-2xl font-black text-white">{initials}</span>}
+                />
               ) : (
                 <span className="grid h-full w-full place-items-center font-display text-2xl font-black text-white">{initials}</span>
               )}
@@ -430,8 +434,7 @@ function Choice({ src, label, sub, selected, busy, onClick, round = false }: { s
       <span className={cn("relative", round ? "h-20 w-20 sm:h-24 sm:w-24" : "aspect-video w-full")}>
         <span className={cn("block h-full w-full overflow-hidden border-2 border-white/10 group-hover:border-white/30", round ? "rounded-full" : "rounded-xl")}>
           {src ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={src} alt={label} className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+            <SafeImage src={src} alt={label} className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
           ) : (
             <span className="block h-full w-full bg-[image:var(--gradient-vi)]" />
           )}

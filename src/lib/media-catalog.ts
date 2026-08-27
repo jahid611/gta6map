@@ -47,6 +47,29 @@ function resolve(src: string | null): string | null {
 }
 
 /**
+ * Remet une adresse **stockée en base** sur le miroir courant.
+ *
+ * Une photo de profil ou une bannière est enregistrée telle qu'elle se
+ * présentait au moment du choix : `/media/...` en local, adresse absolue du
+ * miroir en production. Rien ne garantit que l'environnement qui l'affiche soit
+ * celui qui l'a produite — un choix fait en local rendait un 404 en ligne, et
+ * l'image cassée du navigateur avec.
+ *
+ * On repart donc du chemin plutôt que de l'adresse : tout ce qui contient
+ * `/media/` est reconstruit sur le miroir d'aujourd'hui, quelle que soit l'hôte
+ * d'origine. Les adresses étrangères — une photo Google, par exemple — passent
+ * inchangées.
+ */
+export function resolveStoredMedia(src: string | null | undefined): string | null {
+  if (!src) return null;
+  const at = src.indexOf("/media/");
+  if (at < 0) return src;
+  // Une adresse absolue vers un autre hôte que le miroir courant est reprise par
+  // son chemin ; une adresse relative l'est aussi, par le même calcul.
+  return resolve(src.slice(at));
+}
+
+/**
  * Catalogue des médias officiels, produit par `npm run build:media`.
  *
  * Le manifeste est versionné alors que les fichiers eux-mêmes sont ignorés par

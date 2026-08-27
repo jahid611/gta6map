@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/ui/safe-image";
 import { NavPill } from "./NavPill";
 
 /**
@@ -110,8 +111,7 @@ function NavAccountLink({ inPill = false }: { inPill?: boolean }) {
     >
       <span className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-[image:var(--gradient-vi)] text-[11px] font-black text-white">
         {auth.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={auth.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+          <SafeImage src={auth.avatarUrl} className="h-full w-full object-cover" referrerPolicy="no-referrer" fallback={<>{initials}</>} />
         ) : (
           initials
         )}

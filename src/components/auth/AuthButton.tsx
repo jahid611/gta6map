@@ -8,6 +8,7 @@ import type { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/ui/safe-image";
 
 type AuthApi = ReturnType<typeof useAuth>;
 
@@ -64,8 +65,7 @@ export function AuthButton({ auth }: { auth: AuthApi }) {
       >
         <span className="grid h-7 w-7 place-items-center overflow-hidden rounded-full bg-[image:var(--gradient-vi)] text-[11px] font-black text-white">
           {auth.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={auth.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+            <SafeImage src={auth.avatarUrl} className="h-full w-full object-cover" referrerPolicy="no-referrer" fallback={<>{initials}</>} />
           ) : (
             initials
           )}

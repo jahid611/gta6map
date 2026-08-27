@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { canHover } from "@/lib/utils";
+import { SafeImage } from "@/components/ui/safe-image";
 
 interface LinkPreviewProps {
   href: string;
@@ -114,8 +115,8 @@ export function LinkPreview({ href, image, title, description, className, intern
               transformOrigin: pos.origin,
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="" className="h-36 w-full object-cover" />
+            { }
+            <SafeImage src={image} className="h-36 w-full object-cover" />
             <div className="p-3">
               <p className="truncate text-sm font-semibold text-foreground">{title}</p>
               {description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">{description}</p>}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/ui/safe-image";
 
 export interface MontageItem {
   id: string;
@@ -106,8 +107,7 @@ export function MediaMontage({ items, interval = 4500, className, fill = false }
                 className="h-full w-full object-cover"
               />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.src} alt={item.title} className="h-full w-full object-cover" loading={i === index ? "eager" : "lazy"} />
+              <SafeImage src={item.src} alt={item.title} className="h-full w-full object-cover" loading={i === index ? "eager" : "lazy"} />
             )}
           </div>
         ))}

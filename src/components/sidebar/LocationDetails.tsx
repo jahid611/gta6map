@@ -28,6 +28,7 @@ import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LinkPreview } from "@/components/ui/link-preview";
+import { SafeImage } from "@/components/ui/safe-image";
 import dynamic from "next/dynamic";
 
 // Chargée à la demande : le cadre Google Maps n'est monté que si l'utilisateur
@@ -128,8 +129,8 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
           onClick={() => setLightbox(0)}
           aria-label="Ouvrir en plein écran"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={hero.src} alt={hero.alt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+          { }
+          <SafeImage src={hero.src} alt={hero.alt} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/90 to-transparent" />
           <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-black/50 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
             <Maximize2 className="h-4 w-4" />
@@ -183,8 +184,8 @@ export function LocationDetails({ location, category, areaWiki: areaWikiProp = n
                 onClick={() => setLightbox(i + 1)}
                 aria-label={img.alt}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.src} alt={img.alt} className="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                { }
+                <SafeImage src={img.src} alt={img.alt} className="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
               </button>
             ))}
           </div>

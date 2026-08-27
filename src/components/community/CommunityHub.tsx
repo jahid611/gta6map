@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { Message, MessageAvatar, MessageContent, MessageFooter, MessageHeader } from "@/components/ui/message";
 import { Action } from "@/components/ui/actions";
 import { Emoji } from "@/components/ui/Emoji";
+import { SafeImage } from "@/components/ui/safe-image";
 import {
   POLL_DURATIONS,
   QUICK_EMOJIS,
@@ -68,8 +69,7 @@ function Avatar({ profile, size = 36, className }: { profile: ChatProfile | unde
       style={{ width: size, height: size }}
     >
       {profile?.avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" loading="lazy" />
+        <SafeImage src={profile.avatarUrl} className="h-full w-full object-cover" referrerPolicy="no-referrer" loading="lazy" fallback={<>{initials}</>} />
       ) : (
         initials
       )}
@@ -94,8 +94,7 @@ function ProfileHoverCard({ userId, profile }: { userId: string; profile: ChatPr
     <div className="rs-menu w-72 overflow-hidden rounded-2xl text-left">
       <div className="relative h-20">
         {(p?.bannerUrl ?? profile?.bannerUrl) ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={(p?.bannerUrl ?? profile?.bannerUrl) as string} alt="" className="h-full w-full object-cover" />
+          <SafeImage src={p?.bannerUrl ?? profile?.bannerUrl} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full bg-[image:var(--gradient-vi)]" />
         )}
@@ -219,8 +218,7 @@ function LocationCard({ location, categoryName, color }: { location: SlimLocatio
   return (
     <div className="mt-2 flex max-w-md overflow-hidden rounded-2xl border border-white/10 bg-black/30">
       {location.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={location.image} alt="" className="h-28 w-32 shrink-0 object-cover sm:w-40" loading="lazy" />
+        <SafeImage src={location.image} className="h-28 w-32 shrink-0 object-cover sm:w-40" loading="lazy" />
       ) : (
         <div className="h-28 w-32 shrink-0 bg-[image:var(--gradient-vi)] sm:w-40" />
       )}
@@ -862,8 +860,7 @@ export function CommunityHub({ bootstrap, initialShareSlug = null }: { bootstrap
               {mode === "location" && pickedLocation && (
                 <div className="flex items-center gap-3 border-b border-white/10 px-4 py-2 text-sm animate-fade-in">
                   {pickedLocation.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={pickedLocation.image} alt="" className="h-10 w-14 shrink-0 rounded-md object-cover" />
+                    <SafeImage src={pickedLocation.image} className="h-10 w-14 shrink-0 rounded-md object-cover" />
                   ) : (
                     <MapPin className="h-4 w-4 text-accent" />
                   )}

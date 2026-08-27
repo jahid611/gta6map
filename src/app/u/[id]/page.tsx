@@ -5,6 +5,7 @@ import { ArrowLeft, Trophy } from "@/components/ui/icons";
 import { getPublicProfile } from "@/lib/community/server";
 import { getCategories, getLocations } from "@/lib/data/locations";
 import { CATEGORY_GROUP_LABELS } from "@/lib/data/categories";
+import { SafeImage } from "@/components/ui/safe-image";
 import type { CategoryGroup } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -46,8 +47,7 @@ export default async function PublicProfilePage({ params }: PageProps<"/u/[id]">
       <section className="relative overflow-hidden rounded-3xl">
         <div className="relative h-52 sm:h-64">
           {profile.bannerUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.bannerUrl} alt="" className="h-full w-full object-cover object-[50%_30%]" />
+            <SafeImage src={profile.bannerUrl} className="h-full w-full object-cover object-[50%_30%]" />
           ) : (
             <div className="h-full w-full bg-[image:var(--gradient-vi)]" />
           )}
@@ -56,8 +56,12 @@ export default async function PublicProfilePage({ params }: PageProps<"/u/[id]">
         <div className="absolute inset-x-0 bottom-0 flex items-end gap-4 p-5 text-white">
           <span className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-[3px] border-white/90 bg-[image:var(--gradient-vi)] font-display text-2xl font-black shadow-[0_8px_30px_rgba(0,0,0,0.6)] sm:h-24 sm:w-24">
             {profile.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+              <SafeImage
+                src={profile.avatarUrl}
+                className="h-full w-full object-cover"
+                referrerPolicy="no-referrer"
+                fallback={<>{initials}</>}
+              />
             ) : (
               initials
             )}
