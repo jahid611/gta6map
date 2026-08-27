@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { resolveStoredMedia } from "@/lib/media-catalog";
+import { useNearViewport } from "@/hooks/useNearViewport";
 import { cn } from "@/lib/utils";
 
 interface SafeImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> {
@@ -25,9 +26,13 @@ interface SafeImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>,
  * `key` sur l'adresse : sans lui, changer de photo après un échec garderait
  * l'état « cassée » et masquerait une image pourtant valable.
  */
-export function SafeImage({ src, fallback, className, alt = "", ...props }: SafeImageProps) {
+export function SafeImage({ src, fallback, className, alt = "", loading, ...props }: SafeImageProps) {
   const resolved = resolveStoredMedia(src);
   const [failed, setFailed] = useState(false);
+  // Une image demandée en `lazy` est réclamée dès qu'elle approche, sans
+  // attendre qu'elle entre dans le champ : le navigateur reprend alors le
+  // chargement qu'il avait différé, et elle est déjà là quand on y arrive.
+  const { ref, near } = useNearViewport<HTMLImageElement>();
 
   if (!resolved || failed) {
     return <>{fallback ?? <span aria-hidden className={cn("block bg-[image:var(--gradient-vi)]", className)} />}</>;
@@ -37,9 +42,11 @@ export function SafeImage({ src, fallback, className, alt = "", ...props }: Safe
     // eslint-disable-next-line @next/next/no-img-element
     <img
       key={resolved}
+      ref={ref}
       src={resolved}
       alt={alt}
       className={className}
+      loading={loading === "lazy" && near ? "eager" : loading}
       onError={() => setFailed(true)}
       {...props}
     />

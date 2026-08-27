@@ -5,6 +5,7 @@ import Image from "next/image";
 import { type MediaEntry } from "@/lib/media-catalog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, X } from "@/components/ui/icons";
+import { useNearViewport } from "@/hooks/useNearViewport";
 
 /**
  * Grille de médias, chargement paresseux et visionneuse.
@@ -63,9 +64,13 @@ export function MediaGrid({ entries }: { entries: MediaEntry[] }) {
 
 function MediaTile({ entry, onOpen }: { entry: MediaEntry; onOpen: () => void }) {
   const [loaded, setLoaded] = useState(false);
+  // La vignette est réclamée bien avant d'entrer dans le champ, pour être déjà
+  // là quand on arrive dessus (cf. `useNearViewport`).
+  const { ref, near } = useNearViewport<HTMLButtonElement>();
 
   return (
     <button
+      ref={ref}
       onClick={onOpen}
       className="group relative block aspect-video w-full overflow-hidden rounded-xl border border-border bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       aria-label={`Agrandir : ${entry.title}`}
@@ -108,7 +113,13 @@ function MediaTile({ entry, onOpen }: { entry: MediaEntry; onOpen: () => void })
           // faisait attendre la grille plusieurs secondes.
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 320px"
           quality={75}
-          loading="lazy"
+          // `lazy` → `eager` dès que la vignette approche : le navigateur
+          // reprend alors le chargement qu'il avait différé. On garde donc le
+          // bénéfice du paresseux — rien n'est demandé pour une vignette qu'on
+          // n'atteindra jamais — mais c'est nous qui fixons la distance, et non
+          // l'heuristique du navigateur, parfois si courte que la vignette se
+          // peint sous les yeux du visiteur.
+          loading={near ? "eager" : "lazy"}
           onLoad={() => setLoaded(true)}
           onError={() => setLoaded(true)}
           className="object-cover transition-transform duration-500 group-hover:scale-105"

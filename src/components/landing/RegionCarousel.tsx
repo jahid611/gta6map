@@ -39,6 +39,10 @@ export function RegionCarousel({ regions }: { regions: LandingRegion[] }) {
 
   if (!count) return null;
   const region = regions[index];
+  // Régions voisines, chargées à l'avance : l'avance automatique mène à la
+  // suivante et une flèche ramène à la précédente. Sans cela, chaque changement
+  // ouvrait une requête et l'on voyait le visuel se peindre.
+  const neighbours = count > 1 ? [(index + 1) % count, (index - 1 + count) % count] : [];
 
   return (
     <section id="regions" className="relative scroll-mt-20 py-20 sm:py-24">
@@ -95,6 +99,32 @@ export function RegionCarousel({ regions }: { regions: LandingRegion[] }) {
             ) : (
               <span aria-hidden className="absolute inset-0 bg-[image:var(--gradient-vi)] opacity-20" />
             )}
+
+            {/* Préchargement des voisines. `invisible` et non `hidden` : un
+                élément retiré de la mise en page ne charge pas son image, alors
+                qu'un élément simplement invisible la demande bel et bien. Mêmes
+                `sizes` et même qualité, sans quoi le navigateur mettrait en
+                cache une autre variante que celle réclamée à l'affichage. */}
+            <div aria-hidden className="pointer-events-none invisible absolute inset-0">
+              {neighbours.map((i) =>
+                regions[i].image ? (
+                  <Image
+                    key={regions[i].image}
+                    src={regions[i].image}
+                    alt=""
+                    fill
+                    loading="eager"
+                    // Priorité basse : ces deux-là ne servent qu'au coup
+                    // d'après, et ne doivent pas disputer la bande passante au
+                    // visuel affiché.
+                    fetchPriority="low"
+                    quality={92}
+                    sizes="(max-width: 768px) 100vw, 900px"
+                    className="object-cover object-center"
+                  />
+                ) : null,
+              )}
+            </div>
             {/* Voile bas : sur téléphone le panneau chevauche le visuel par le
                 haut, et le texte passerait sinon sur une zone claire. */}
             <span

@@ -33,6 +33,16 @@ const DROP = 0.56;
 const SMALL_DROP = 0.1;
 
 /**
+ * Nombre de cartes chargées de part et d'autre de la carte active.
+ *
+ * La bande défile horizontalement : ses cartes hors champ le sont
+ * latéralement, là où le chargement paresseux du navigateur ne prend aucune
+ * avance. On charge donc soi-même de quoi couvrir plusieurs crans dans les deux
+ * sens, ce qui suffit à ne jamais voir une carte se peindre.
+ */
+const STRIP_WINDOW = 8;
+
+/**
  * Carrousel d'ouverture de la galerie, d'après `crafterui/hero-carousel`
  * (21st.dev) :
  *
@@ -91,6 +101,11 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
 
   if (!count) return null;
   const active = entries[index];
+  // Les deux plans voisins, chargés à l'avance dans le format exact de la scène
+  // — le suivant parce que l'avance automatique y mène, le précédent parce
+  // qu'une flèche y ramène. Sans cela, chaque changement rouvrait une requête
+  // pleine largeur et l'on voyait la scène se peindre.
+  const neighbours = count > 1 ? [(index + 1) % count, (index - 1 + count) % count] : [];
 
   return (
     <section
@@ -144,6 +159,29 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
           sizes="100vw"
           className="object-cover object-center animate-fade-in"
         />
+
+        {/* Préchargement des voisins. `invisible` et non `hidden` : un élément
+            retiré de la mise en page ne charge pas son image, alors qu'un
+            élément simplement invisible la demande bel et bien. Mêmes `sizes`
+            et même qualité que la scène, sans quoi le navigateur mettrait en
+            cache une autre variante que celle réclamée à l'affichage. */}
+        <div aria-hidden className="pointer-events-none invisible absolute inset-0">
+          {neighbours.map((i) => (
+            <Image
+              key={entries[i].src}
+              src={entries[i].poster ?? entries[i].src}
+              alt=""
+              fill
+              loading="eager"
+              // Priorité basse : ces deux-là ne servent qu'au coup d'après, et
+              // ne doivent pas disputer la bande passante à la scène visible.
+              fetchPriority="low"
+              quality={100}
+              sizes="100vw"
+              className="object-cover"
+            />
+          ))}
+        </div>
 
         {/* Titre, calé juste au-dessus de la bande. L'ombre portée est sur le
             texte, pas sur l'image : elle le rend lisible sur un ciel clair sans
@@ -227,6 +265,7 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
                     fill
                     quality={focused ? 95 : 72}
                     sizes="(max-width: 640px) 45vw, 320px"
+                    loading={Math.abs(i - index) <= STRIP_WINDOW ? "eager" : "lazy"}
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </button>
