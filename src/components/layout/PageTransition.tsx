@@ -59,11 +59,21 @@ export function PageTransition() {
       <div className="absolute inset-0 bg-background/55" style={{ animation: `vi-flyby-veil ${DURATION}ms ease-in-out both` }} />
 
       <div className="absolute inset-0 flex items-center" style={{ animation: `vi-flyby ${DURATION}ms cubic-bezier(0.4, 0, 0.6, 1) both` }}>
-        {/* Silhouette dessinée plutôt qu'une image : un avion doit être détouré
-            pour traverser un décor, et aucune de nos captures ne l'est. */}
-        <svg viewBox="0 0 64 64" className="h-16 w-16 shrink-0 text-foreground drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)] sm:h-24 sm:w-24" fill="currentColor">
-          <path d="M62 30.5c0-1.4-1-2.6-2.4-2.9l-15.4-3.1-9.8-16.8A2 2 0 0 0 32.7 6h-3.4a2 2 0 0 0-1.9 2.6l4.4 15.1-11.6-2.3-3.6-5.6a2 2 0 0 0-1.7-.9H12a2 2 0 0 0-1.9 2.5l2.4 8.9-2.4 8.9A2 2 0 0 0 12 47.7h2.9a2 2 0 0 0 1.7-.9l3.6-5.6 11.6-2.3-4.4 15.1a2 2 0 0 0 1.9 2.6h3.4a2 2 0 0 0 1.7-1l9.8-16.8 15.4-3.1c1.4-.3 2.4-1.5 2.4-2.9Z" />
-        </svg>
+        {/* Vrai rendu 3D et non un pictogramme : c'est ce que montre la démo de
+            l'original, qui ne livre pourtant aucune image avec son composant.
+            Celui-ci vient du jeu Fluent Emoji de Microsoft (licence MIT), le
+            seul rendu d'avion détouré que nous ayons le droit d'héberger — un
+            avion doit être découpé sur fond transparent pour traverser un décor,
+            et aucune de nos captures ne l'est.
+
+            Pivoté : le rendu pointe en diagonale vers le haut, il faut le
+            redresser pour qu'il vole à l'horizontale. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/brand/airplane-3d.png"
+          alt=""
+          className="h-28 w-28 shrink-0 rotate-[38deg] drop-shadow-[0_12px_32px_rgba(0,0,0,0.55)] sm:h-44 sm:w-44"
+        />
       </div>
     </div>
   );
