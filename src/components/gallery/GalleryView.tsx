@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MEDIA_FILTERS, countByFilter, type MediaEntry } from "@/lib/media-catalog";
 import { MediaCarousel } from "@/components/gallery/MediaCarousel";
 import { MediaGrid } from "@/components/gallery/MediaGrid";
+import { MediaLightbox } from "@/components/gallery/MediaLightbox";
 import { Select } from "@/components/ui/select";
 
 /** Nombre de plans retenus pour la bande. Au-delà, elle défile. */
@@ -30,6 +31,29 @@ export function GalleryView({ entries }: { entries: MediaEntry[] }) {
   // donc écarté — choisir « Vidéos » et voir autre chose serait un mensonge.
   const featured = useMemo(() => shown.slice(0, FEATURED), [shown]);
 
+  // La visionneuse est ici, et non dans la grille : le carrousel l'ouvre aussi,
+  // et deux exemplaires sur la même page se disputeraient les raccourcis
+  // clavier, tous deux les ayant posés sur `window`. On mémorise un RANG dans
+  // la sélection courante, pour pouvoir passer au média suivant sans repasser
+  // par la grille.
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  // La sélection a changé sous nos pieds : le rang retenu ne désigne plus le
+  // même média. Ajustement en phase de rendu, un effet laisserait paraître le
+  // mauvais média le temps d'une image.
+  const [seen, setSeen] = useState(shown);
+  if (seen !== shown) {
+    setSeen(shown);
+    setOpenIndex(null);
+  }
+
+  // Une vidéo ouverte en grand ne doit pas coexister avec les vignettes qui
+  // décodent en arrière-plan : on les met toutes en pause à l'ouverture.
+  useEffect(() => {
+    if (openIndex === null) return;
+    document.querySelectorAll<HTMLVideoElement>("video[data-gallery-video]").forEach((v) => v.pause());
+  }, [openIndex]);
+
   return (
     <>
       {/* Le carrousel est hors de la colonne : il occupe toute la largeur de la
@@ -52,12 +76,24 @@ export function GalleryView({ entries }: { entries: MediaEntry[] }) {
               }))}
             />
           }
+          // La bande n'est qu'un début de la sélection : on retrouve le rang
+          // du plan dans la liste complète, celle que parcourt la visionneuse.
+          onExpand={(entry) => setOpenIndex(shown.indexOf(entry))}
         />
       </div>
 
       <section className="mx-auto max-w-6xl px-5 pb-14 pt-12">
-        <MediaGrid entries={shown} />
+        <MediaGrid entries={shown} onOpen={setOpenIndex} />
       </section>
+
+      {openIndex !== null && shown[openIndex] && (
+        <MediaLightbox
+          entries={shown}
+          index={openIndex}
+          onIndex={setOpenIndex}
+          onClose={() => setOpenIndex(null)}
+        />
+      )}
     </>
   );
 }

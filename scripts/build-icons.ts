@@ -75,6 +75,7 @@ const ICONS: Readonly<Record<string, string>> = {
   Link2: "link",
   LocateFixed: "location-crosshairs",
   Maximize2: "expand",
+  Download: "download",
   Ruler: "ruler-combined",
 
   // Catégories de la carte (champ `icon` des catégories)

@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
-import type { MediaEntry } from "@/lib/media-catalog";
+import { ChevronLeft, ChevronRight, Download, Maximize2 } from "@/components/ui/icons";
+import { mediaDownloadHref, type MediaEntry } from "@/lib/media-catalog";
 import { cn } from "@/lib/utils";
 
 /** Cadence de l'avance automatique, en millisecondes. */
@@ -62,7 +62,16 @@ const STRIP_WINDOW = 8;
  * `framer-motion` est écarté comme partout ici : le glissement des cartes et la
  * montée du titre sont des transitions CSS.
  */
-export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; action?: React.ReactNode }) {
+export function MediaCarousel({
+  entries,
+  action,
+  onExpand,
+}: {
+  entries: MediaEntry[];
+  action?: React.ReactNode;
+  /** Ouvre le plan courant en grand. */
+  onExpand?: (entry: MediaEntry) => void;
+}) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const wheelAt = useRef(0);
@@ -105,6 +114,7 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
 
   if (!count) return null;
   const active = entries[index];
+  const download = mediaDownloadHref(active.src);
   // Les deux plans voisins, chargés à l'avance dans le format exact de la scène
   // — le suivant parce que l'avance automatique y mène, le précédent parce
   // qu'une flèche y ramène. Sans cela, chaque changement rouvrait une requête
@@ -229,9 +239,34 @@ export function MediaCarousel({ entries, action }: { entries: MediaEntry[]; acti
                 </h2>
               </span>
             </div>
-            <span className="vi-num ml-auto shrink-0 text-xs text-white/70">
-              {index + 1} / {count}
-            </span>
+            {/* Les deux actions sur le plan courant, au bout de la ligne de
+                titre : elles portent sur CE plan, elles se tiennent donc près
+                de ce qui le nomme, et non dans la barre du haut, qui gouverne
+                le carrousel entier. La bande occupant la moitié basse, c'est
+                le dernier endroit de la scène qui reste à l'image. */}
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              <span className="vi-num mr-1 text-xs text-white/70">
+                {index + 1} / {count}
+              </span>
+              <button
+                type="button"
+                onClick={() => onExpand?.(active)}
+                aria-label={`Agrandir : ${active.title}`}
+                className="rs-pill grid h-9 w-9 place-items-center cursor-pointer"
+              >
+                <Maximize2 className="h-3.5 w-3.5" />
+              </button>
+              {download && (
+                <a
+                  href={download}
+                  download
+                  aria-label={`Télécharger : ${active.title}`}
+                  className="rs-pill grid h-9 w-9 place-items-center cursor-pointer"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>

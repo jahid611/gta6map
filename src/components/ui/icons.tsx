@@ -130,5 +130,6 @@ export const Database = makeIcon("Database");
 export const Link2 = makeIcon("Link2");
 export const LocateFixed = makeIcon("LocateFixed");
 export const Maximize2 = makeIcon("Maximize2");
+export const Download = makeIcon("Download");
 export const Mountain = makeIcon("Mountain");
 export const Ruler = makeIcon("Ruler");

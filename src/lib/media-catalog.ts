@@ -70,6 +70,22 @@ export function resolveStoredMedia(src: string | null | undefined): string | nul
 }
 
 /**
+ * Adresse de téléchargement d'un média du catalogue, ou `null` s'il n'en fait
+ * pas partie.
+ *
+ * On passe par `/api/download` plutôt que par un `<a download>` direct : le
+ * navigateur ignore cet attribut sur un lien vers un autre domaine, et les
+ * médias sont servis depuis un miroir. Seul le CHEMIN est transmis — la route
+ * reconstruit l'hôte, pour ne pas devenir un relais vers n'importe où.
+ */
+export function mediaDownloadHref(src: string | null | undefined): string | null {
+  if (!src) return null;
+  const at = src.indexOf("/media/");
+  if (at < 0) return null;
+  return `/api/download?path=${encodeURIComponent(src.slice(at + "/media/".length))}`;
+}
+
+/**
  * Catalogue des médias officiels, produit par `npm run build:media`.
  *
  * Le manifeste est versionné alors que les fichiers eux-mêmes sont ignorés par
