@@ -242,6 +242,19 @@ button:disabled {
    lisait la carte au travers du texte. Les aretes internes suffisent a donner
    la matiere, et elles, elles marchent partout. */
 
+/* Entree des icones du rail lateral, en cascade : elles glissent depuis la
+   gauche au lieu de surgir toutes au meme instant (cf. `AppShell`). */
+@keyframes vi-rail-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 /* TRANSITION DE PAGE — l'avion traverse, le decor s'ouvre et se referme.
    La traversee part hors champ a gauche et sort hors champ a droite ; la legere
    remontee evite un deplacement strictement horizontal, qui se lit comme un

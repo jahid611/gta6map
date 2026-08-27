@@ -29,7 +29,7 @@ import { MediaLibrary } from "@/components/media/MediaLibrary";
 import { ProgressOverview } from "@/components/progress/ProgressOverview";
 import { Header } from "./Header";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface AppShellProps {
@@ -68,6 +68,7 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
   const sidebarOpen = useUIStore((s) => s.sidebarOpen);
   const activePanel = useUIStore((s) => s.activePanel);
   const setActivePanel = useUIStore((s) => s.setActivePanel);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const setSidebarOpen = useUIStore((s) => s.setSidebarOpen);
   const flyTo = useMapStore((s) => s.flyTo);
 
@@ -201,9 +202,46 @@ export function AppShell({ locations, categories, sections, areas, initialSlug =
         <Header locations={locations} categoriesBySlug={categoriesBySlug} global={global} auth={auth} />
 
         <div className="relative flex min-h-0 flex-1">
-          {isDesktop && sidebarOpen && (
-            <aside className="relative z-10 flex w-[340px] shrink-0 flex-col border-r border-border bg-surface" aria-label="Panneau latéral">
-              {sidebarPanel}
+          {isDesktop && (
+            /* Un seul panneau dont la largeur bascule, plutot qu'un panneau qui
+               disparait : c'est ce qui permet d'animer le passage, et le rail
+               garde les trois sections a portee de clic une fois replie.
+               D'apres `andrewlu0/sidebar` (21st.dev), dont le principe est ce
+               rail etroit qui s'ouvre en panneau. */
+            <aside
+              className="relative z-10 flex shrink-0 flex-col overflow-hidden border-r border-border bg-surface transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+              style={{ width: sidebarOpen ? 340 : 56 }}
+              aria-label="Panneau latéral"
+            >
+              {sidebarOpen ? (
+                sidebarPanel
+              ) : (
+                <div className="flex flex-col items-center gap-1 py-3">
+                  {PANEL_TABS.map(({ id, label, icon: Icon }, i) => (
+                    <Tooltip key={id}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            setActivePanel(id);
+                            toggleSidebar();
+                          }}
+                          aria-label={label}
+                          className={cn(
+                            "grid h-10 w-10 shrink-0 place-items-center rounded-xl transition-colors cursor-pointer hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-2",
+                            activePanel === id ? "text-accent-2" : "text-muted",
+                          )}
+                          /* Entree en cascade, comme les libelles de l'original :
+                             les icones ne surgissent pas toutes au meme instant. */
+                          style={{ animation: `vi-rail-in 260ms ease-out ${i * 45}ms both` }}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">{label}</TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              )}
             </aside>
           )}
 
