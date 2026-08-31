@@ -21,6 +21,8 @@ interface Props {
   summary: string;
   /** Illustration décorative quand le lieu n'a aucune image propre. */
   fallbackHero: string | null;
+  /** Quartier du mode piéton où ce lieu se visite à pied, s'il y en a un. */
+  streetZone: string | null;
 }
 
 /**
@@ -30,7 +32,15 @@ interface Props {
  * porte le rendu statique, le JSON-LD et les métadonnées indexables. Seul ce
  * qui réclame de l'interaction bascule côté client.
  */
-export function LocationPageBody({ location, category, images, nearby, summary, fallbackHero }: Props) {
+export function LocationPageBody({
+  location,
+  category,
+  images,
+  nearby,
+  summary,
+  fallbackHero,
+  streetZone,
+}: Props) {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -140,6 +150,15 @@ export function LocationPageBody({ location, category, images, nearby, summary, 
             <MapPin className="h-4 w-4" />
             Ouvrir sur la carte
           </Link>
+          {streetZone && (
+            <Link
+              href={`/street?zone=${streetZone}&l=${location.slug}`}
+              className="rs-pill inline-flex items-center gap-2 px-4 py-2.5 text-sm"
+            >
+              <Compass className="h-4 w-4 text-accent-2" />
+              Marcher ici
+            </Link>
+          )}
           <button onClick={copyCoords} className="rs-pill inline-flex items-center gap-2 px-4 py-2.5 text-sm">
             {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copié" : "Coordonnées"}

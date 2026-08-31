@@ -40,6 +40,12 @@ export function LandingNav() {
 
         <nav className="flex items-center gap-2">
           <Link
+            href="/street"
+            className="hidden min-h-11 items-center px-3 text-sm font-medium text-muted transition-colors hover:text-foreground sm:flex"
+          >
+            Mode piéton
+          </Link>
+          <Link
             href="/galerie"
             className="hidden min-h-11 items-center px-3 text-sm font-medium text-muted transition-colors hover:text-foreground sm:flex"
           >

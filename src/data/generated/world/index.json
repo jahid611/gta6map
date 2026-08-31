@@ -1,0 +1,14 @@
+[
+  {
+    "id": "vice-beach",
+    "name": "Vice Beach",
+    "buildings": 2386,
+    "spots": 182
+  },
+  {
+    "id": "vice-city-downtown",
+    "name": "Downtown, Vice City",
+    "buildings": 1181,
+    "spots": 117
+  }
+]

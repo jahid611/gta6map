@@ -9,6 +9,7 @@ import { frameUrl, photoUrl, wikiImageUrl } from "@/lib/media";
 import { MEDIA_CATALOG } from "@/lib/media-catalog";
 import { SITE_NAME, SITE_URL } from "@/app/layout";
 import { LocationPageBody, type PageImage } from "./LocationPageBody";
+import { findStreetZone } from "@/lib/data/street";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -151,6 +152,7 @@ export default async function LocationPage({ params }: PageProps<"/location/[slu
             nearby={nearby}
             summary={summary}
             fallbackHero={fallbackHero}
+            streetZone={findStreetZone(location.slug)}
           />
         </main>
         <LandingFooter />

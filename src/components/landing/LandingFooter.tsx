@@ -21,6 +21,9 @@ export function LandingFooter() {
             <Link href="/map" className="px-3 py-2.5 hover:text-foreground">
               La carte
             </Link>
+            <Link href="/street" className="px-3 py-2.5 hover:text-foreground">
+              Mode piéton
+            </Link>
             <Link href="/galerie" className="px-3 py-2.5 hover:text-foreground">
               Galerie
             </Link>
